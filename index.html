@@ -6,6 +6,7 @@
 <title>セルフケアチェックイン</title>
 
 <style>
+
 body{
 font-family:sans-serif;
 background:#f0f0f0;
@@ -31,7 +32,7 @@ margin-top:20px;
 .score-buttons{
 display:grid;
 grid-template-columns:repeat(9,1fr);
-gap:5px;
+gap:6px;
 margin-top:8px;
 }
 
@@ -40,6 +41,7 @@ padding:10px;
 border:none;
 background:#e0e0e0;
 border-radius:5px;
+cursor:pointer;
 }
 
 .score-buttons button.active{
@@ -51,6 +53,8 @@ textarea{
 width:100%;
 padding:8px;
 margin-top:8px;
+border-radius:5px;
+border:1px solid #ccc;
 }
 
 .submit{
@@ -62,7 +66,9 @@ color:white;
 border:none;
 border-radius:6px;
 font-size:16px;
+cursor:pointer;
 }
+
 </style>
 
 </head>
@@ -74,68 +80,22 @@ font-size:16px;
 <h1>セルフケアチェックイン</h1>
 
 <div class="section">
-体調
+<p>体調</p>
 <div class="score-buttons" id="condition"></div>
 </div>
 
 <div class="section">
-活力
+<p>活力</p>
 <div class="score-buttons" id="energy"></div>
 </div>
 
 <div class="section">
-メンタル
+<p>メンタル</p>
 <div class="score-buttons" id="mental"></div>
 </div>
 
 <div class="section">
-<div class="section">
-
-<p>Goodサイン</p>
-<label><input type="checkbox"> よく眠れた</label><br>
-<label><input type="checkbox"> 食欲がある</label><br>
-<label><input type="checkbox"> 体が軽い</label><br>
-
-</div>
-
-<div class="section">
-
-<p>注意サイン</p>
-<label><input type="checkbox"> 眠気</label><br>
-<label><input type="checkbox"> 食欲がない</label><br>
-<label><input type="checkbox"> 頭痛</label><br>
-
-</div>
-
-<div class="section">
-<p>天気</p>
-<select>
-<option>晴れ</option>
-<option>曇り</option>
-<option>雨</option>
-<option>雪</option>
-</select>
-</div>
-
-<div class="section">
-<p>朝食</p>
-<select>
-<option>食べた</option>
-<option>少し食べた</option>
-<option>食べていない</option>
-</select>
-</div>
-
-<div class="section">
-<p>通所状況</p>
-<select>
-<option>通所</option>
-<option>在宅</option>
-<option>欠席</option>
-</select>
-</div>
-
-コメント
+<p>コメント</p>
 <textarea rows="4"></textarea>
 </div>
 
@@ -144,6 +104,35 @@ font-size:16px;
 </div>
 
 <script>
+
+function createScoreButtons(id){
+
+const container = document.getElementById(id)
+
+for(let i=1;i<=9;i++){
+
+const btn = document.createElement("button")
+btn.textContent = i
+
+btn.onclick = function(){
+
+container.querySelectorAll("button").forEach(b=>{
+b.classList.remove("active")
+})
+
+btn.classList.add("active")
+
+}
+
+container.appendChild(btn)
+
+}
+
+}
+
+createScoreButtons("condition")
+createScoreButtons("energy")
+createScoreButtons("mental")
 
 function sendData(){
 
@@ -173,8 +162,6 @@ addField("comment",comment)
 document.body.appendChild(form)
 
 form.submit()
-
-alert("送信しました")
 
 }
 

@@ -109,6 +109,36 @@ alert("保存しました")
 
 }
 
+window.onload=function(){
+
+const savedZip=localStorage.getItem("zipcode")
+const savedGood=localStorage.getItem("goodSigns")
+const savedBad=localStorage.getItem("badSigns")
+
+if(savedZip){
+
+document.getElementById("zipcode").value=savedZip
+
+}
+
+if(savedGood){
+
+goodSigns=JSON.parse(savedGood)
+
+renderGood()
+
+}
+
+if(savedBad){
+
+badSigns=JSON.parse(savedBad)
+
+renderBad()
+
+}
+
+}
+
 </script>
 
 </body>

@@ -135,6 +135,72 @@ color:#333;
 
 <script>
 
+function loadGoodSigns(){
+
+const savedGood = localStorage.getItem("goodSigns")
+
+if(!savedGood) return
+
+const goodSigns = JSON.parse(savedGood)
+
+const container = document.getElementById("goodList")
+
+container.innerHTML=""
+
+goodSigns.forEach(sign=>{
+
+const label = document.createElement("label")
+
+const checkbox = document.createElement("input")
+
+checkbox.type="checkbox"
+checkbox.name="good"
+checkbox.value=sign
+
+label.appendChild(checkbox)
+label.append(" "+sign)
+
+container.appendChild(label)
+
+container.appendChild(document.createElement("br"))
+
+})
+
+}
+
+function loadBadSigns(){
+
+const savedBad = localStorage.getItem("badSigns")
+
+if(!savedBad) return
+
+const badSigns = JSON.parse(savedBad)
+
+const container = document.getElementById("badList")
+
+container.innerHTML=""
+
+badSigns.forEach(sign=>{
+
+const label = document.createElement("label")
+
+const checkbox = document.createElement("input")
+
+checkbox.type="checkbox"
+checkbox.name="bad"
+checkbox.value=sign
+
+label.appendChild(checkbox)
+label.append(" "+sign)
+
+container.appendChild(label)
+
+container.appendChild(document.createElement("br"))
+
+})
+
+}
+
 function createButtons(id){
 
 const container=document.getElementById(id)
@@ -261,6 +327,13 @@ document.body.appendChild(form)
 form.submit()
 
 alert("送信しました")
+
+}
+
+window.onload = function(){
+
+loadGoodSigns()
+loadBadSigns()
 
 }
 

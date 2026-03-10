@@ -6,7 +6,6 @@
 <title>セルフケアチェックイン</title>
 
 <style>
-
 body{
 font-family:sans-serif;
 background:#f0f0f0;
@@ -32,7 +31,7 @@ margin-top:20px;
 .score-buttons{
 display:grid;
 grid-template-columns:repeat(9,1fr);
-gap:6px;
+gap:5px;
 margin-top:8px;
 }
 
@@ -41,7 +40,6 @@ padding:10px;
 border:none;
 background:#e0e0e0;
 border-radius:5px;
-cursor:pointer;
 }
 
 .score-buttons button.active{
@@ -53,8 +51,6 @@ textarea{
 width:100%;
 padding:8px;
 margin-top:8px;
-border-radius:5px;
-border:1px solid #ccc;
 }
 
 .submit{
@@ -66,9 +62,7 @@ color:white;
 border:none;
 border-radius:6px;
 font-size:16px;
-cursor:pointer;
 }
-
 </style>
 
 </head>
@@ -80,22 +74,68 @@ cursor:pointer;
 <h1>セルフケアチェックイン</h1>
 
 <div class="section">
-<p>体調</p>
+体調
 <div class="score-buttons" id="condition"></div>
 </div>
 
 <div class="section">
-<p>活力</p>
+活力
 <div class="score-buttons" id="energy"></div>
 </div>
 
 <div class="section">
-<p>メンタル</p>
+メンタル
 <div class="score-buttons" id="mental"></div>
 </div>
 
 <div class="section">
-<p>コメント</p>
+<div class="section">
+
+<p>Goodサイン</p>
+<label><input type="checkbox" class="good" value="よく眠れた"> よく眠れた</label>
+<label><input type="checkbox" class="good" value="食欲がある"> 食欲がある</label>
+<label><input type="checkbox" class="good" value="体が軽い"> 体が軽い</label>
+
+</div>
+
+<div class="section">
+
+<p>注意サイン</p>
+<label><input type="checkbox" class="warning" value="眠気"> 眠気</label>
+<label><input type="checkbox" class="warning" value="食欲がない"> 食欲がない</label>
+<label><input type="checkbox" class="warning" value="頭痛"> 頭痛</label>
+
+</div>
+
+<div class="section">
+<p>天気</p>
+<select id="weather">
+<option>晴れ</option>
+<option>曇り</option>
+<option>雨</option>
+<option>雪</option>
+</select>
+</div>
+
+<div class="section">
+<p>朝食</p>
+<select id="breakfast">
+<option>食べた</option>
+<option>少し食べた</option>
+<option>食べていない</option>
+</select>
+</div>
+
+<div class="section">
+<p>通所状況</p>
+<select id="attendance">
+<option>通所</option>
+<option>在宅</option>
+<option>欠席</option>
+</select>
+</div>
+
+コメント
 <textarea rows="4"></textarea>
 </div>
 
@@ -105,16 +145,17 @@ cursor:pointer;
 
 <script>
 
+// スコアボタン生成
 function createScoreButtons(id){
 
 const container = document.getElementById(id)
 
 for(let i=1;i<=9;i++){
 
-const btn = document.createElement("button")
-btn.textContent = i
+const btn=document.createElement("button")
+btn.textContent=i
 
-btn.onclick = function(){
+btn.onclick=function(){
 
 container.querySelectorAll("button").forEach(b=>{
 b.classList.remove("active")
@@ -141,13 +182,29 @@ const energy = document.querySelector("#energy .active")?.textContent
 const mental = document.querySelector("#mental .active")?.textContent
 const comment = document.querySelector("textarea").value
 
+// Goodサイン
+const good = Array.from(document.querySelectorAll(".good:checked")).map(e=>e.value).join(",")
+
+// 注意サイン
+const warning = Array.from(document.querySelectorAll(".warning:checked")).map(e=>e.value).join(",")
+
+// 天気
+const weather = document.querySelector("#weather").value
+
+// 朝食
+const breakfast = document.querySelector("#breakfast").value
+
+// 通所
+const attendance = document.querySelector("#attendance").value
+
+
 const form = document.createElement("form")
 
-form.action = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
-form.method = "POST"
+form.action="https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
+form.method="POST"
 
 function addField(name,value){
-const input = document.createElement("input")
+const input=document.createElement("input")
 input.type="hidden"
 input.name=name
 input.value=value
@@ -157,11 +214,18 @@ form.appendChild(input)
 addField("condition",condition)
 addField("energy",energy)
 addField("mental",mental)
+addField("good",good)
+addField("warning",warning)
+addField("weather",weather)
+addField("breakfast",breakfast)
+addField("attendance",attendance)
 addField("comment",comment)
 
 document.body.appendChild(form)
 
 form.submit()
+
+alert("送信しました")
 
 }
 

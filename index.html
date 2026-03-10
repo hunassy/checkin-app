@@ -27,7 +27,7 @@ margin-top:20px;
 .score-buttons{
 display:grid;
 grid-template-columns:repeat(9,1fr);
-gap:6px;
+gap:5px;
 margin-top:8px;
 }
 
@@ -35,7 +35,7 @@ margin-top:8px;
 padding:10px;
 border:none;
 background:#e0e0e0;
-border-radius:6px;
+border-radius:5px;
 cursor:pointer;
 }
 
@@ -48,25 +48,6 @@ textarea{
 width:100%;
 padding:8px;
 margin-top:8px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-input{
-padding:6px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-button{
-cursor:pointer;
-}
-
-.weather{
-margin-top:10px;
-background:#f5f5f5;
-padding:10px;
-border-radius:6px;
 }
 
 .submit{
@@ -78,7 +59,15 @@ color:white;
 border:none;
 border-radius:6px;
 font-size:16px;
+cursor:pointer;
 }
+
+.weather{
+margin-top:10px;
+font-size:14px;
+color:#333;
+}
+
 </style>
 </head>
 
@@ -104,11 +93,17 @@ font-size:16px;
 </div>
 
 <div class="section">
-<p>住んでいる市町村</p>
-<input id="city" placeholder="例 Tokyo">
+
+<p>郵便番号で天気取得</p>
+
+<input id="zipcode" placeholder="例 1600022">
+
 <button onclick="getWeather()">天気取得</button>
 
-<div id="weatherResult">天気未取得</div>
+<div class="weather" id="weatherResult">
+天気未取得
+</div>
+
 </div>
 
 <div class="section">
@@ -121,8 +116,11 @@ font-size:16px;
 </div>
 
 <div class="section">
-コメント
+
+<p>コメント</p>
+
 <textarea id="comment"></textarea>
+
 </div>
 
 <button class="submit" onclick="sendData()">送信</button>
@@ -133,11 +131,11 @@ font-size:16px;
 
 function createButtons(id){
 
-const container = document.getElementById(id)
+const container=document.getElementById(id)
 
 for(let i=1;i<=9;i++){
 
-const btn = document.createElement("button")
+const btn=document.createElement("button")
 
 btn.textContent=i
 
@@ -160,13 +158,38 @@ createButtons("energy")
 createButtons("mental")
 
 
+
 async function getWeather(){
 
-const city=document.getElementById("city").value
+const zipcode=document.getElementById("zipcode").value
 
-const apiKey="deddd1941a75455fe3e9c7​​206db41b10"
+if(!zipcode){
 
-const url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`
+alert("郵便番号を入力してください")
+
+return
+
+}
+
+try{
+
+const zipRes=await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`)
+
+const zipData=await zipRes.json()
+
+if(!zipData.results){
+
+alert("郵便番号が見つかりません")
+
+return
+
+}
+
+const city=zipData.results[0].address2
+
+const apiKey="deddd1941a75455fe3e9c7206db41b10"
+
+const url=`https://api.openweathermap.org/data/2.5/weather?q=${city},JP&appid=${apiKey}&units=metric&lang=ja`
 
 const res=await fetch(url)
 
@@ -177,18 +200,23 @@ const temp=data.main.temp
 const pressure=data.main.pressure
 
 document.getElementById("weatherResult").innerText=
-`${weather} / 気温 ${temp}℃ / 気圧 ${pressure}`
+`${city} / ${weather} / 気温 ${temp}℃ / 気圧 ${pressure}hPa`
 
-document.getElementById("weatherResult").innerText=
-`${weather} / 気温 ${temp}℃ / 気圧 ${pressure} hPa`
+}catch(e){
+
+alert("天気取得に失敗しました")
+
+}
+
+}
 
 
 
 function sendData(){
 
-const condition=document.querySelector("#condition .active")?.textContent
-const energy=document.querySelector("#energy .active")?.textContent
-const mental=document.querySelector("#mental .active")?.textContent
+const condition=document.querySelector("#condition .active")?.textContent || ""
+const energy=document.querySelector("#energy .active")?.textContent || ""
+const mental=document.querySelector("#mental .active")?.textContent || ""
 
 const weather=document.getElementById("weatherResult").innerText
 
@@ -203,15 +231,12 @@ const form=document.createElement("form")
 form.action="https://script.google.com/u/0/home/projects/1hbzeF7i5WuPiqACEfX5UpoJZ2kGcqjZ4Fq6IUobCqIzTxs04r_x33Gwb/edit"
 form.method="POST"
 
-
 function addField(name,value){
 
 const input=document.createElement("input")
 
 input.type="hidden"
-
 input.name=name
-
 input.value=value
 
 form.appendChild(input)
@@ -228,6 +253,8 @@ addField("comment",comment)
 document.body.appendChild(form)
 
 form.submit()
+
+alert("送信しました")
 
 }
 

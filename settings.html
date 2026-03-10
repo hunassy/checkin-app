@@ -8,10 +8,108 @@
 
 <body>
 
-<h1>初期設定ページ</h1>
+<h1>初期設定</h1>
 
-<p>ここに設定画面を作ります</p>
+<h2>郵便番号</h2>
+<input id="zipcode" placeholder="例 1600022">
+
+<h2>Goodサイン</h2>
+<input id="goodInput" placeholder="例 よく眠れた">
+<button onclick="addGood()">追加</button>
+<div id="goodList"></div>
+
+<h2>Badサイン</h2>
+<input id="badInput" placeholder="例 頭痛">
+<button onclick="addBad()">追加</button>
+<div id="badList"></div>
+
+<button onclick="saveSettings()">設定保存</button>
+
+<script>
+
+let goodSigns=[]
+
+function addGood(){
+
+const text=document.getElementById("goodInput").value
+
+if(!text) return
+
+goodSigns.push(text)
+
+renderGood()
+
+document.getElementById("goodInput").value=""
+
+}
+
+function renderGood(){
+
+const list=document.getElementById("goodList")
+
+list.innerHTML=""
+
+goodSigns.forEach(sign=>{
+
+const div=document.createElement("div")
+
+div.textContent=sign
+
+list.appendChild(div)
+
+})
+
+}
+
+let badSigns=[]
+
+function addBad(){
+
+const text=document.getElementById("badInput").value
+
+if(!text) return
+
+badSigns.push(text)
+
+renderBad()
+
+document.getElementById("badInput").value=""
+
+}
+
+function renderBad(){
+
+const list=document.getElementById("badList")
+
+list.innerHTML=""
+
+badSigns.forEach(sign=>{
+
+const div=document.createElement("div")
+
+div.textContent=sign
+
+list.appendChild(div)
+
+})
+
+}
+
+function saveSettings(){
+
+const zipcode=document.getElementById("zipcode").value
+
+localStorage.setItem("zipcode",zipcode)
+
+localStorage.setItem("goodSigns",JSON.stringify(goodSigns))
+
+localStorage.setItem("badSigns",JSON.stringify(badSigns))
+
+alert("保存しました")
+
+}
+
+</script>
 
 </body>
-
 </html>

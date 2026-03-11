@@ -233,7 +233,9 @@ createButtons("mental")
 
 async function getWeather(){
 
-const zipcode=document.getElementById("zipcode").value
+// 初期設定で保存した郵便番号を自動取得
+const zipcode=localStorage.getItem("zipcode")
+
 
 if(!zipcode){
 
@@ -298,6 +300,10 @@ const good=[...document.querySelectorAll('input[name="good"]:checked')]
 .map(el=>el.value)
 .join(",")
 
+const bad=[...document.querySelectorAll('input[name="bad"]:checked')]
+.map(el=>el.value)
+.join(",")
+
 const form=document.createElement("form")
 
 form.action="https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
@@ -320,6 +326,7 @@ addField("energy",energy)
 addField("mental",mental)
 addField("weather",weather)
 addField("good",good)
+addField("bad",bad) 
 addField("comment",comment)
 
 document.body.appendChild(form)
@@ -331,11 +338,11 @@ alert("送信しました")
 }
 
 window.onload = function(){
-
-loadGoodSigns()
-loadBadSigns()
-
+  loadGoodSigns()
+  loadBadSigns()
+  getWeather()  // ← ページ読み込み時に自動実行
 }
+
 
 </script>
 

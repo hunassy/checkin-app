@@ -139,13 +139,9 @@ function sendData() {
   
   alert("送信しました");
   
-  // 送信後、フォームをリセット
+  // 送信後、メインページに戻る
   setTimeout(() => {
-    document.querySelector("#condition").querySelectorAll("button").forEach(b => b.classList.remove("active"));
-    document.querySelector("#energy").querySelectorAll("button").forEach(b => b.classList.remove("active"));
-    document.querySelector("#mental").querySelectorAll("button").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    document.getElementById("comment").value = "";
+    window.location.href = "index.html";
   }, 1000);
 }
 

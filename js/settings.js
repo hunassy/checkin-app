@@ -4,6 +4,13 @@
 
 let goodSigns = [];
 let badSigns = [];
+let sleepTypes = [
+  "気持ちよく寝られた",
+  "寝付きは悪いがすっきり寝られた",
+  "すぐに寝付けたが朝起きるのがしんどかった",
+  "なかなか寝付けず、起きるのもしんどかった",
+  "布団には入ったが、ほぼ寝てない"
+];
 
 /**
  * Goodサインを追加
@@ -84,14 +91,56 @@ function renderBad() {
 }
 
 /**
+ * 睡眠タイプエディタを表示
+ */
+function renderSleepTypeEditor() {
+  const editor = document.getElementById("sleepTypeEditor");
+  editor.innerHTML = "";
+  
+  sleepTypes.forEach((type, index) => {
+    const item = document.createElement("div");
+    item.className = "sleep-type-item";
+    
+    const label = document.createElement("div");
+    label.className = "sleep-type-label";
+    label.textContent = (index + 1);
+    
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = type;
+    input.id = `sleepType_${index}`;
+    
+    item.appendChild(label);
+    item.appendChild(input);
+    editor.appendChild(item);
+  });
+}
+
+/**
+ * 睡眠タイプを更新
+ */
+function updateSleepTypes() {
+  sleepTypes = [];
+  for (let i = 0; i < 5; i++) {
+    const input = document.getElementById(`sleepType_${i}`);
+    if (input) {
+      sleepTypes.push(input.value);
+    }
+  }
+}
+
+/**
  * 設定を保存
  */
 function saveSettings() {
   const zipcode = document.getElementById("zipcode").value;
   
+  updateSleepTypes();
+  
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
   localStorage.setItem("badSigns", JSON.stringify(badSigns));
+  localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
   
   alert("保存しました");
   window.location.href = "index.html";
@@ -104,6 +153,7 @@ window.onload = function() {
   const savedZip = localStorage.getItem("zipcode");
   const savedGood = localStorage.getItem("goodSigns");
   const savedBad = localStorage.getItem("badSigns");
+  const savedSleepTypes = localStorage.getItem("sleepTypes");
   
   if (savedZip) {
     document.getElementById("zipcode").value = savedZip;
@@ -118,4 +168,10 @@ window.onload = function() {
     badSigns = JSON.parse(savedBad);
     renderBad();
   }
+  
+  if (savedSleepTypes) {
+    sleepTypes = JSON.parse(savedSleepTypes);
+  }
+  
+  renderSleepTypeEditor();
 };

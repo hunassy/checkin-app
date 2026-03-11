@@ -75,6 +75,60 @@ function createButtons(id) {
 }
 
 /**
+ * 睡眠タイプボタンを生成
+ */
+function createSleepTypeButtons() {
+  const savedSleepTypes = localStorage.getItem("sleepTypes");
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
+    "気持ちよく寝られた",
+    "寝付きは悪いがすっきり寝られた",
+    "すぐに寝付けたが朝起きるのがしんどかった",
+    "なかなか寝付けず、起きるのもしんどかった",
+    "布団には入ったが、ほぼ寝てない"
+  ];
+  
+  const container = document.getElementById("sleepType");
+  container.innerHTML = "";
+  
+  sleepTypes.forEach((type, index) => {
+    const btn = document.createElement("button");
+    btn.textContent = (index + 1);
+    btn.title = type;
+    
+    btn.onclick = () => {
+      container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    };
+    
+    container.appendChild(btn);
+  });
+}
+
+/**
+ * 通所状況ボタンを生成
+ */
+function createAttendanceButtons() {
+  const container = document.getElementById("attendanceType");
+  container.innerHTML = "";
+  
+  const attendanceOptions = ["通所", "在宅", "休み"];
+  
+  attendanceOptions.forEach(option => {
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
+    
+    radio.type = "radio";
+    radio.name = "attendance";
+    radio.value = option;
+    
+    label.appendChild(radio);
+    label.append(" " + option);
+    
+    container.appendChild(label);
+  });
+}
+
+/**
  * 天気を自動取得
  */
 async function getWeather() {
@@ -119,6 +173,11 @@ function sendData() {
   
   const weather = window.currentWeather || document.getElementById("weatherResult").innerText;
   
+  const sleepType = document.querySelector("#sleepType .active")?.textContent || "";
+  const sleepHours = document.getElementById("sleepHours").value || "";
+  
+  const attendance = document.querySelector('input[name="attendance"]:checked')?.value || "";
+  
   const comment = document.getElementById("comment").value;
   
   const good = getCheckedValues("good").join(",");
@@ -129,6 +188,9 @@ function sendData() {
     energy,
     mental,
     weather,
+    sleepType,
+    sleepHours,
+    attendance,
     good,
     bad,
     comment
@@ -154,6 +216,8 @@ window.onload = function() {
   createButtons("condition");
   createButtons("energy");
   createButtons("mental");
+  createSleepTypeButtons();
+  createAttendanceButtons();
   
   // ページ読み込み時に自動で天気を取得
   getWeather();

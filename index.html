@@ -66,10 +66,34 @@ cursor:pointer;
 margin-top:10px;
 font-size:14px;
 color:#333;
+padding:10px;
+background:#f9f9f9;
+border-radius:5px;
+}
+
+.weather.loading{
+color:#999;
+}
+
+.weather.error{
+color:#d32f2f;
+}
+
+.weather.success{
+color:#388e3c;
+}
+
+label{
+display:block;
+margin:8px 0;
+}
+
+input[type="checkbox"]{
+margin-right:8px;
 }
 
 </style>
-</head>
+<script type="text/javascript" nonce="6354056c964d4db08660fbd1c4d" src="//local.adguard.org?ts=1773223406510&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2FsessionFile%2FqbxZAHazSchcJEpkuuyHRB%2Fsandbox%2FMIWwkV8kfJHX5oD4Tp4m42_1773224443046_na1fn_L2hvbWUvdWJ1bnR1L2ltcHJvdmVkX2luZGV4.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvcWJ4WkFIYXpTY2hjSkVwa3V1eUhSQi9zYW5kYm94L01JV3drVjhrZkpIWDVvRDRUcDRtNDJfMTc3MzIyNDQ0MzA0Nl9uYTFmbl9MMmh2YldVdmRXSjFiblIxTDJsdGNISnZkbVZrWDJsdVpHVjQuaHRtbCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DZbvCCsRdochlFUbQGzxwFeYDoJkKy~8ZR5BMGU7NOPVNR~4aFCyQSg83x3mq9CIdwle4wp2kNjuz72T5o~OVcNiuZxpzHOYzwsC1BjLrWFPaXetEjK8qh4PitHRxC~n-fA5KAZ~gyLGtoijE0UkuTDjvLAoOrkKfMfbh~rpxOX2j7C0IJlwax-VhT3SwpKAj4Rn8fo2cNNkyQOSG3~~apq0DqPHk3zMoY5ON9NNp1knDfGTIjiS0nz4xpQ8kfp82YCdO3pNtf3MbS9our3vEgTM9Xackh4RfwbRUUMHwd1efSJilJnhUd-6Pqo3Ho~URTe9xTjTMg9fb6mgHdohy1A__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="6354056c964d4db08660fbd1c4d" src="//local.adguard.org?ts=1773223406510&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 
 <body>
 
@@ -96,14 +120,10 @@ color:#333;
 
 <div class="section">
 
-<p>郵便番号で天気取得</p>
+<p>天気情報</p>
 
-<input id="zipcode" placeholder="例 1600022">
-
-<button onclick="getWeather()">天気取得</button>
-
-<div class="weather" id="weatherResult">
-天気未取得
+<div class="weather loading" id="weatherResult">
+天気を取得中...
 </div>
 
 </div>
@@ -162,8 +182,6 @@ label.append(" "+sign)
 
 container.appendChild(label)
 
-container.appendChild(document.createElement("br"))
-
 })
 
 }
@@ -194,8 +212,6 @@ label.appendChild(checkbox)
 label.append(" "+sign)
 
 container.appendChild(label)
-
-container.appendChild(document.createElement("br"))
 
 })
 
@@ -233,13 +249,12 @@ createButtons("mental")
 
 async function getWeather(){
 
-// 初期設定で保存した郵便番号を自動取得
 const zipcode=localStorage.getItem("zipcode")
-
 
 if(!zipcode){
 
-alert("郵便番号を入力してください")
+document.getElementById("weatherResult").innerText="郵便番号が設定されていません。初期設定から設定してください。"
+document.getElementById("weatherResult").className="weather error"
 
 return
 
@@ -247,13 +262,18 @@ return
 
 try{
 
+const weatherDiv=document.getElementById("weatherResult")
+weatherDiv.className="weather loading"
+weatherDiv.innerText="天気を取得中..."
+
 const zipRes=await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`)
 
 const zipData=await zipRes.json()
 
 if(!zipData.results){
 
-alert("郵便番号が見つかりません")
+weatherDiv.innerText="郵便番号が見つかりません"
+weatherDiv.className="weather error"
 
 return
 
@@ -273,12 +293,18 @@ const weather=data.weather[0].description
 const temp=data.main.temp
 const pressure=data.main.pressure
 
-document.getElementById("weatherResult").innerText=
-`${city} / ${weather} / 気温 ${temp}℃ / 気圧 ${pressure}hPa`
+const weatherText=`${city} / ${weather} / 気温 ${temp}℃ / 気圧 ${pressure}hPa`
+
+document.getElementById("weatherResult").innerText=weatherText
+document.getElementById("weatherResult").className="weather success"
+
+// 天気情報をグローバル変数に保存（送信時に使用）
+window.currentWeather=weatherText
 
 }catch(e){
 
-alert("天気取得に失敗しました")
+document.getElementById("weatherResult").innerText="天気取得に失敗しました"
+document.getElementById("weatherResult").className="weather error"
 
 }
 
@@ -292,7 +318,7 @@ const condition=document.querySelector("#condition .active")?.textContent || ""
 const energy=document.querySelector("#energy .active")?.textContent || ""
 const mental=document.querySelector("#mental .active")?.textContent || ""
 
-const weather=document.getElementById("weatherResult").innerText
+const weather=window.currentWeather || document.getElementById("weatherResult").innerText
 
 const comment=document.getElementById("comment").value
 
@@ -326,7 +352,7 @@ addField("energy",energy)
 addField("mental",mental)
 addField("weather",weather)
 addField("good",good)
-addField("bad",bad) 
+addField("bad",bad)
 addField("comment",comment)
 
 document.body.appendChild(form)
@@ -335,14 +361,26 @@ form.submit()
 
 alert("送信しました")
 
+// 送信後、フォームをリセット
+setTimeout(()=>{
+  document.querySelector("#condition").querySelectorAll("button").forEach(b=>b.classList.remove("active"))
+  document.querySelector("#energy").querySelectorAll("button").forEach(b=>b.classList.remove("active"))
+  document.querySelector("#mental").querySelectorAll("button").forEach(b=>b.classList.remove("active"))
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false)
+  document.getElementById("comment").value=""
+}, 1000)
+
 }
 
 window.onload = function(){
-  loadGoodSigns()
-  loadBadSigns()
-  getWeather()  // ← ページ読み込み時に自動実行
-}
 
+loadGoodSigns()
+loadBadSigns()
+
+// ページ読み込み時に自動で天気を取得
+getWeather()
+
+}
 
 </script>
 

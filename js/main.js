@@ -75,7 +75,7 @@ function createButtons(id) {
 }
 
 /**
- * 睡眠タイプボタンを生成
+ * 睡眠タイプボタンを生成（テキスト表示版）
  */
 function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
@@ -92,8 +92,10 @@ function createSleepTypeButtons() {
   
   sleepTypes.forEach((type, index) => {
     const btn = document.createElement("button");
-    btn.textContent = (index + 1);
-    btn.title = type;
+    btn.className = "sleep-type-btn";
+    btn.textContent = type;
+    btn.dataset.index = index;
+    btn.dataset.value = type;
     
     btn.onclick = () => {
       container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
@@ -105,27 +107,48 @@ function createSleepTypeButtons() {
 }
 
 /**
- * 通所状況ボタンを生成
+ * 睡眠時間を計算して表示
  */
-function createAttendanceButtons() {
-  const container = document.getElementById("attendanceType");
-  container.innerHTML = "";
+function calculateSleepTime() {
+  const bedtime = document.getElementById("bedtime").value;
+  const wakeuptime = document.getElementById("wakeuptime").value;
+  const wakeupDuration = parseInt(document.getElementById("wakeupDuration").value) || 0;
   
-  const attendanceOptions = ["通所", "在宅", "休み"];
+  if (!bedtime || !wakeuptime) {
+    document.getElementById("sleepResult").textContent = "総睡眠時間：就寝・起床時刻を入力してください";
+    return;
+  }
   
-  attendanceOptions.forEach(option => {
-    const label = document.createElement("label");
-    const radio = document.createElement("input");
-    
-    radio.type = "radio";
-    radio.name = "attendance";
-    radio.value = option;
-    
-    label.appendChild(radio);
-    label.append(" " + option);
-    
-    container.appendChild(label);
-  });
+  // 時刻を分に変換
+  const [bedHour, bedMin] = bedtime.split(":").map(Number);
+  const [wakeHour, wakeMin] = wakeuptime.split(":").map(Number);
+  
+  let bedMinutes = bedHour * 60 + bedMin;
+  let wakeMinutes = wakeHour * 60 + wakeMin;
+  
+  // 起床時刻が就寝時刻より前の場合（翌日）
+  if (wakeMinutes <= bedMinutes) {
+    wakeMinutes += 24 * 60;
+  }
+  
+  // 総睡眠時間を計算
+  let totalSleep = wakeMinutes - bedMinutes - wakeupDuration;
+  
+  // 負の値の場合は0に
+  if (totalSleep < 0) {
+    totalSleep = 0;
+  }
+  
+  // 時間と分に変換
+  const hours = Math.floor(totalSleep / 60);
+  const minutes = totalSleep % 60;
+  
+  // 表示
+  const sleepText = minutes > 0 ? `${hours}時間${minutes}分` : `${hours}時間`;
+  document.getElementById("sleepResult").textContent = `総睡眠時間：${sleepText}`;
+  
+  // グローバル変数に保存
+  window.calculatedSleepTime = sleepText;
 }
 
 /**
@@ -173,10 +196,15 @@ function sendData() {
   
   const weather = window.currentWeather || document.getElementById("weatherResult").innerText;
   
-  const sleepType = document.querySelector("#sleepType .active")?.textContent || "";
-  const sleepHours = document.getElementById("sleepHours").value || "";
+  // 睡眠データ
+  const sleepType = document.querySelector(".sleep-type-btn.active")?.dataset.value || "";
+  const bedtime = document.getElementById("bedtime").value || "";
+  const wakeuptime = document.getElementById("wakeuptime").value || "";
+  const wakeupDuration = document.getElementById("wakeupDuration").value || "0";
+  const sleepTime = window.calculatedSleepTime || "";
   
-  const attendance = document.querySelector('input[name="attendance"]:checked')?.value || "";
+  // 通所状況
+  const attendance = document.getElementById("attendance").value || "";
   
   const comment = document.getElementById("comment").value;
   
@@ -189,7 +217,10 @@ function sendData() {
     mental,
     weather,
     sleepType,
-    sleepHours,
+    bedtime,
+    wakeuptime,
+    wakeupDuration,
+    sleepTime,
     attendance,
     good,
     bad,
@@ -217,7 +248,11 @@ window.onload = function() {
   createButtons("energy");
   createButtons("mental");
   createSleepTypeButtons();
-  createAttendanceButtons();
+  
+  // 睡眠時間の計算を監視
+  document.getElementById("bedtime").addEventListener("change", calculateSleepTime);
+  document.getElementById("wakeuptime").addEventListener("change", calculateSleepTime);
+  document.getElementById("wakeupDuration").addEventListener("change", calculateSleepTime);
   
   // ページ読み込み時に自動で天気を取得
   getWeather();

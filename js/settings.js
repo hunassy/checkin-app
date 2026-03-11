@@ -11,6 +11,7 @@ let sleepTypes = [
   "なかなか寝付けず、起きるのもしんどかった",
   "布団には入ったが、ほぼ寝てない"
 ];
+let medicines = [];
 
 /**
  * Goodサインを追加
@@ -130,17 +131,72 @@ function updateSleepTypes() {
 }
 
 /**
+ * 薬エディタを表示
+ */
+function renderMedicineEditor() {
+  const editor = document.getElementById("medicineEditor");
+  editor.innerHTML = "";
+  
+  medicines.forEach((medicine, index) => {
+    const item = document.createElement("div");
+    item.className = "medicine-item";
+    
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = medicine;
+    input.id = `medicine_${index}`;
+    input.placeholder = "例 イフェクサーSRカプセル75mg";
+    
+    const btn = document.createElement("button");
+    btn.textContent = "削除";
+    btn.onclick = function() {
+      medicines.splice(index, 1);
+      renderMedicineEditor();
+    };
+    
+    item.appendChild(input);
+    item.appendChild(btn);
+    editor.appendChild(item);
+  });
+}
+
+/**
+ * 薬フィールドを追加
+ */
+function addMedicineField() {
+  medicines.push("");
+  renderMedicineEditor();
+}
+
+/**
+ * 薬を更新
+ */
+function updateMedicines() {
+  medicines = [];
+  let index = 0;
+  while (document.getElementById(`medicine_${index}`)) {
+    const input = document.getElementById(`medicine_${index}`);
+    if (input.value) {
+      medicines.push(input.value);
+    }
+    index++;
+  }
+}
+
+/**
  * 設定を保存
  */
 function saveSettings() {
   const zipcode = document.getElementById("zipcode").value;
   
   updateSleepTypes();
+  updateMedicines();
   
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
   localStorage.setItem("badSigns", JSON.stringify(badSigns));
   localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
+  localStorage.setItem("medicines", JSON.stringify(medicines));
   
   alert("保存しました");
   window.location.href = "index.html";
@@ -154,6 +210,7 @@ window.onload = function() {
   const savedGood = localStorage.getItem("goodSigns");
   const savedBad = localStorage.getItem("badSigns");
   const savedSleepTypes = localStorage.getItem("sleepTypes");
+  const savedMedicines = localStorage.getItem("medicines");
   
   if (savedZip) {
     document.getElementById("zipcode").value = savedZip;
@@ -173,5 +230,10 @@ window.onload = function() {
     sleepTypes = JSON.parse(savedSleepTypes);
   }
   
+  if (savedMedicines) {
+    medicines = JSON.parse(savedMedicines);
+  }
+  
   renderSleepTypeEditor();
+  renderMedicineEditor();
 };

@@ -3,6 +3,18 @@
 // ============================================
 
 /**
+ * 本日の日付を表示
+ */
+function displayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const date = String(today.getDate()).padStart(2, '0');
+  
+  document.getElementById("dateSection").textContent = `本日の日付：${year}年${month}月${date}日`;
+}
+
+/**
  * Good/Badサインを読み込んで表示
  */
 function loadGoodSigns() {
@@ -50,6 +62,35 @@ function loadBadSigns() {
     
     label.appendChild(checkbox);
     label.append(" " + sign);
+    
+    container.appendChild(label);
+  });
+}
+
+/**
+ * 薬を読み込んで表示
+ */
+function loadMedicines() {
+  const savedMedicines = localStorage.getItem("medicines");
+  
+  if (!savedMedicines) return;
+  
+  const medicines = JSON.parse(savedMedicines);
+  const container = document.getElementById("medicineList");
+  
+  container.innerHTML = "";
+  
+  medicines.forEach(medicine => {
+    const label = document.createElement("label");
+    label.className = "medicine-item-label";
+    
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "medicine";
+    checkbox.value = medicine;
+    
+    label.appendChild(checkbox);
+    label.append(" " + medicine);
     
     container.appendChild(label);
   });
@@ -158,30 +199,37 @@ async function getWeather() {
   const zipcode = localStorage.getItem("zipcode");
   
   if (!zipcode) {
-    document.getElementById("weatherResult").innerText = "郵便番号が設定されていません。初期設定から設定してください。";
-    document.getElementById("weatherResult").className = "weather error";
+    document.getElementById("weatherValue").innerText = "未設定";
+    document.getElementById("tempValue").innerText = "-";
+    document.getElementById("pressureValue").innerText = "-";
+    document.getElementById("pressureWarning").innerText = "-";
     return;
   }
   
   try {
-    const weatherDiv = document.getElementById("weatherResult");
-    weatherDiv.className = "weather loading";
-    weatherDiv.innerText = "天気を取得中...";
-    
     const city = await getCityFromZipcode(zipcode);
     const weatherData = await getWeatherFromCity(city);
     
-    const weatherText = formatWeatherText(weatherData);
+    // 天気情報を表示
+    document.getElementById("weatherValue").innerText = weatherData.weather;
+    document.getElementById("tempValue").innerText = `${weatherData.temp}℃`;
+    document.getElementById("pressureValue").innerText = `${weatherData.pressure}hPa`;
     
-    document.getElementById("weatherResult").innerText = weatherText;
-    document.getElementById("weatherResult").className = "weather success";
+    // 気圧注意度を計算・表示
+    const warning = calculatePressureWarning(weatherData.pressure);
+    document.getElementById("pressureWarning").innerText = warning;
     
     // 天気情報をグローバル変数に保存（送信時に使用）
-    window.currentWeather = weatherText;
+    window.currentWeather = weatherData.weather;
+    window.currentTemp = weatherData.temp;
+    window.currentPressure = weatherData.pressure;
+    window.currentPressureWarning = warning;
     
   } catch (error) {
-    document.getElementById("weatherResult").innerText = "天気取得に失敗しました";
-    document.getElementById("weatherResult").className = "weather error";
+    document.getElementById("weatherValue").innerText = "取得失敗";
+    document.getElementById("tempValue").innerText = "-";
+    document.getElementById("pressureValue").innerText = "-";
+    document.getElementById("pressureWarning").innerText = "-";
     console.error(error);
   }
 }
@@ -190,11 +238,16 @@ async function getWeather() {
  * データを送信
  */
 function sendData() {
-  const condition = document.querySelector("#condition .active")?.textContent || "";
-  const energy = document.querySelector("#energy .active")?.textContent || "";
-  const mental = document.querySelector("#mental .active")?.textContent || "";
+  const date = new Date();
+  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   
-  const weather = window.currentWeather || document.getElementById("weatherResult").innerText;
+  const weather = window.currentWeather || "";
+  const temp = window.currentTemp || "";
+  const pressure = window.currentPressure || "";
+  const pressureWarning = window.currentPressureWarning || "";
+  
+  const attendance = document.getElementById("attendance").value || "";
+  const breakfast = document.getElementById("breakfast").value || "";
   
   // 睡眠データ
   const sleepType = document.querySelector(".sleep-type-btn.active")?.dataset.value || "";
@@ -203,8 +256,12 @@ function sendData() {
   const wakeupDuration = document.getElementById("wakeupDuration").value || "0";
   const sleepTime = window.calculatedSleepTime || "";
   
-  // 通所状況
-  const attendance = document.getElementById("attendance").value || "";
+  // 薬
+  const medicines = getCheckedValues("medicine").join(",");
+  
+  const condition = document.querySelector("#condition .active")?.textContent || "";
+  const energy = document.querySelector("#energy .active")?.textContent || "";
+  const mental = document.querySelector("#mental .active")?.textContent || "";
   
   const comment = document.getElementById("comment").value;
   
@@ -212,16 +269,22 @@ function sendData() {
   const bad = getCheckedValues("bad").join(",");
   
   const data = {
-    condition,
-    energy,
-    mental,
+    date: dateStr,
     weather,
+    temp,
+    pressure,
+    pressureWarning,
+    attendance,
+    breakfast,
     sleepType,
     bedtime,
     wakeuptime,
     wakeupDuration,
     sleepTime,
-    attendance,
+    medicines,
+    condition,
+    energy,
+    mental,
     good,
     bad,
     comment
@@ -242,8 +305,10 @@ function sendData() {
  * ページ読み込み時の初期化
  */
 window.onload = function() {
+  displayDate();
   loadGoodSigns();
   loadBadSigns();
+  loadMedicines();
   createButtons("condition");
   createButtons("energy");
   createButtons("mental");

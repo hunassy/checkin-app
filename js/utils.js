@@ -82,6 +82,21 @@ function formatWeatherText(weatherData) {
 }
 
 /**
+ * 気圧から注意度を計算
+ * @param {number} pressure 気圧（hPa）
+ * @returns {string} 注意度（通常/やや注意/注意）
+ */
+function calculatePressureWarning(pressure) {
+  if (pressure >= 1013) {
+    return "通常";
+  } else if (pressure >= 1000) {
+    return "やや注意";
+  } else {
+    return "注意";
+  }
+}
+
+/**
  * チェックボックスの選択値を配列で取得
  * @param {string} name チェックボックスのname属性
  * @returns {array} 選択されたチェックボックスの値の配列

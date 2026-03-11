@@ -92,6 +92,45 @@ function renderBad() {
 }
 
 /**
+ * 薬を追加
+ */
+function addMedicine() {
+  const text = document.getElementById("medicineInput").value;
+  
+  if (!text) return;
+  
+  medicines.push(text);
+  renderMedicine();
+  document.getElementById("medicineInput").value = "";
+}
+
+/**
+ * 薬を表示
+ */
+function renderMedicine() {
+  const list = document.getElementById("medicineList");
+  list.innerHTML = "";
+  
+  medicines.forEach((medicine, index) => {
+    const div = document.createElement("div");
+    
+    const text = document.createElement("span");
+    text.textContent = medicine;
+    
+    const btn = document.createElement("button");
+    btn.textContent = "削除";
+    btn.onclick = function() {
+      medicines.splice(index, 1);
+      renderMedicine();
+    };
+    
+    div.appendChild(text);
+    div.appendChild(btn);
+    list.appendChild(div);
+  });
+}
+
+/**
  * 睡眠タイプエディタを表示
  */
 function renderSleepTypeEditor() {
@@ -131,66 +170,12 @@ function updateSleepTypes() {
 }
 
 /**
- * 薬エディタを表示
- */
-function renderMedicineEditor() {
-  const editor = document.getElementById("medicineEditor");
-  editor.innerHTML = "";
-  
-  medicines.forEach((medicine, index) => {
-    const item = document.createElement("div");
-    item.className = "medicine-item";
-    
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = medicine;
-    input.id = `medicine_${index}`;
-    input.placeholder = "例 イフェクサーSRカプセル75mg";
-    
-    const btn = document.createElement("button");
-    btn.textContent = "削除";
-    btn.onclick = function() {
-      medicines.splice(index, 1);
-      renderMedicineEditor();
-    };
-    
-    item.appendChild(input);
-    item.appendChild(btn);
-    editor.appendChild(item);
-  });
-}
-
-/**
- * 薬フィールドを追加
- */
-function addMedicineField() {
-  medicines.push("");
-  renderMedicineEditor();
-}
-
-/**
- * 薬を更新
- */
-function updateMedicines() {
-  medicines = [];
-  let index = 0;
-  while (document.getElementById(`medicine_${index}`)) {
-    const input = document.getElementById(`medicine_${index}`);
-    if (input.value) {
-      medicines.push(input.value);
-    }
-    index++;
-  }
-}
-
-/**
  * 設定を保存
  */
 function saveSettings() {
   const zipcode = document.getElementById("zipcode").value;
   
   updateSleepTypes();
-  updateMedicines();
   
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
@@ -232,8 +217,8 @@ window.onload = function() {
   
   if (savedMedicines) {
     medicines = JSON.parse(savedMedicines);
+    renderMedicine();
   }
   
   renderSleepTypeEditor();
-  renderMedicineEditor();
 };

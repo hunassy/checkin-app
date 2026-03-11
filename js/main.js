@@ -141,7 +141,7 @@ function sendData() {
   
   // 送信後、メインページに戻る
   setTimeout(() => {
-    window.location.href = "index.html";
+    window.location.href = "https://hunassy.github.io/checkin-app/";
   }, 1000);
 }
 

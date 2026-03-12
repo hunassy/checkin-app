@@ -232,8 +232,8 @@ function renderSleepTypeEditor() {
     symbolDiv.appendChild(select);
     
     item.appendChild(label);
-    item.appendChild(input);
-    item.appendChild(symbolDiv);
+    item.appendChild(symbolDiv); // 記号を左側に
+    item.appendChild(input);     // テキストを右側に
     editor.appendChild(item);
   });
 }

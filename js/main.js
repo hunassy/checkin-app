@@ -173,8 +173,8 @@ function createSleepTypeButtons() {
     symbolSpan.className = `sleep-type-symbol sleep-type-symbol-${index + 1}`;
     symbolSpan.textContent = sleepSymbols[index] || "○";
     
-    btn.appendChild(symbolSpan);
     btn.appendChild(textSpan);
+    btn.appendChild(symbolSpan);
     
     btn.onclick = () => {
       container.querySelectorAll("button").forEach(b => b.classList.remove("active"));

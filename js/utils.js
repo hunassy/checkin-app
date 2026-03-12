@@ -40,7 +40,7 @@ async function getCityFromZipcode(zipcode) {
       throw new Error("郵便番号が見つかりません");
     }
     
-    return data.results[0].address2;
+    return data.results[0].address1 + data.results[0].address2 + data.results[0].address3;
   } catch (error) {
     console.error("郵便番号取得エラー:", error);
     throw error;

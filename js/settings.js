@@ -15,6 +15,30 @@ let sleepTypes = [
 let sleepSymbols = ["◎", "○", "△", "×", "×"];
 
 /**
+ * 郵便番号から市町村を取得して表示
+ */
+function displayCity() {
+  const zipcode = document.getElementById("zipcode").value;
+  
+  if (!zipcode || zipcode.length !== 7) {
+    document.getElementById("cityDisplay").textContent = "市町村：未設定";
+    return;
+  }
+  
+  // 郵便番号から市町村を取得
+  getCityFromZipcode(zipcode).then(city => {
+    if (city) {
+      document.getElementById("cityDisplay").textContent = `市町村：${city}`;
+    } else {
+      document.getElementById("cityDisplay").textContent = "市町村：見つかりません";
+    }
+  }).catch(error => {
+    console.error("市町村取得エラー:", error);
+    document.getElementById("cityDisplay").textContent = "市町村：取得エラー";
+  });
+}
+
+/**
  * Goodサインを追加
  */
 function addGood() {
@@ -231,6 +255,7 @@ window.onload = function() {
   
   if (savedZip) {
     document.getElementById("zipcode").value = savedZip;
+    displayCity();
   }
   
   if (savedGood) {

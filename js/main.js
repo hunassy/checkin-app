@@ -166,6 +166,7 @@ function createSleepTypeButtons() {
     btn.dataset.value = type;
     
     const textSpan = document.createElement("span");
+    textSpan.className = "sleep-type-text";
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");

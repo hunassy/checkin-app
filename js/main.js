@@ -7,10 +7,7 @@
  */
 function generateTimeOptions() {
   const bedtimeHourSelect = document.getElementById("bedtimeHour");
-  const bedtimeMinuteSelect = document.getElementById("bedtimeMinute");
   const wakeuptimeHourSelect = document.getElementById("wakeuptimeHour");
-  const wakeuptimeMinuteSelect = document.getElementById("wakeuptimeMinute");
-  const wakeupDurationSelect = document.getElementById("wakeupDuration");
   
   // 時間の選択肢を生成（0～23）
   for (let hour = 0; hour < 24; hour++) {
@@ -23,14 +20,6 @@ function generateTimeOptions() {
     option2.value = String(hour);
     option2.textContent = `${String(hour).padStart(2, '0')}時`;
     wakeuptimeHourSelect.appendChild(option2);
-  }
-  
-  // 途中で起きた時間の選択肢を生成（0分から1440分まで10分単位）
-  for (let minutes = 0; minutes <= 1440; minutes += 10) {
-    const option = document.createElement("option");
-    option.value = String(minutes);
-    option.textContent = `${minutes}分`;
-    wakeupDurationSelect.appendChild(option);
   }
 }
 
@@ -151,10 +140,12 @@ function createButtons(id) {
 }
 
 /**
- * 睡眠タイプボタンを生成（テキスト表示版）
+ * 睡眠タイプボタンを生成（テキスト表示版 + 〇△×）
  */
 function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
+  const savedSleepSymbols = localStorage.getItem("sleepSymbols");
+  
   const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
     "気持ちよく寝られた",
     "寝付きは悪いがすっきり寝られた",
@@ -163,15 +154,26 @@ function createSleepTypeButtons() {
     "布団には入ったが、ほぼ寝てない"
   ];
   
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
+  
   const container = document.getElementById("sleepType");
   container.innerHTML = "";
   
   sleepTypes.forEach((type, index) => {
     const btn = document.createElement("button");
     btn.className = "sleep-type-btn";
-    btn.textContent = type;
     btn.dataset.index = index;
     btn.dataset.value = type;
+    
+    const textSpan = document.createElement("span");
+    textSpan.textContent = type;
+    
+    const symbolSpan = document.createElement("span");
+    symbolSpan.className = "sleep-type-symbol";
+    symbolSpan.textContent = sleepSymbols[index] || "○";
+    
+    btn.appendChild(textSpan);
+    btn.appendChild(symbolSpan);
     
     btn.onclick = () => {
       container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
@@ -193,7 +195,10 @@ function calculateSleepTime() {
   const bedtimeMinute = document.getElementById("bedtimeMinute").value;
   const wakeuptimeHour = document.getElementById("wakeuptimeHour").value;
   const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value;
-  const wakeupDuration = parseInt(document.getElementById("wakeupDuration").value) || 0;
+  
+  let wakeupDuration = document.getElementById("wakeupDuration").value;
+  // 数値に変換、NaNの場合は0に
+  wakeupDuration = isNaN(parseInt(wakeupDuration)) ? 0 : parseInt(wakeupDuration);
   
   if (!bedtimeHour || bedtimeMinute === "" || !wakeuptimeHour || wakeuptimeMinute === "") {
     document.getElementById("sleepResult").textContent = "総睡眠時間：就寝・起床時刻を入力してください";
@@ -414,6 +419,7 @@ window.onload = function() {
   document.getElementById("wakeuptimeHour").addEventListener("change", calculateSleepTime);
   document.getElementById("wakeuptimeMinute").addEventListener("change", calculateSleepTime);
   document.getElementById("wakeupDuration").addEventListener("change", calculateSleepTime);
+  document.getElementById("wakeupDuration").addEventListener("input", calculateSleepTime);
   
   // 完了状況の監視
   document.getElementById("attendance").addEventListener("change", updateCompletionStatus);

@@ -21,20 +21,20 @@ function displayCity() {
   const zipcode = document.getElementById("zipcode").value;
   
   if (!zipcode || zipcode.length !== 7) {
-    document.getElementById("cityDisplay").textContent = "市町村：未設定";
+    document.getElementById("cityDisplay").textContent = "未設定";
     return;
   }
   
   // 郵便番号から市町村を取得
   getCityFromZipcode(zipcode).then(city => {
     if (city) {
-      document.getElementById("cityDisplay").textContent = `市町村：${city}`;
+      document.getElementById("cityDisplay").textContent = `${city}`;
     } else {
-      document.getElementById("cityDisplay").textContent = "市町村：見つかりません";
+      document.getElementById("cityDisplay").textContent = "見つかりません";
     }
   }).catch(error => {
     console.error("取得エラー:", error);
-    document.getElementById("cityDisplay").textContent = "市町村：取得エラー";
+    document.getElementById("cityDisplay").textContent = "取得エラー";
   });
 }
 

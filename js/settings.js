@@ -28,12 +28,12 @@ function displayCity() {
   // 郵便番号から市町村を取得
   getCityFromZipcode(zipcode).then(city => {
     if (city) {
-      document.getElementById("cityDisplay").textContent = `${city}`;
+      document.getElementById("cityDisplay").textContent = city;
     } else {
       document.getElementById("cityDisplay").textContent = "見つかりません";
     }
   }).catch(error => {
-    console.error("取得エラー:", error);
+    console.error("市町村取得エラー:", error);
     document.getElementById("cityDisplay").textContent = "取得エラー";
   });
 }

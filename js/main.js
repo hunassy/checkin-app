@@ -170,11 +170,18 @@ function createSleepTypeButtons() {
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");
-    symbolSpan.className = `sleep-type-symbol sleep-type-symbol-${index + 1}`;
-    symbolSpan.textContent = sleepSymbols[index] || "○";
+    const symbol = sleepSymbols[index] || "○";
+    let symbolClass = "";
+    if (symbol === "◎") symbolClass = "symbol-double-circle";
+    else if (symbol === "○") symbolClass = "symbol-circle";
+    else if (symbol === "△") symbolClass = "symbol-triangle";
+    else if (symbol === "×") symbolClass = "symbol-cross";
     
-    btn.appendChild(textSpan);
+    symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
+    symbolSpan.textContent = symbol;
+    
     btn.appendChild(symbolSpan);
+    btn.appendChild(textSpan);
     
     btn.onclick = () => {
       container.querySelectorAll("button").forEach(b => b.classList.remove("active"));

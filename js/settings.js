@@ -212,9 +212,22 @@ function renderSleepTypeEditor() {
       select.appendChild(option);
     });
     
+    // 記号に応じたクラスを適用する関数
+    const updateSelectClass = (sel) => {
+      sel.classList.remove("symbol-double-circle", "symbol-circle", "symbol-triangle", "symbol-cross");
+      if (sel.value === "◎") sel.classList.add("symbol-double-circle");
+      else if (sel.value === "○") sel.classList.add("symbol-circle");
+      else if (sel.value === "△") sel.classList.add("symbol-triangle");
+      else if (sel.value === "×") sel.classList.add("symbol-cross");
+    };
+
     select.onchange = function() {
       sleepSymbols[index] = select.value;
+      updateSelectClass(select);
     };
+    
+    // 初期表示時にもクラスを適用
+    updateSelectClass(select);
     
     symbolDiv.appendChild(select);
     

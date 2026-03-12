@@ -3,6 +3,40 @@
 // ============================================
 
 /**
+ * 10分単位の時間選択肢を生成
+ */
+function generateTimeOptions() {
+  const bedtimeSelect = document.getElementById("bedtime");
+  const wakeuptimeSelect = document.getElementById("wakeuptime");
+  const wakeupDurationSelect = document.getElementById("wakeupDuration");
+  
+  // 就寝・起床時刻の選択肢を生成
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 10) {
+      const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      
+      const option1 = document.createElement("option");
+      option1.value = timeStr;
+      option1.textContent = timeStr;
+      bedtimeSelect.appendChild(option1);
+      
+      const option2 = document.createElement("option");
+      option2.value = timeStr;
+      option2.textContent = timeStr;
+      wakeuptimeSelect.appendChild(option2);
+    }
+  }
+  
+  // 途中で起きた時間の選択肢を生成（0分から1440分まで10分単位）
+  for (let minutes = 0; minutes <= 1440; minutes += 10) {
+    const option = document.createElement("option");
+    option.value = String(minutes);
+    option.textContent = `${minutes}分`;
+    wakeupDurationSelect.appendChild(option);
+  }
+}
+
+/**
  * 本日の日付を表示
  */
 function displayDate() {
@@ -356,6 +390,7 @@ function sendData() {
  * ページ読み込み時の初期化
  */
 window.onload = function() {
+  generateTimeOptions();
   displayDate();
   loadGoodSigns();
   loadBadSigns();

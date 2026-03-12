@@ -109,6 +109,9 @@ function createButtons(id) {
     btn.onclick = () => {
       container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      
+      // 完了時に緑色で色付け
+      updateCompletionStatus();
     };
     
     container.appendChild(btn);
@@ -141,6 +144,9 @@ function createSleepTypeButtons() {
     btn.onclick = () => {
       container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      
+      // 完了時に緑色で色付け
+      updateCompletionStatus();
     };
     
     container.appendChild(btn);
@@ -190,6 +196,51 @@ function calculateSleepTime() {
   
   // グローバル変数に保存
   window.calculatedSleepTime = sleepText;
+  
+  // 完了時に緑色で色付け
+  updateCompletionStatus();
+}
+
+/**
+ * 完了状況を更新（緑色で色付け）
+ */
+function updateCompletionStatus() {
+  const attendance = document.getElementById("attendance").value;
+  const breakfast = document.getElementById("breakfast").value;
+  const sleepType = document.querySelector(".sleep-type-btn.active");
+  const condition = document.querySelector("#condition .active");
+  const energy = document.querySelector("#energy .active");
+  const mental = document.querySelector("#mental .active");
+  
+  // 通所/在宅・朝食セクション
+  const attendanceSection = document.querySelector(".attendance-breakfast");
+  if (attendance && breakfast) {
+    attendanceSection.classList.add("completed");
+  } else {
+    attendanceSection.classList.remove("completed");
+  }
+  
+  // 睡眠セクション
+  const sleepSection = document.querySelector(".sleep-section");
+  if (sleepType && document.getElementById("bedtime").value && document.getElementById("wakeuptime").value) {
+    sleepSection.classList.add("completed");
+  } else {
+    sleepSection.classList.remove("completed");
+  }
+  
+  // スコアセクション
+  const scoreCondition = document.querySelector(".score-section:nth-of-type(1)");
+  const scoreEnergy = document.querySelector(".score-section:nth-of-type(2)");
+  const scoreMental = document.querySelector(".score-section:nth-of-type(3)");
+  
+  if (condition) scoreCondition.classList.add("completed");
+  else scoreCondition.classList.remove("completed");
+  
+  if (energy) scoreEnergy.classList.add("completed");
+  else scoreEnergy.classList.remove("completed");
+  
+  if (mental) scoreMental.classList.add("completed");
+  else scoreMental.classList.remove("completed");
 }
 
 /**
@@ -318,6 +369,10 @@ window.onload = function() {
   document.getElementById("bedtime").addEventListener("change", calculateSleepTime);
   document.getElementById("wakeuptime").addEventListener("change", calculateSleepTime);
   document.getElementById("wakeupDuration").addEventListener("change", calculateSleepTime);
+  
+  // 完了状況の監視
+  document.getElementById("attendance").addEventListener("change", updateCompletionStatus);
+  document.getElementById("breakfast").addEventListener("change", updateCompletionStatus);
   
   // ページ読み込み時に自動で天気を取得
   getWeather();

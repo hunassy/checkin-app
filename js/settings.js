@@ -11,6 +11,7 @@ let sleepTypes = [
   "なかなか寝付けず、起きるのもしんどかった",
   "布団には入ったが、ほぼ寝てない"
 ];
+let sleepSymbols = ["◎", "○", "△", "×", "×"];
 let medicines = [];
 
 /**
@@ -35,9 +36,14 @@ function renderGood() {
   
   goodSigns.forEach((sign, index) => {
     const div = document.createElement("div");
+    div.className = "item-row";
     
     const text = document.createElement("span");
+    text.className = "item-text";
     text.textContent = sign;
+    
+    const buttons = document.createElement("div");
+    buttons.className = "item-buttons";
     
     const btn = document.createElement("button");
     btn.textContent = "削除";
@@ -46,8 +52,9 @@ function renderGood() {
       renderGood();
     };
     
+    buttons.appendChild(btn);
     div.appendChild(text);
-    div.appendChild(btn);
+    div.appendChild(buttons);
     list.appendChild(div);
   });
 }
@@ -74,9 +81,14 @@ function renderBad() {
   
   badSigns.forEach((sign, index) => {
     const div = document.createElement("div");
+    div.className = "item-row";
     
     const text = document.createElement("span");
+    text.className = "item-text";
     text.textContent = sign;
+    
+    const buttons = document.createElement("div");
+    buttons.className = "item-buttons";
     
     const btn = document.createElement("button");
     btn.textContent = "削除";
@@ -85,8 +97,9 @@ function renderBad() {
       renderBad();
     };
     
+    buttons.appendChild(btn);
     div.appendChild(text);
-    div.appendChild(btn);
+    div.appendChild(buttons);
     list.appendChild(div);
   });
 }
@@ -113,9 +126,14 @@ function renderMedicine() {
   
   medicines.forEach((medicine, index) => {
     const div = document.createElement("div");
+    div.className = "item-row";
     
     const text = document.createElement("span");
+    text.className = "item-text";
     text.textContent = medicine;
+    
+    const buttons = document.createElement("div");
+    buttons.className = "item-buttons";
     
     const btn = document.createElement("button");
     btn.textContent = "削除";
@@ -124,8 +142,9 @@ function renderMedicine() {
       renderMedicine();
     };
     
+    buttons.appendChild(btn);
     div.appendChild(text);
-    div.appendChild(btn);
+    div.appendChild(buttons);
     list.appendChild(div);
   });
 }
@@ -147,11 +166,40 @@ function renderSleepTypeEditor() {
     
     const input = document.createElement("input");
     input.type = "text";
+    input.className = "sleep-type-input";
     input.value = type;
     input.id = `sleepType_${index}`;
     
+    const symbolDiv = document.createElement("div");
+    symbolDiv.className = "sleep-type-symbol";
+    
+    const select = document.createElement("select");
+    select.id = `sleepSymbol_${index}`;
+    
+    const options = [
+      { value: "◎", text: "◎ 良い" },
+      { value: "○", text: "○ 普通" },
+      { value: "△", text: "△ 悪い" },
+      { value: "×", text: "× 非常に悪い" }
+    ];
+    
+    options.forEach(opt => {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.text;
+      select.appendChild(option);
+    });
+    
+    // 保存されたシンボルを選択
+    if (sleepSymbols[index]) {
+      select.value = sleepSymbols[index];
+    }
+    
+    symbolDiv.appendChild(select);
+    
     item.appendChild(label);
     item.appendChild(input);
+    item.appendChild(symbolDiv);
     editor.appendChild(item);
   });
 }
@@ -161,10 +209,18 @@ function renderSleepTypeEditor() {
  */
 function updateSleepTypes() {
   sleepTypes = [];
+  sleepSymbols = [];
+  
   for (let i = 0; i < 5; i++) {
     const input = document.getElementById(`sleepType_${i}`);
+    const select = document.getElementById(`sleepSymbol_${i}`);
+    
     if (input) {
       sleepTypes.push(input.value);
+    }
+    
+    if (select) {
+      sleepSymbols.push(select.value);
     }
   }
 }
@@ -181,6 +237,7 @@ function saveSettings() {
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
   localStorage.setItem("badSigns", JSON.stringify(badSigns));
   localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
+  localStorage.setItem("sleepSymbols", JSON.stringify(sleepSymbols));
   localStorage.setItem("medicines", JSON.stringify(medicines));
   
   alert("保存しました");
@@ -195,6 +252,7 @@ window.onload = function() {
   const savedGood = localStorage.getItem("goodSigns");
   const savedBad = localStorage.getItem("badSigns");
   const savedSleepTypes = localStorage.getItem("sleepTypes");
+  const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   const savedMedicines = localStorage.getItem("medicines");
   
   if (savedZip) {
@@ -213,6 +271,10 @@ window.onload = function() {
   
   if (savedSleepTypes) {
     sleepTypes = JSON.parse(savedSleepTypes);
+  }
+  
+  if (savedSleepSymbols) {
+    sleepSymbols = JSON.parse(savedSleepSymbols);
   }
   
   if (savedMedicines) {

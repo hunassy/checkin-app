@@ -3,28 +3,26 @@
 // ============================================
 
 /**
- * 10分単位の時間選択肢を生成
+ * 時間選択肢を生成
  */
 function generateTimeOptions() {
-  const bedtimeSelect = document.getElementById("bedtime");
-  const wakeuptimeSelect = document.getElementById("wakeuptime");
+  const bedtimeHourSelect = document.getElementById("bedtimeHour");
+  const bedtimeMinuteSelect = document.getElementById("bedtimeMinute");
+  const wakeuptimeHourSelect = document.getElementById("wakeuptimeHour");
+  const wakeuptimeMinuteSelect = document.getElementById("wakeuptimeMinute");
   const wakeupDurationSelect = document.getElementById("wakeupDuration");
   
-  // 就寝・起床時刻の選択肢を生成
+  // 時間の選択肢を生成（0～23）
   for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 10) {
-      const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-      
-      const option1 = document.createElement("option");
-      option1.value = timeStr;
-      option1.textContent = timeStr;
-      bedtimeSelect.appendChild(option1);
-      
-      const option2 = document.createElement("option");
-      option2.value = timeStr;
-      option2.textContent = timeStr;
-      wakeuptimeSelect.appendChild(option2);
-    }
+    const option1 = document.createElement("option");
+    option1.value = String(hour);
+    option1.textContent = `${String(hour).padStart(2, '0')}時`;
+    bedtimeHourSelect.appendChild(option1);
+    
+    const option2 = document.createElement("option");
+    option2.value = String(hour);
+    option2.textContent = `${String(hour).padStart(2, '0')}時`;
+    wakeuptimeHourSelect.appendChild(option2);
   }
   
   // 途中で起きた時間の選択肢を生成（0分から1440分まで10分単位）
@@ -191,21 +189,20 @@ function createSleepTypeButtons() {
  * 睡眠時間を計算して表示
  */
 function calculateSleepTime() {
-  const bedtime = document.getElementById("bedtime").value;
-  const wakeuptime = document.getElementById("wakeuptime").value;
+  const bedtimeHour = document.getElementById("bedtimeHour").value;
+  const bedtimeMinute = document.getElementById("bedtimeMinute").value;
+  const wakeuptimeHour = document.getElementById("wakeuptimeHour").value;
+  const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value;
   const wakeupDuration = parseInt(document.getElementById("wakeupDuration").value) || 0;
   
-  if (!bedtime || !wakeuptime) {
+  if (!bedtimeHour || bedtimeMinute === "" || !wakeuptimeHour || wakeuptimeMinute === "") {
     document.getElementById("sleepResult").textContent = "総睡眠時間：就寝・起床時刻を入力してください";
     return;
   }
   
   // 時刻を分に変換
-  const [bedHour, bedMin] = bedtime.split(":").map(Number);
-  const [wakeHour, wakeMin] = wakeuptime.split(":").map(Number);
-  
-  let bedMinutes = bedHour * 60 + bedMin;
-  let wakeMinutes = wakeHour * 60 + wakeMin;
+  let bedMinutes = parseInt(bedtimeHour) * 60 + parseInt(bedtimeMinute);
+  let wakeMinutes = parseInt(wakeuptimeHour) * 60 + parseInt(wakeuptimeMinute);
   
   // 起床時刻が就寝時刻より前の場合（翌日）
   if (wakeMinutes <= bedMinutes) {
@@ -256,7 +253,12 @@ function updateCompletionStatus() {
   
   // 睡眠セクション
   const sleepSection = document.querySelector(".sleep-section");
-  if (sleepType && document.getElementById("bedtime").value && document.getElementById("wakeuptime").value) {
+  const bedtimeHour = document.getElementById("bedtimeHour").value;
+  const bedtimeMinute = document.getElementById("bedtimeMinute").value;
+  const wakeuptimeHour = document.getElementById("wakeuptimeHour").value;
+  const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value;
+  
+  if (sleepType && bedtimeHour && bedtimeMinute !== "" && wakeuptimeHour && wakeuptimeMinute !== "") {
     sleepSection.classList.add("completed");
   } else {
     sleepSection.classList.remove("completed");
@@ -336,8 +338,14 @@ function sendData() {
   
   // 睡眠データ
   const sleepType = document.querySelector(".sleep-type-btn.active")?.dataset.value || "";
-  const bedtime = document.getElementById("bedtime").value || "";
-  const wakeuptime = document.getElementById("wakeuptime").value || "";
+  const bedtimeHour = document.getElementById("bedtimeHour").value || "";
+  const bedtimeMinute = document.getElementById("bedtimeMinute").value || "";
+  const bedtime = bedtimeHour && bedtimeMinute !== "" ? `${String(bedtimeHour).padStart(2, '0')}:${String(bedtimeMinute).padStart(2, '0')}` : "";
+  
+  const wakeuptimeHour = document.getElementById("wakeuptimeHour").value || "";
+  const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value || "";
+  const wakeuptime = wakeuptimeHour && wakeuptimeMinute !== "" ? `${String(wakeuptimeHour).padStart(2, '0')}:${String(wakeuptimeMinute).padStart(2, '0')}` : "";
+  
   const wakeupDuration = document.getElementById("wakeupDuration").value || "0";
   const sleepTime = window.calculatedSleepTime || "";
   
@@ -401,8 +409,10 @@ window.onload = function() {
   createSleepTypeButtons();
   
   // 睡眠時間の計算を監視
-  document.getElementById("bedtime").addEventListener("change", calculateSleepTime);
-  document.getElementById("wakeuptime").addEventListener("change", calculateSleepTime);
+  document.getElementById("bedtimeHour").addEventListener("change", calculateSleepTime);
+  document.getElementById("bedtimeMinute").addEventListener("change", calculateSleepTime);
+  document.getElementById("wakeuptimeHour").addEventListener("change", calculateSleepTime);
+  document.getElementById("wakeuptimeMinute").addEventListener("change", calculateSleepTime);
   document.getElementById("wakeupDuration").addEventListener("change", calculateSleepTime);
   
   // 完了状況の監視

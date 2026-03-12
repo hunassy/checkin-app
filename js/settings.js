@@ -1,9 +1,10 @@
 // ============================================
-// 初期設定画面（settings.html）のロジック
+// 設定画面（settings.html）のロジック
 // ============================================
 
 let goodSigns = [];
 let badSigns = [];
+let medicines = [];
 let sleepTypes = [
   "気持ちよく寝られた",
   "寝付きは悪いがすっきり寝られた",
@@ -12,7 +13,6 @@ let sleepTypes = [
   "布団には入ったが、ほぼ寝てない"
 ];
 let sleepSymbols = ["◎", "○", "△", "×", "×"];
-let medicines = [];
 
 /**
  * Goodサインを追加
@@ -28,7 +28,7 @@ function addGood() {
 }
 
 /**
- * Goodサインを表示
+ * Goodサインをレンダリング
  */
 function renderGood() {
   const list = document.getElementById("goodList");
@@ -73,7 +73,7 @@ function addBad() {
 }
 
 /**
- * Badサインを表示
+ * Badサインをレンダリング
  */
 function renderBad() {
   const list = document.getElementById("badList");
@@ -113,14 +113,14 @@ function addMedicine() {
   if (!text) return;
   
   medicines.push(text);
-  renderMedicine();
+  renderMedicineEditor();
   document.getElementById("medicineInput").value = "";
 }
 
 /**
- * 薬を表示
+ * 薬をレンダリング
  */
-function renderMedicine() {
+function renderMedicineEditor() {
   const list = document.getElementById("medicineList");
   list.innerHTML = "";
   
@@ -139,7 +139,7 @@ function renderMedicine() {
     btn.textContent = "削除";
     btn.onclick = function() {
       medicines.splice(index, 1);
-      renderMedicine();
+      renderMedicineEditor();
     };
     
     buttons.appendChild(btn);
@@ -150,7 +150,7 @@ function renderMedicine() {
 }
 
 /**
- * 睡眠タイプエディタを表示
+ * 睡眠タイプを編集
  */
 function renderSleepTypeEditor() {
   const editor = document.getElementById("sleepTypeEditor");
@@ -162,38 +162,35 @@ function renderSleepTypeEditor() {
     
     const label = document.createElement("div");
     label.className = "sleep-type-label";
-    label.textContent = (index + 1);
+    label.textContent = `${index + 1}`;
     
     const input = document.createElement("input");
-    input.type = "text";
     input.className = "sleep-type-input";
+    input.type = "text";
     input.value = type;
-    input.id = `sleepType_${index}`;
+    input.onchange = function() {
+      sleepTypes[index] = input.value;
+    };
     
     const symbolDiv = document.createElement("div");
     symbolDiv.className = "sleep-type-symbol";
     
     const select = document.createElement("select");
-    select.id = `sleepSymbol_${index}`;
-    
-    const options = [
-      { value: "◎", text: "◎ 良い" },
-      { value: "○", text: "○ 普通" },
-      { value: "△", text: "△ 悪い" },
-      { value: "×", text: "× 非常に悪い" }
-    ];
+    const options = ["◎", "○", "△", "×"];
     
     options.forEach(opt => {
       const option = document.createElement("option");
-      option.value = opt.value;
-      option.textContent = opt.text;
+      option.value = opt;
+      option.textContent = opt;
+      if (opt === sleepSymbols[index]) {
+        option.selected = true;
+      }
       select.appendChild(option);
     });
     
-    // 保存されたシンボルを選択
-    if (sleepSymbols[index]) {
-      select.value = sleepSymbols[index];
-    }
+    select.onchange = function() {
+      sleepSymbols[index] = select.value;
+    };
     
     symbolDiv.appendChild(select);
     
@@ -205,55 +202,32 @@ function renderSleepTypeEditor() {
 }
 
 /**
- * 睡眠タイプを更新
- */
-function updateSleepTypes() {
-  sleepTypes = [];
-  sleepSymbols = [];
-  
-  for (let i = 0; i < 5; i++) {
-    const input = document.getElementById(`sleepType_${i}`);
-    const select = document.getElementById(`sleepSymbol_${i}`);
-    
-    if (input) {
-      sleepTypes.push(input.value);
-    }
-    
-    if (select) {
-      sleepSymbols.push(select.value);
-    }
-  }
-}
-
-/**
  * 設定を保存
  */
 function saveSettings() {
   const zipcode = document.getElementById("zipcode").value;
   
-  updateSleepTypes();
-  
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
   localStorage.setItem("badSigns", JSON.stringify(badSigns));
+  localStorage.setItem("medicines", JSON.stringify(medicines));
   localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
   localStorage.setItem("sleepSymbols", JSON.stringify(sleepSymbols));
-  localStorage.setItem("medicines", JSON.stringify(medicines));
   
   alert("保存しました");
   window.location.href = "index.html";
 }
 
 /**
- * ページ読み込み時に保存されたデータを復元
+ * ページ読み込み時の初期化
  */
 window.onload = function() {
   const savedZip = localStorage.getItem("zipcode");
   const savedGood = localStorage.getItem("goodSigns");
   const savedBad = localStorage.getItem("badSigns");
+  const savedMedicines = localStorage.getItem("medicines");
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
-  const savedMedicines = localStorage.getItem("medicines");
   
   if (savedZip) {
     document.getElementById("zipcode").value = savedZip;
@@ -269,17 +243,17 @@ window.onload = function() {
     renderBad();
   }
   
+  if (savedMedicines) {
+    medicines = JSON.parse(savedMedicines);
+    renderMedicineEditor();
+  }
+  
   if (savedSleepTypes) {
     sleepTypes = JSON.parse(savedSleepTypes);
   }
   
   if (savedSleepSymbols) {
     sleepSymbols = JSON.parse(savedSleepSymbols);
-  }
-  
-  if (savedMedicines) {
-    medicines = JSON.parse(savedMedicines);
-    renderMedicine();
   }
   
   renderSleepTypeEditor();

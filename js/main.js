@@ -154,7 +154,7 @@ function createSleepTypeButtons() {
     "布団には入ったが、ほぼ寝てない"
   ];
   
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";
@@ -170,12 +170,12 @@ function createSleepTypeButtons() {
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");
-    const symbol = sleepSymbols[index] || "○";
+    const symbol = sleepSymbols[index] || "〇";
     let symbolClass = "";
     if (symbol === "◎") symbolClass = "symbol-double-circle";
-    else if (symbol === "○") symbolClass = "symbol-circle";
+    else if (symbol === "〇") symbolClass = "symbol-circle";
     else if (symbol === "△") symbolClass = "symbol-triangle";
-    else if (symbol === "×") symbolClass = "symbol-cross";
+    else if (symbol === "✕") symbolClass = "symbol-cross";
     
     symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
     symbolSpan.textContent = symbol;

@@ -54,8 +54,7 @@ function loadGoodSigns() {
     label.style.display = "flex";
     label.style.alignItems = "center";
     label.style.margin = "0";
-    label.style.fontSize = "14px"; // CSSで指定したフォントサイズに合わせる
-
+    
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "good";
@@ -88,7 +87,6 @@ function loadBadSigns() {
     label.style.display = "flex";
     label.style.alignItems = "center";
     label.style.margin = "0";
-    label.style.fontSize = "14px"; // CSSで指定したフォントサイズに合わせる
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -131,7 +129,6 @@ function loadBadSigns() {
     label.style.alignItems = "center";
     label.style.margin = "0";
     label.style.width = "100%";
-    label.style.fontSize = "12px";
     
     label.appendChild(checkbox);
     label.append(text);

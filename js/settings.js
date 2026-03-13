@@ -294,7 +294,7 @@ window.onload = function() {
     sleepTypes = JSON.parse(savedSleepTypes);
   } else {
     // 【追加】保存データがない場合、デフォルト値をセットする
-    sleepTypes = ["", "", "", "", ""];
+    sleepTypes = ["よく眠れた", "まあまあ眠れた", "そこそこ眠れた", "何とか眠れた", "眠れなかった"];
   }
   
   // 2. 睡眠タイプの記号を読み込む
@@ -302,7 +302,7 @@ window.onload = function() {
     sleepSymbols = JSON.parse(savedSleepSymbols);
   } else {
     // 【追加】保存データがない場合、デフォルトの記号をセットする
-    sleepSymbols = ["-", "-", "-", "-", "-"];
+    sleepSymbols = ["◎", "〇", "△", "△", "✕"];
   }
   
   // 最後に表示を実行

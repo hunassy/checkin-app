@@ -196,9 +196,9 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : ["","","","",""];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : ["よく眠れた", "まあまあ眠れた", "そこそこ眠れた", "何とか眠れた", "眠れなかった"];
   
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["-", "-", "-", "-", "-"];
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "△", "✕"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";

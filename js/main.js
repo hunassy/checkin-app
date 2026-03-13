@@ -381,6 +381,23 @@ async function getWeather() {
 }
 
 /**
+ * 気圧注意度を計算
+ * @param {number} pressure 気圧(hPa)
+ * @returns {string} 注意度メッセージ
+ */
+function calculatePressureWarning(pressure) {
+  if (pressure < 1000) {
+    return "警戒（低気圧）";
+  } else if (pressure < 1005) {
+    return "注意";
+  } else if (pressure > 1020) {
+    return "注意（高気圧）";
+  } else {
+    return "通常";
+  }
+}
+
+/**
  * データを送信
  */
 function sendData() {
@@ -482,20 +499,3 @@ window.onload = function() {
   // ページ読み込み時に自動で天気を取得
   getWeather();
 };
-
-/**
- * 気圧注意度を計算
- * @param {number} pressure 気圧(hPa)
- * @returns {string} 注意度メッセージ
- */
-function calculatePressureWarning(pressure) {
-  if (pressure < 1000) {
-    return "警戒（低気圧）";
-  } else if (pressure < 1005) {
-    return "注意";
-  } else if (pressure > 1020) {
-    return "注意（高気圧）";
-  } else {
-    return "通常";
-  }
-}

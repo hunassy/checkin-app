@@ -49,17 +49,22 @@ function loadGoodSigns() {
   container.innerHTML = "";
   
   goodSigns.forEach(sign => {
-    const label = document.createElement("label");
-    const checkbox = document.createElement("input");
+    const div = document.createElement("div");
+    div.className = "good-bad-item";
     
+    const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "good";
     checkbox.value = sign;
     
+    const label = document.createElement("label");
+    label.style.margin = "0";
+    label.style.fontSize = "12px";
     label.appendChild(checkbox);
-    label.append(" " + sign);
+    label.append(sign);
     
-    container.appendChild(label);
+    div.appendChild(label);
+    container.appendChild(div);
   });
 }
 
@@ -74,17 +79,22 @@ function loadBadSigns() {
   container.innerHTML = "";
   
   badSigns.forEach(sign => {
-    const label = document.createElement("label");
-    const checkbox = document.createElement("input");
+    const div = document.createElement("div");
+    div.className = "good-bad-item";
     
+    const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "bad";
     checkbox.value = sign;
     
+    const label = document.createElement("label");
+    label.style.margin = "0";
+    label.style.fontSize = "12px";
     label.appendChild(checkbox);
-    label.append(" " + sign);
+    label.append(sign);
     
-    container.appendChild(label);
+    div.appendChild(label);
+    container.appendChild(div);
   });
 }
 

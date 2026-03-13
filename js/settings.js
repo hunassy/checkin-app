@@ -5,8 +5,14 @@
 let goodSigns = [];
 let badSigns = [];
 let medicines = [];
-let sleepTypes = ["", "", "", "", ""];
-let sleepSymbols = ["", "", "", "", ""];
+let sleepTypes = [
+  "気持ちよく寝られた",
+  "寝付きは悪いがすっきり寝られた",
+  "すぐに寝付けたが朝起きるのがしんどかった",
+  "なかなか寝付けず、起きるのもしんどかった",
+  "布団には入ったが、ほぼ寝てない"
+];
+let sleepSymbols = ["◎", "〇", "△", "✕", "✕"];
 
 /**
  * 郵便番号から市町村を取得して表示
@@ -39,6 +45,10 @@ function addGood() {
   const text = document.getElementById("goodInput").value;
   
   if (!text) return;
+  if (goodSigns.length >= 10) {
+    alert("Goodサインは10個までしか登録できません");
+    return;
+  }
   
   goodSigns.push(text);
   renderGood();
@@ -84,6 +94,10 @@ function addBad() {
   const text = document.getElementById("badInput").value;
   
   if (!text) return;
+  if (badSigns.length >= 10) {
+    alert("Badサインは10個までしか登録できません");
+    return;
+  }
   
   badSigns.push(text);
   renderBad();
@@ -185,8 +199,7 @@ function renderSleepTypeEditor() {
     const input = document.createElement("input");
     input.className = "sleep-type-input";
     input.type = "text";
-    input.value = type || ""; // 空文字でもOK
-    input.placeholder = "睡眠タイプを入力（空欄なら表示されません）";
+    input.value = type;
     input.onchange = function() {
       sleepTypes[index] = input.value;
     };
@@ -221,9 +234,11 @@ function renderSleepTypeEditor() {
       updateSelectClass(select);
     };
     
+    // 初期表示時にもクラスを適用
     updateSelectClass(select);
     
     symbolDiv.appendChild(select);
+    
     item.appendChild(label);
     item.appendChild(symbolDiv); // 記号を左側に
     item.appendChild(input);     // テキストを右側に

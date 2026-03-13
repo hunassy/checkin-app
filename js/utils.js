@@ -40,7 +40,8 @@ async function getCityFromZipcode(zipcode) {
       throw new Error("郵便番号が見つかりません");
     }
     
-    return data.results[0].address2;
+    const result = data.results[0];
+    return result.address1 + result.address2; // 都道府県名 + 市区町村名
   } catch (error) {
     console.error("郵便番号取得エラー:", error);
     throw error;
@@ -79,21 +80,6 @@ async function getWeatherFromCity(city) {
  */
 function formatWeatherText(weatherData) {
   return `${weatherData.city} / ${weatherData.weather} / 気温 ${weatherData.temp}℃ / 気圧 ${weatherData.pressure}hPa`;
-}
-
-/**
- * 気圧から注意度を計算
- * @param {number} pressure 気圧（hPa）
- * @returns {string} 注意度（通常/やや注意/注意）
- */
-function calculatePressureWarning(pressure) {
-  if (pressure >= 1013) {
-    return "通常";
-  } else if (pressure >= 1000) {
-    return "やや注意";
-  } else {
-    return "注意";
-  }
 }
 
 /**

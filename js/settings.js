@@ -195,7 +195,7 @@ function renderSleepTypeEditor() {
     symbolDiv.className = "sleep-type-symbol";
     
     const select = document.createElement("select");
-    const options = ["◎", "○", "△", "×"];
+    const options = ["◎", "〇", "△", "✕"];
     
     options.forEach(opt => {
       const option = document.createElement("option");
@@ -211,9 +211,9 @@ function renderSleepTypeEditor() {
     const updateSelectClass = (sel) => {
       sel.classList.remove("symbol-double-circle", "symbol-circle", "symbol-triangle", "symbol-cross");
       if (sel.value === "◎") sel.classList.add("symbol-double-circle");
-      else if (sel.value === "○") sel.classList.add("symbol-circle");
+      else if (sel.value === "〇") sel.classList.add("symbol-circle");
       else if (sel.value === "△") sel.classList.add("symbol-triangle");
-      else if (sel.value === "×") sel.classList.add("symbol-cross");
+      else if (sel.value === "✕") sel.classList.add("symbol-cross");
     };
 
     select.onchange = function() {

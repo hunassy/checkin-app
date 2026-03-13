@@ -189,6 +189,100 @@
   white-space: nowrap;
 }
 
+/* --- スマホ向け最適化 (画面幅600px以下) --- */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px 10px; /* 左右の余白を最小限に */
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  h3 {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  /* 入力フィールドとセレクトボックスを大きく */
+  input[type="text"], 
+  input[type="number"], 
+  select {
+    width: 100% !important; /* 横幅いっぱい */
+    height: 44px !important; /* 押しやすい高さ */
+    font-size: 16px !important; /* ズーム防止 */
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  /* 郵便番号検索セクション */
+  .zipcode-section {
+    display: flex;
+    flex-direction: column; /* 縦並びに */
+    gap: 10px;
+  }
+
+  .zipcode-section button {
+    width: 100%;
+    height: 44px;
+  }
+
+  /* 睡眠タイプの編集エリア */
+  .sleep-type-edit-item {
+    flex-direction: column; /* 記号とテキストを縦に */
+    align-items: stretch;
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .sleep-type-edit-item select {
+    width: 100% !important;
+  }
+
+  /* 薬・サインの追加セクション */
+  .add-item-section {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-item-section input {
+    margin-bottom: 0;
+  }
+
+  .add-item-section button {
+    width: 100%;
+    height: 44px;
+  }
+
+  /* リストアイテム（削除ボタン付き） */
+  .list-item {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .list-item button {
+    padding: 8px 15px; /* 削除ボタンを押しやすく */
+  }
+
+  /* 保存・戻るボタン */
+  .footer-buttons {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .save-btn, .back-link {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin: 0;
+  }
+}
+
 </style>
 </head>
 

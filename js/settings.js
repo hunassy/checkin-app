@@ -5,14 +5,8 @@
 let goodSigns = [];
 let badSigns = [];
 let medicines = [];
-let sleepTypes = [
-  "気持ちよく寝られた",
-  "寝付きは悪いがすっきり寝られた",
-  "すぐに寝付けたが朝起きるのがしんどかった",
-  "なかなか寝付けず、起きるのもしんどかった",
-  "布団には入ったが、ほぼ寝てない"
-];
-let sleepSymbols = ["◎", "〇", "△", "✕", "✕"];
+let sleepTypes = [];
+let sleepSymbols = [];
 
 /**
  * 郵便番号から市町村を取得して表示

@@ -393,21 +393,16 @@ input[type="text"][type="number"] {
 /* --- スマホ向け最適化 (画面幅600px以下) --- */
 @media (max-width: 600px) {
   .container {
-    padding: 10px; /* 左右の余白を少し削って画面を広く使う */
+    padding: 10px;
   }
 
-  /* 天気情報を2列ずつ表示（4列だと小さすぎるため） */
+  /* 天気情報を2列ずつ表示 */
   .weather-section {
     grid-template-columns: 1fr 1fr;
   }
 
-  /* 通所/在宅・朝食を1列に並べる */
-  .attendance-breakfast {
-    grid-template-columns: 1fr;
-  }
-
-  /* 睡眠時間の入力欄を1列に並べる */
-  .time-input-group {
+  /* 各セクションを1列に並べる */
+  .attendance-breakfast, .time-input-group, #goodList, #badList {
     grid-template-columns: 1fr;
   }
 
@@ -415,36 +410,49 @@ input[type="text"][type="number"] {
   .score-labels, .score-buttons {
     grid-template-columns: repeat(3, 1fr);
   }
-  
-  /* スコアのラベル位置を調整 */
   .score-labels span:nth-child(2) { grid-column: 2; }
   .score-labels span:nth-child(3) { grid-column: 3; }
 
-  /* Good/Badサインを1列に並べ、横幅いっぱいに広げる */
-  #goodList, #badList {
-    grid-template-columns: 1fr;
+  /* 【追加】Good/Badサイン：チェックが入った時に背景色を変える */
+  .good-bad-item:has(input:checked) {
+    background-color: #e8f5e9 !important; /* 薄い緑色 */
+    border-color: #4CAF50 !important; /* 枠線も緑に */
   }
 
   .good-bad-item {
-    height: 50px; /* 指で押しやすい高さに固定 */
-    font-size: 16px; /* 文字を少し大きくして読みやすく */
+    height: 50px;
+    font-size: 16px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
   }
 
-  /* 入力フィールド全般のサイズアップ */
+  /* 【追加】タップした瞬間の「押し込み感」を出す演出 */
+  .sleep-type-btn:active, 
+  .score-buttons button:active, 
+  .submit:active,
+  .good-bad-item:active {
+    background-color: #e0e0e0 !important;
+    transform: scale(0.97); /* ほんの少しだけ小さくして「押した感」を出す */
+  }
+
+  /* 入力フィールド全般のサイズアップ（ズーム防止） */
   select, input[type="text"], textarea {
-    font-size: 16px; /* 入力時にズームされるのを防ぐサイズ */
+    font-size: 16px !important;
     height: 44px;
   }
   
   textarea {
-    height: 100px; /* コメント欄は高さを確保 */
+    height: 100px;
   }
 
   .submit {
-    height: 50px;
+    height: 55px;
     font-size: 18px;
+    font-weight: bold;
   }
 }
+
 
 </style>
 </head>

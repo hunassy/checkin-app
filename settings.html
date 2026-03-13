@@ -195,59 +195,47 @@
     padding: 15px 10px; /* 左右の余白を最小限に */
   }
 
-  h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-  }
+  h2 { font-size: 20px; margin-bottom: 15px; }
+  h3 { font-size: 18px; margin-top: 20px; }
 
-  h3 {
-    font-size: 18px;
-    margin-top: 20px;
-  }
-
-  /* 入力フィールドとセレクトボックスを大きく */
+  /* 入力フィールドとセレクトボックスを大きく（ズーム防止） */
   input[type="text"], 
   input[type="number"], 
   select {
-    width: 100% !important; /* 横幅いっぱい */
-    height: 44px !important; /* 押しやすい高さ */
-    font-size: 16px !important; /* ズーム防止 */
+    width: 100% !important;
+    height: 44px !important;
+    font-size: 16px !important; /* 16px以上に固定してズームを防ぐ */
     box-sizing: border-box;
     margin-bottom: 10px;
   }
 
-  /* 郵便番号検索セクション */
+  /* 郵便番号検索セクションを縦並びに */
   .zipcode-section {
     display: flex;
-    flex-direction: column; /* 縦並びに */
+    flex-direction: column;
     gap: 10px;
   }
 
   .zipcode-section button {
     width: 100%;
     height: 44px;
+    font-size: 16px;
   }
 
-  /* 睡眠タイプの編集エリア */
+  /* 睡眠タイプの編集エリアを縦並びに */
   .sleep-type-edit-item {
-    flex-direction: column; /* 記号とテキストを縦に */
+    flex-direction: column;
     align-items: stretch;
     padding: 15px;
     gap: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
   }
 
-  .sleep-type-edit-item select {
-    width: 100% !important;
-  }
-
-  /* 薬・サインの追加セクション */
+  /* 薬・サインの追加セクションを縦並びに */
   .add-item-section {
     flex-direction: column;
     gap: 10px;
-  }
-
-  .add-item-section input {
-    margin-bottom: 0;
   }
 
   .add-item-section button {
@@ -255,31 +243,55 @@
     height: 44px;
   }
 
-  /* リストアイテム（削除ボタン付き） */
+  /* リストアイテム（削除ボタン付き）を押しやすく */
   .list-item {
     padding: 12px;
     font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .list-item button {
-    padding: 8px 15px; /* 削除ボタンを押しやすく */
+    padding: 10px 20px; /* 削除ボタンを大きく */
+    background-color: #ff5252;
+    color: white;
+    border: none;
+    border-radius: 4px;
   }
 
-  /* 保存・戻るボタン */
+  /* 【追加】タップした瞬間の「押し込み感」を出す演出 */
+  button:active, 
+  .list-item:active,
+  .save-btn:active,
+  .back-link:active {
+    background-color: #e0e0e0 !important;
+    transform: scale(0.97); /* ほんの少しだけ小さくして「押した感」を出す */
+  }
+
+  /* 保存・戻るボタンを大きく縦並びに */
   .footer-buttons {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     margin-top: 30px;
   }
 
   .save-btn, .back-link {
     width: 100%;
-    height: 50px;
+    height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
+    font-weight: bold;
     margin: 0;
+    border-radius: 8px;
+  }
+
+  .back-link {
+    background-color: #eee;
+    color: #333;
+    text-decoration: none;
   }
 }
 

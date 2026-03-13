@@ -337,7 +337,19 @@ function updateCompletionStatus() {
 }
 
 /**
- * 天気を自動取得async function getWeather() {
+ * 気圧注意度を計算
+ */
+function calculatePressureWarning(pressure) {
+  if (pressure < 1000) return "警戒（低気圧）";
+  if (pressure < 1005) return "注意";
+  if (pressure > 1020) return "注意（高気圧）";
+  return "通常";
+}
+
+/**
+ * 天気を自動取得
+ */
+async function getWeather() {
   const zipcode = localStorage.getItem("zipcode");
   
   if (!zipcode) {
@@ -349,8 +361,8 @@ function updateCompletionStatus() {
   }
   
   try {
+    // utils.js の関数を使用して住所と天気を取得
     const addressData = await getCityFromZipcode(zipcode);
-    // 天気取得には市区町村名(cityOnly)を使用し、表示にはフル住所(fullAddress)を使用
     const weatherData = await getWeatherFromCity(addressData.cityOnly, addressData.fullAddress);
     
     // 天気情報を表示
@@ -358,24 +370,13 @@ function updateCompletionStatus() {
     document.getElementById("tempValue").innerText = `${weatherData.temp}℃`;
     document.getElementById("pressureValue").innerText = `${weatherData.pressure}hPa`;
     
-    // 気圧注意度を計算・表示
+    // 気圧注意度を判定して表示
     const warning = calculatePressureWarning(weatherData.pressure);
     document.getElementById("pressureWarning").innerText = warning;
     
-    // 住所を表示（栃木県宇都宮市など）
-    document.getElementById("cityValue").innerText = addressData.fullAddress;
   } catch (error) {
     console.error("天気取得エラー:", error);
     document.getElementById("weatherValue").innerText = "取得失敗";
-  }
-}essureWarning = warning;
-    
-  } catch (error) {
-    document.getElementById("weatherValue").innerText = "取得失敗";
-    document.getElementById("tempValue").innerText = "-";
-    document.getElementById("pressureValue").innerText = "-";
-    document.getElementById("pressureWarning").innerText = "-";
-    console.error(error);
   }
 }
 

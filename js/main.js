@@ -49,27 +49,60 @@ function loadGoodSigns() {
   container.innerHTML = "";
   
   goodSigns.forEach(sign => {
-    const div = document.createElement("div");
-    div.className = "good-bad-item";
-    
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "good";
-    const text = typeof sign === 'object' ? sign.text : sign;
-    checkbox.value = text;
-    
     const label = document.createElement("label");
+    label.className = "good-bad-item"; // label自体をgood-bad-itemにする
     label.style.display = "flex";
     label.style.alignItems = "center";
     label.style.margin = "0";
-    label.style.width = "100%";
-    label.style.fontSize = "12px";
-    
+    label.style.fontSize = "14px"; // CSSで指定したフォントサイズに合わせる
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "good";
+    const textContent = typeof sign === 'object' ? sign.text : sign;
+    checkbox.value = textContent;
+
+    const textSpan = document.createElement("span");
+    textSpan.textContent = textContent;
+
     label.appendChild(checkbox);
-    label.append(text);
+    label.appendChild(textSpan);
     
-    div.appendChild(label);
-    container.appendChild(div);
+    container.appendChild(label);
+  });
+}
+
+function loadBadSigns() {
+  const savedBad = localStorage.getItem("badSigns");
+  
+  if (!savedBad) return;
+  
+  const badSigns = JSON.parse(savedBad);
+  const container = document.getElementById("badList");
+  
+  container.innerHTML = "";
+  
+  badSigns.forEach(sign => {
+    const label = document.createElement("label");
+    label.className = "good-bad-item"; // label自体をgood-bad-itemにする
+    label.style.display = "flex";
+    label.style.alignItems = "center";
+    label.style.margin = "0";
+    label.style.fontSize = "14px"; // CSSで指定したフォントサイズに合わせる
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "bad";
+    const textContent = typeof sign === 'object' ? sign.text : sign;
+    checkbox.value = textContent;
+
+    const textSpan = document.createElement("span");
+    textSpan.textContent = textContent;
+
+    label.appendChild(checkbox);
+    label.appendChild(textSpan);
+    
+    container.appendChild(label);
   });
 }
 
@@ -166,15 +199,9 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
-    "気持ちよく寝られた",
-    "寝付きは悪いがすっきり寝られた",
-    "すぐに寝付けたが朝起きるのがしんどかった",
-    "なかなか寝付けず、起きるのもしんどかった",
-    "布団には入ったが、ほぼ寝てない"
-  ];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [];
   
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";
@@ -190,12 +217,12 @@ function createSleepTypeButtons() {
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");
-    const symbol = sleepSymbols[index] || "○";
+    const symbol = sleepSymbols[index] || "〇";
     let symbolClass = "";
     if (symbol === "◎") symbolClass = "symbol-double-circle";
-    else if (symbol === "○") symbolClass = "symbol-circle";
+    else if (symbol === "〇") symbolClass = "symbol-circle";
     else if (symbol === "△") symbolClass = "symbol-triangle";
-    else if (symbol === "×") symbolClass = "symbol-cross";
+    else if (symbol === "✕") symbolClass = "symbol-cross";
     
     symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
     symbolSpan.textContent = symbol;

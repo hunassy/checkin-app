@@ -89,9 +89,15 @@
 
 .sleep-type-editor {
   margin-top: 10px;
+  margin-bottom: 30px; /* 薬についての上の空白を調整 */
   padding: 10px;
   background: #f5f5f5;
   border-radius: 5px;
+}
+
+/* 各リストの下に30pxの余白を一括追加 */
+#medicineList, #goodList, #badList {
+  margin-bottom: 30px;
 }
 
 .sleep-type-item {
@@ -99,7 +105,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 44px;
+  height: 38px;
 }
 
 .sleep-type-label {
@@ -156,6 +162,31 @@
 .symbol-cross {
   font-size: 38px;
 }
+
+/* 入力欄と追加ボタンを横並びにして大きくする設定 */
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  height: 40px; /* 高さを40pxにアップ */
+  box-sizing: border-box;
+}
+
+.input-group button {
+  padding: 0 20px;
+  height: 40px; /* ボタンの高さも入力欄に合わせる */
+  margin: 0;
+  white-space: nowrap;
+}
+
 </style>
 </head>
 
@@ -184,19 +215,25 @@
 
 <!-- 9. 薬について -->
 <h2>薬について</h2>
-<input id="medicineInput" placeholder="例 イフェクサーSRカプセル75mg">
-<button onclick="addMedicine()">追加</button>
+<div class="input-group">
+ <input id="medicineInput" placeholder="例 イフェクサーSRカプセル75mg">
+ <button onclick="addMedicine()">追加</button>
+</div>
 <div id="medicineList"></div>
 
 <!-- 10. Good/Badサイン -->
 <h2>Goodサイン</h2>
-<input id="goodInput" placeholder="例 よく眠れた">
-<button onclick="addGood()">追加</button>
+<div class="input-group">
+ <input id="goodInput" placeholder="例 よく眠れた">
+ <button onclick="addGood()">追加</button>
+</div>
 <div id="goodList"></div>
 
 <h2>Badサイン</h2>
-<input id="badInput" placeholder="例 頭痛">
-<button onclick="addBad()">追加</button>
+<div class="input-group">
+ <input id="badInput" placeholder="例 頭痛">
+ <button onclick="addBad()">追加</button>
+</div>
 <div id="badList"></div>
 
 <button onclick="saveSettings()">設定保存</button>

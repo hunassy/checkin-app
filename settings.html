@@ -226,83 +226,50 @@
 
 /* --- スマホ向け最適化 (画面幅600px以下) --- */
 @media (max-width: 600px) {
-  .container {
-    width: 100% !important;
-    padding: 15px 10px !important;
-    margin: 0 !important; /* スマホでは余白をなくす */
-  }
+  /* --- 表示崩れの最終修正 (既存の設定を活かしつつ不具合を直す) --- */
 
-  h2 {
-    font-size: 20px !important;
-    margin-bottom: 15px !important;
-  }
-
-  /* 縦並びにするセクションを限定 */
-  .zipcode-section, .add-item-section, .sleep-type-edit-item {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-  }
-
-  /* 入力欄の幅を調整 */
-  input[type="text"], input[type="number"], select {
-    width: 100% !important;
-    max-width: none !important; /* PC用の制限を解除 */
-  }
-
-  /* 保存・戻るボタンの重なりを解消 */
-  .footer-buttons {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    margin-top: 20px !important;
-    position: static !important; /* 位置を固定しない */
-  }
-
-  .save-btn, .back-link {
-    width: 100% !important;
-    height: 50px !important;
-    position: static !important;
-  }
+/* 1. 親要素の幅をPCでは600px、スマホでは画面幅に自動調整 */
+.container {
+  display: block !important;
+  width: 95% !important; /* スマホでは画面の95% */
+  max-width: 600px !important; /* PCでは最大600pxに抑える */
+  margin: 20px auto !important; /* 中央に寄せる */
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
 }
-/* 1. タイトルの縦書き（改行）を強制的に直す */
+
+/* 2. タイトルの縦書き（改行）を物理的に不可能にする */
 h2 {
   display: block !important;
   width: 100% !important;
-  white-space: nowrap !important;
+  white-space: nowrap !important; /* 絶対に改行させない */
   text-align: center !important;
-  margin: 20px 0 !important;
-  position: static !important;
-}
+  margin: 0 0 25px 0 !important;
+  font-size: 24px !important;
+ }
 
-/* 2. ボタンの重なりを強制的に解除して順番に並べる */
+/* 3. ボタンの重なりを強制解除して順番に並べる */
 .footer-buttons {
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: column !important; /* 縦に並べる */
   gap: 15px !important;
   margin-top: 40px !important;
-  position: static !important;
+  position: static !important; /* 絶対配置を解除 */
   width: 100% !important;
-  clear: both !important;
-}
+ }
 
 .save-btn, .back-link {
-  position: static !important;
+  position: static !important; /* 重なりを防止 */
   display: flex !important;
   width: 100% !important;
   height: 50px !important;
   align-items: center !important;
   justify-content: center !important;
   margin: 5px 0 !important;
-}
-
-/* 3. 親要素の幅が潰れないようにする */
-.container {
-  display: block !important;
-  min-width: 320px !important;
   box-sizing: border-box !important;
+ }
 }
-
 </style>
 </head>
 

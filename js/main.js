@@ -146,51 +146,18 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  // 初期値を空にする
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : ["", "", "", "", ""];
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
+    "気持ちよく寝られた",
+    "寝付きは悪いがすっきり寝られた",
+    "すぐに寝付けたが朝起きるのがしんどかった",
+    "なかなか寝付けず、起きるのもしんどかった",
+    "布団には入ったが、ほぼ寝てない"
+  ];
+  
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";
-  
-  sleepTypes.forEach((type, index) => {
-    // 文言が入力されている場合のみボタンを作成
-    if (type && type.trim() !== "") {
-      const btn = document.createElement("button");
-      btn.className = "sleep-type-btn";
-      btn.dataset.index = index;
-      btn.dataset.value = type;
-      
-      const textSpan = document.createElement("span");
-      textSpan.className = "sleep-type-text";
-      textSpan.textContent = type;
-      
-      const symbolSpan = document.createElement("span");
-      const symbol = sleepSymbols[index] || "〇";
-      
-      // 記号に応じたクラスを適用
-      let symbolClass = "";
-      if (symbol === "◎") symbolClass = "symbol-double-circle";
-      else if (symbol === "〇") symbolClass = "symbol-circle";
-      else if (symbol === "△") symbolClass = "symbol-triangle";
-      else if (symbol === "✕") symbolClass = "symbol-cross";
-      
-      symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
-      symbolSpan.textContent = symbol;
-      
-      btn.appendChild(symbolSpan);
-      btn.appendChild(textSpan);
-      
-      btn.onclick = () => {
-        container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        updateCompletionStatus();
-      };
-      
-      container.appendChild(btn);
-    }
-  });
-}
   
   sleepTypes.forEach((type, index) => {
     const btn = document.createElement("button");
@@ -203,12 +170,12 @@ function createSleepTypeButtons() {
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");
-    const symbol = sleepSymbols[index] || "〇";
+    const symbol = sleepSymbols[index] || "○";
     let symbolClass = "";
     if (symbol === "◎") symbolClass = "symbol-double-circle";
-    else if (symbol === "〇") symbolClass = "symbol-circle";
+    else if (symbol === "○") symbolClass = "symbol-circle";
     else if (symbol === "△") symbolClass = "symbol-triangle";
-    else if (symbol === "✕") symbolClass = "symbol-cross";
+    else if (symbol === "×") symbolClass = "symbol-cross";
     
     symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
     symbolSpan.textContent = symbol;
@@ -226,6 +193,7 @@ function createSleepTypeButtons() {
     
     container.appendChild(btn);
   });
+}
 
 /**
  * 睡眠時間を計算して表示
@@ -382,8 +350,7 @@ function sendData() {
   const breakfast = document.getElementById("breakfast").value || "";
   
   // 睡眠データ
-  const sleepTypeBtn = document.querySelector(".sleep-type-btn.active");
-  const sleepType = sleepTypeBtn ? sleepTypeBtn.dataset.value : "";
+  const sleepType = document.querySelector(".sleep-type-btn.active")?.dataset.value || "";
   const bedtimeHour = document.getElementById("bedtimeHour").value || "";
   const bedtimeMinute = document.getElementById("bedtimeMinute").value || "";
   const bedtime = bedtimeHour && bedtimeMinute !== "" ? `${String(bedtimeHour).padStart(2, '0')}:${String(bedtimeMinute).padStart(2, '0')}` : "";

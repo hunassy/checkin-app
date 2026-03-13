@@ -98,30 +98,30 @@
 .sleep-type-item {
   margin: 10px 0;
   display: flex;
-  align-items: center; /* ← stretchからcenterに戻し、上下中央に揃えます */
+  align-items: flex-start; /* 上端で揃える */
   gap: 8px;
-  height: 34px; /* ← 行全体の高さを固定します */
+  height: 34px;
 }
 
 /* 2. 数字（1〜5）のラベル */
 .sleep-type-label {
-  width: 20px; /* 幅を少し狭くして数字をスッキリさせます */
+  width: 20px;
   font-weight: bold;
   color: #666;
-  display: flex;
-  align-items: center;
-  height: 100%; /* 親の高さに合わせます */
+  height: 34px;
+  line-height: 34px; /* 高さと行の高さを一致させる */
+  display: inline-block;
 }
 
 /* 3. プルダウン（記号）の設定 */
 .sleep-type-symbol {
-  width: 80px; /* 100pxから少し狭くしてバランスを調整 */
-  height: 100%; /* 親の高さに合わせます */
+  width: 80px;
+  height: 34px;
 }
 
 .sleep-type-symbol select {
   width: 100%;
-  height: 100%; /* 枠いっぱいの高さに */
+  height: 34px;
   box-sizing: border-box;
   padding: 0 4px;
   border: 1px solid #ddd;
@@ -129,18 +129,24 @@
   background: white;
   text-align: center;
   font-size: 18px;
-  display: block; /* 余計な隙間を消すためにblockに */
+  line-height: 32px; /* 枠線1px分を引いた高さ */
+  display: block;
+  -webkit-appearance: none; /* ブラウザ独自の装飾を消す */
+  -moz-appearance: none;
+  appearance: none;
 }
 
 /* 4. テキスト入力欄の設定 */
 .sleep-type-input {
   flex: 1;
-  height: 100%; /* 枠いっぱいの高さに */
+  height: 34px;
   box-sizing: border-box;
   padding: 0 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  line-height: 32px; /* 枠線1px分を引いた高さ */
+  display: block;
 }
 
 .sleep-type-symbol {

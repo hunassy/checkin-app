@@ -224,52 +224,6 @@
   white-space: nowrap;
 }
 
-/* --- スマホ向け最適化 (画面幅600px以下) --- */
-@media (max-width: 600px) {
-  /* --- 表示崩れの最終修正 (既存の設定を活かしつつ不具合を直す) --- */
-
-/* 1. 親要素の幅をPCでは600px、スマホでは画面幅に自動調整 */
-.container {
-  display: block !important;
-  width: 95% !important; /* スマホでは画面の95% */
-  max-width: 600px !important; /* PCでは最大600pxに抑える */
-  margin: 20px auto !important; /* 中央に寄せる */
-  padding: 20px !important;
-  box-sizing: border-box !important;
-  position: relative !important;
-}
-
-/* 2. タイトルの縦書き（改行）を物理的に不可能にする */
-h2 {
-  display: block !important;
-  width: 100% !important;
-  white-space: nowrap !important; /* 絶対に改行させない */
-  text-align: center !important;
-  margin: 0 0 25px 0 !important;
-  font-size: 24px !important;
- }
-
-/* 3. ボタンの重なりを強制解除して順番に並べる */
-.footer-buttons {
-  display: flex !important;
-  flex-direction: column !important; /* 縦に並べる */
-  gap: 15px !important;
-  margin-top: 40px !important;
-  position: static !important; /* 絶対配置を解除 */
-  width: 100% !important;
- }
-
-.save-btn, .back-link {
-  position: static !important; /* 重なりを防止 */
-  display: flex !important;
-  width: 100% !important;
-  height: 50px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 5px 0 !important;
-  box-sizing: border-box !important;
- }
-}
 </style>
 </head>
 

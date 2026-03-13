@@ -55,13 +55,18 @@ function loadGoodSigns() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "good";
-    checkbox.value = sign;
+    const text = typeof sign === 'object' ? sign.text : sign;
+    checkbox.value = text;
     
     const label = document.createElement("label");
+    label.style.display = "flex";
+    label.style.alignItems = "center";
     label.style.margin = "0";
+    label.style.width = "100%";
     label.style.fontSize = "12px";
+    
     label.appendChild(checkbox);
-    label.append(sign);
+    label.append(text);
     
     div.appendChild(label);
     container.appendChild(div);
@@ -85,13 +90,18 @@ function loadBadSigns() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "bad";
-    checkbox.value = sign;
+    const text = typeof sign === 'object' ? sign.text : sign;
+    checkbox.value = text;
     
     const label = document.createElement("label");
+    label.style.display = "flex";
+    label.style.alignItems = "center";
     label.style.margin = "0";
+    label.style.width = "100%";
     label.style.fontSize = "12px";
+    
     label.appendChild(checkbox);
-    label.append(sign);
+    label.append(text);
     
     div.appendChild(label);
     container.appendChild(div);
@@ -156,9 +166,15 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
+    "気持ちよく寝られた",
+    "寝付きは悪いがすっきり寝られた",
+    "すぐに寝付けたが朝起きるのがしんどかった",
+    "なかなか寝付けず、起きるのもしんどかった",
+    "布団には入ったが、ほぼ寝てない"
+  ];
   
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";
@@ -174,12 +190,12 @@ function createSleepTypeButtons() {
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");
-    const symbol = sleepSymbols[index] || "〇";
+    const symbol = sleepSymbols[index] || "○";
     let symbolClass = "";
     if (symbol === "◎") symbolClass = "symbol-double-circle";
-    else if (symbol === "〇") symbolClass = "symbol-circle";
+    else if (symbol === "○") symbolClass = "symbol-circle";
     else if (symbol === "△") symbolClass = "symbol-triangle";
-    else if (symbol === "✕") symbolClass = "symbol-cross";
+    else if (symbol === "×") symbolClass = "symbol-cross";
     
     symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
     symbolSpan.textContent = symbol;
@@ -297,9 +313,7 @@ function updateCompletionStatus() {
 }
 
 /**
- * 天気を自動取得
- */
-async function getWeather() {
+ * 天気を自動取得async function getWeather() {
   const zipcode = localStorage.getItem("zipcode");
   
   if (!zipcode) {
@@ -311,10 +325,8 @@ async function getWeather() {
   }
   
   try {
-    // 住所データをオブジェクトで取得
     const addressData = await getCityFromZipcode(zipcode);
-  
-    // 天気取得には「市区町村名」、表示には「フル住所」を渡す
+    // 天気取得には市区町村名(cityOnly)を使用し、表示にはフル住所(fullAddress)を使用
     const weatherData = await getWeatherFromCity(addressData.cityOnly, addressData.fullAddress);
     
     // 天気情報を表示
@@ -326,15 +338,14 @@ async function getWeather() {
     const warning = calculatePressureWarning(weatherData.pressure);
     document.getElementById("pressureWarning").innerText = warning;
     
-    // 天気情報をグローバル変数に保存（送信時に使用）
-    window.currentWeather = weatherData.weather;
-    window.currentTemp = weatherData.temp;
-    window.currentPressure = weatherData.pressure;
-    window.currentPressureWarning = warning;
-    
-    // 画面の住所表示を「栃木県宇都宮市」に更新
+    // 住所を表示（栃木県宇都宮市など）
     document.getElementById("cityValue").innerText = addressData.fullAddress;
-
+  } catch (error) {
+    console.error("天気取得エラー:", error);
+    document.getElementById("weatherValue").innerText = "取得失敗";
+  }
+}essureWarning = warning;
+    
   } catch (error) {
     document.getElementById("weatherValue").innerText = "取得失敗";
     document.getElementById("tempValue").innerText = "-";
@@ -445,8 +456,9 @@ window.onload = function() {
   
   // ページ読み込み時に自動で天気を取得
   getWeather();
+};
 
-  /**
+/**
  * 気圧注意度を計算
  * @param {number} pressure 気圧(hPa)
  * @returns {string} 注意度メッセージ
@@ -462,5 +474,3 @@ function calculatePressureWarning(pressure) {
     return "通常";
   }
 }
-
-};

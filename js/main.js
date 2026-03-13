@@ -146,13 +146,7 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
-    "気持ちよく寝られた",
-    "寝付きは悪いがすっきり寝られた",
-    "すぐに寝付けたが朝起きるのがしんどかった",
-    "なかなか寝付けず、起きるのもしんどかった",
-    "布団には入ったが、ほぼ寝てない"
-  ];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [];
   
   const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
   
@@ -173,9 +167,9 @@ function createSleepTypeButtons() {
     const symbol = sleepSymbols[index] || "○";
     let symbolClass = "";
     if (symbol === "◎") symbolClass = "symbol-double-circle";
-    else if (symbol === "○") symbolClass = "symbol-circle";
+    else if (symbol === "〇") symbolClass = "symbol-circle";
     else if (symbol === "△") symbolClass = "symbol-triangle";
-    else if (symbol === "×") symbolClass = "symbol-cross";
+    else if (symbol === "✕") symbolClass = "symbol-cross";
     
     symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
     symbolSpan.textContent = symbol;

@@ -5,14 +5,8 @@
 let goodSigns = [];
 let badSigns = [];
 let medicines = [];
-let sleepTypes = [
-  "気持ちよく寝られた",
-  "寝付きは悪いがすっきり寝られた",
-  "すぐに寝付けたが朝起きるのがしんどかった",
-  "なかなか寝付けず、起きるのもしんどかった",
-  "布団には入ったが、ほぼ寝てない"
-];
-let sleepSymbols = ["◎", "○", "△", "×", "×"];
+let sleepTypes = [];
+let sleepSymbols = [];
 
 /**
  * 郵便番号から市町村を取得して表示
@@ -216,9 +210,9 @@ function renderSleepTypeEditor() {
     const updateSelectClass = (sel) => {
       sel.classList.remove("symbol-double-circle", "symbol-circle", "symbol-triangle", "symbol-cross");
       if (sel.value === "◎") sel.classList.add("symbol-double-circle");
-      else if (sel.value === "○") sel.classList.add("symbol-circle");
+      else if (sel.value === "〇") sel.classList.add("symbol-circle");
       else if (sel.value === "△") sel.classList.add("symbol-triangle");
-      else if (sel.value === "×") sel.classList.add("symbol-cross");
+      else if (sel.value === "✕") sel.classList.add("symbol-cross");
     };
 
     select.onchange = function() {

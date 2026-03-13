@@ -661,8 +661,8 @@ input[type="text"][type="number"] {
 
   /* 追加された項目の間の余白を紞める */
   .item-row {
-    margin: 4px 0;
-    padding: 8px 10px;
+    margin: 2px 0;
+    padding: 4px 8px;
   }
 
   /* 設定保存ボタンを大きくして押しやすくする */

@@ -19,12 +19,23 @@
     -webkit-tap-highlight-color: transparent; /* タップ時の青い枠を消す */
   }
   .container {
-  width: 95%; /* スマホでは画面の95%を使う */
-  max-width: 600px; /* PCでも最大600pxに抑える */
-  margin: 0 auto;
-  padding: 20px 10px; /* 左右の余白を少し詰める */
-  box-sizing: border-box; /* パディングを含めた幅計算にする */
-}
+  width: 95%; /* スマホでは画面の95% */
+  max-width: 600px; /* PCでは最大600px */
+  margin: 20px auto; /* 中央寄せ */
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  }
+  h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  width: 100%; 
+  white-space: nowrap; 
+  }
+
 </style>
 <meta charset="UTF-8">
 <title>個人設定</title>
@@ -216,94 +227,42 @@
 /* --- スマホ向け最適化 (画面幅600px以下) --- */
 @media (max-width: 600px) {
   .container {
-    width: 100% !important; /* 固定幅600pxを解除して画面いっぱいに */
+    width: 100% !important;
     padding: 15px 10px !important;
+    margin: 0 !important; /* スマホでは余白をなくす */
   }
 
-  h2 { font-size: 20px; margin-bottom: 15px; }
-  h3 { font-size: 18px; margin-top: 20px; }
-
-  /* 入力フィールドとセレクトボックスを大きく（ズーム防止） */
-  input[type="text"], 
-  input[type="number"], 
-  select {
-    width: 100% !important; /* 横幅いっぱいに広げる */
-    height: 44px !important; /* 押しやすい高さ */
-    font-size: 16px !important; /* ズーム防止 */
-    box-sizing: border-box;
-    margin-bottom: 10px;
+  h2 {
+    font-size: 20px !important;
+    margin-bottom: 15px !important;
   }
 
-  /* 郵便番号検索・薬の追加・睡眠タイプ編集をすべて縦並びに強制 */
-  .zipcode-section, 
-  .add-item-section, 
-  .sleep-type-edit-item {
+  /* 縦並びにするセクションを限定 */
+  .zipcode-section, .add-item-section, .sleep-type-edit-item {
     display: flex !important;
     flex-direction: column !important;
-    align-items: stretch !important;
     gap: 10px !important;
   }
 
-  /* ボタン類を横幅いっぱいに */
-  .zipcode-section button, 
-  .add-item-section button,
-  .save-btn, 
-  .back-link {
+  /* 入力欄の幅を調整 */
+  input[type="text"], input[type="number"], select {
     width: 100% !important;
-    height: 50px !important;
-    margin: 5px 0 !important;
-    font-size: 16px !important;
+    max-width: none !important; /* PC用の制限を解除 */
   }
 
-  /* リストアイテム（削除ボタン付き）の調整 */
-  .list-item {
-    padding: 12px !important;
-    font-size: 16px !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-  }
-
-  .list-item button {
-    padding: 10px 20px !important;
-    background-color: #ff5252 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 4px !important;
-    width: auto !important; /* 削除ボタンは横幅いっぱいにしない */
-  }
-
-  /* タップした瞬間の「押し込み感」を出す演出 */
-  button:active, 
-  .list-item:active,
-  .save-btn:active,
-  .back-link:active {
-    background-color: #e0e0e0 !important;
-    transform: scale(0.97);
-  }
-
-  /* 保存・戻るボタンを大きく縦並びに */
+  /* 保存・戻るボタンの重なりを解消 */
   .footer-buttons {
     display: flex !important;
     flex-direction: column !important;
-    gap: 12px !important;
-    margin-top: 30px !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+    position: static !important; /* 位置を固定しない */
   }
 
   .save-btn, .back-link {
-    height: 55px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 18px !important;
-    font-weight: bold !important;
-    border-radius: 8px !important;
-    text-decoration: none !important;
-  }
-
-  .back-link {
-    background-color: #eee !important;
-    color: #333 !important;
+    width: 100% !important;
+    height: 50px !important;
+    position: static !important;
   }
 }
 

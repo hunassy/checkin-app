@@ -8,37 +8,22 @@
 <meta name="mobile-web-app-capable" content="yes">
 
 <style>
-/* --- 1. 基本設定 (PCでもスマホでも崩れない) --- */
- html, body {
-   margin: 0;
-   padding: 0;
-   width: 100%;
-   height: 100%;
-   background-color: #f0f2f5;
- }
-
- .container {
-   width: 95%;
-   max-width: 600px; /* PCでは中央に、スマホでは画面幅に */
-   margin: 20px auto;
-   padding: 20px;
-   background: white;
-   border-radius: 12px;
-   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-   box-sizing: border-box;
-   display: flex;
-   flex-direction: column; /* 上から順番に並べる */
-   position: relative;
- }
-
- h2 {
-   text-align: center;
-   margin: 0 0 25px 0;
-   width: 100%;
-   white-space: nowrap; /* 縦書き（改行）を物理的に防ぐ */
-   display: block;
- }
-
+  /* 画面の上下の余計な隙間をなくし、全体を使い切るための追加CSS */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* 横揺れを防止 */
+    -webkit-tap-highlight-color: transparent; /* タップ時の青い枠を消す */
+  }
+  
+  .container {
+    max-width: 100% !important; /* 横幅を画面いっぱいに */
+    margin: 0 !important;
+    padding: 15px !important;
+    box-sizing: border-box;
+  }
 </style>
 <meta charset="UTF-8">
 <title>個人設定</title>

@@ -5,8 +5,8 @@
 let goodSigns = [];
 let badSigns = [];
 let medicines = [];
-let sleepTypes = [];
-let sleepSymbols = [];
+let sleepTypes = ["", "", "", "", ""];
+let sleepSymbols = ["◎", "〇", "△", "✕", "✕"];
 
 /**
  * 郵便番号から市町村を取得して表示
@@ -185,7 +185,8 @@ function renderSleepTypeEditor() {
     const input = document.createElement("input");
     input.className = "sleep-type-input";
     input.type = "text";
-    input.value = type;
+    input.value = type || ""; // 空文字でもOK
+    input.placeholder = "睡眠タイプを入力（空欄なら表示されません）";
     input.onchange = function() {
       sleepTypes[index] = input.value;
     };
@@ -194,7 +195,7 @@ function renderSleepTypeEditor() {
     symbolDiv.className = "sleep-type-symbol";
     
     const select = document.createElement("select");
-    const options = ["◎", "〇", "△", "✕"];
+    const options = ["◎", "○", "△", "×"];
     
     options.forEach(opt => {
       const option = document.createElement("option");
@@ -210,9 +211,9 @@ function renderSleepTypeEditor() {
     const updateSelectClass = (sel) => {
       sel.classList.remove("symbol-double-circle", "symbol-circle", "symbol-triangle", "symbol-cross");
       if (sel.value === "◎") sel.classList.add("symbol-double-circle");
-      else if (sel.value === "〇") sel.classList.add("symbol-circle");
+      else if (sel.value === "○") sel.classList.add("symbol-circle");
       else if (sel.value === "△") sel.classList.add("symbol-triangle");
-      else if (sel.value === "✕") sel.classList.add("symbol-cross");
+      else if (sel.value === "×") sel.classList.add("symbol-cross");
     };
 
     select.onchange = function() {
@@ -220,11 +221,9 @@ function renderSleepTypeEditor() {
       updateSelectClass(select);
     };
     
-    // 初期表示時にもクラスを適用
     updateSelectClass(select);
     
     symbolDiv.appendChild(select);
-    
     item.appendChild(label);
     item.appendChild(symbolDiv); // 記号を左側に
     item.appendChild(input);     // テキストを右側に

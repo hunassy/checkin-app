@@ -146,12 +146,51 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [];
-  
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "○", "△", "×", "×"];
+  // 初期値を空にする
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : ["", "", "", "", ""];
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";
+  
+  sleepTypes.forEach((type, index) => {
+    // 文言が入力されている場合のみボタンを作成
+    if (type && type.trim() !== "") {
+      const btn = document.createElement("button");
+      btn.className = "sleep-type-btn";
+      btn.dataset.index = index;
+      btn.dataset.value = type;
+      
+      const textSpan = document.createElement("span");
+      textSpan.className = "sleep-type-text";
+      textSpan.textContent = type;
+      
+      const symbolSpan = document.createElement("span");
+      const symbol = sleepSymbols[index] || "〇";
+      
+      // 記号に応じたクラスを適用
+      let symbolClass = "";
+      if (symbol === "◎") symbolClass = "symbol-double-circle";
+      else if (symbol === "〇") symbolClass = "symbol-circle";
+      else if (symbol === "△") symbolClass = "symbol-triangle";
+      else if (symbol === "✕") symbolClass = "symbol-cross";
+      
+      symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
+      symbolSpan.textContent = symbol;
+      
+      btn.appendChild(symbolSpan);
+      btn.appendChild(textSpan);
+      
+      btn.onclick = () => {
+        container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        updateCompletionStatus();
+      };
+      
+      container.appendChild(btn);
+    }
+  });
+}
   
   sleepTypes.forEach((type, index) => {
     const btn = document.createElement("button");
@@ -187,7 +226,6 @@ function createSleepTypeButtons() {
     
     container.appendChild(btn);
   });
-}
 
 /**
  * 睡眠時間を計算して表示

@@ -2,6 +2,30 @@
 <html lang="ja">
 
 <head>
+  <!-- スマホのブラウザで画面いっぱいに表示させるための設定 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+
+<style>
+  /* 画面の上下の余計な隙間をなくし、全体を使い切るための追加CSS */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* 横揺れを防止 */
+    -webkit-tap-highlight-color: transparent; /* タップ時の青い枠を消す */
+  }
+  
+  .container {
+    max-width: 100% !important; /* 横幅を画面いっぱいに */
+    margin: 0 !important;
+    padding: 15px !important;
+    box-sizing: border-box;
+  }
+</style>
 <meta charset="UTF-8">
 <title>個人設定</title>
 <script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773370548635&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2FsessionFile%2FqbxZAHazSchcJEpkuuyHRB%2Fsandbox%2FWCJunMb7E3LwGZEgOD3VqL_1773371955362_na1fn_L2hvbWUvdWJ1bnR1L3NldHRpbmdzX3Y2.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvcWJ4WkFIYXpTY2hjSkVwa3V1eUhSQi9zYW5kYm94L1dDSnVuTWI3RTNMd0daRWdPRDNWcUxfMTc3MzM3MTk1NTM2Ml9uYTFmbl9MMmh2YldVdmRXSjFiblIxTDNObGRIUnBibWR6WDNZMi5odG1sIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DbW4cIq1YyluxWGGa6CvUqL0dpRvnQuotpyi3vP2k4aB--yIeXxiEjaTPJiDDBro31AEPZ7PlHvZeSwDiQJcr1GF9~9uRs54ZC3njc7BY1B-qmiquX-mqPSTARafc1nDZTizpCnOzStizhKNbhhYZ7ipa3SiT0FWIXe-EJf5LbE0rYdyUehPmWigRqI~c-rDuI~K5dCagmawVe3azYJw7sn4Uo~XAbb-hF4J6TlejSirbwv~tvPhzuhl3BoRSPCrpwEl2VCYfuWE-G2C8v4Q-dvhgfhtkJ7X6k6vyfgI4bBAllAGQ9rZGX5VGa1S6Pj9Z4Et0Hq3kH385DFcvH9scJw__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773370548635&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="stylesheet" href="css/style.css">

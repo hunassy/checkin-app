@@ -224,6 +224,29 @@
   white-space: nowrap;
 }
 
+/* --- スマホ向け最適化 (画面幅600px以下) --- */
+@media (max-width: 600px) {
+  .container {
+    width: 100% !important; /* スマホでは画面いっぱいに広げる */
+    margin: 0 !important;   /* 余白をなくす */
+    border-radius: 0 !important;
+    padding: 15px !important;
+  }
+
+  /* 郵便番号検索やボタンを縦並びにする */
+  .zipcode-section, .add-item-section, .footer-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* ボタンを押しやすく大きくする */
+  .save-btn, .back-link, .zipcode-section button {
+    width: 100% !important;
+    height: 50px !important;
+  }
+}
+
 </style>
 </head>
 

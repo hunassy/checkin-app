@@ -19,10 +19,11 @@ function displayCity() {
     return;
   }
   
-  // 郵便番号から市町村を取得
-  getCityFromZipcode(zipcode).then(city => {
-    if (city) {
-      document.getElementById("cityDisplay").textContent = city;
+    // 郵便番号から市町村を取得
+  getCityFromZipcode(zipcode).then(addressData => {
+    if (addressData && addressData.fullAddress) {
+      // city ではなく addressData.fullAddress を表示するように変更
+      document.getElementById("cityDisplay").textContent = addressData.fullAddress;
     } else {
       document.getElementById("cityDisplay").textContent = "見つかりません";
     }

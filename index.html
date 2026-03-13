@@ -200,10 +200,11 @@
 }
 
 .sleep-type-symbol {
-  font-size: 36px;
   font-weight: bold;
-  min-width: 40px;
+  width: 50px; /* ← 幅を「50px」に完全に固定します */
+  flex-shrink: 0; /* ← 記号が大きくても幅が縮まないようにします */
   text-align: center;
+  display: inline-block;
 }
 
 .symbol-double-circle {

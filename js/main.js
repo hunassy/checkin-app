@@ -334,7 +334,7 @@ async function getWeather() {
     
     // 画面の住所表示を「栃木県宇都宮市」に更新
     document.getElementById("cityValue").innerText = addressData.fullAddress;
-    
+
   } catch (error) {
     document.getElementById("weatherValue").innerText = "取得失敗";
     document.getElementById("tempValue").innerText = "-";
@@ -445,4 +445,22 @@ window.onload = function() {
   
   // ページ読み込み時に自動で天気を取得
   getWeather();
+
+  /**
+ * 気圧注意度を計算
+ * @param {number} pressure 気圧(hPa)
+ * @returns {string} 注意度メッセージ
+ */
+function calculatePressureWarning(pressure) {
+  if (pressure < 1000) {
+    return "警戒（低気圧）";
+  } else if (pressure < 1005) {
+    return "注意";
+  } else if (pressure > 1020) {
+    return "注意（高気圧）";
+  } else {
+    return "通常";
+  }
+}
+
 };

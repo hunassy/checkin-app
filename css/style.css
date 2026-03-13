@@ -659,14 +659,24 @@ input[type="text"][type="number"] {
     flex-shrink: 0;
   }
 
-  .sleep-type-symbol {
-    width: 70px !important; /* 記号選択の幅を少し広げる */
-    flex-shrink: 0;
-  }
-
   .sleep-type-input {
     flex: 1 !important; /* テキスト入力欄を広げる */
     min-width: 0 !important; /* はみ出し防止 */
-    height: 40px !important; /* 押しやすい高さ */
+    height: 44px !important; /* 押しやすい高さ（プルダウンと揃える） */
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .sleep-type-symbol {
+    width: 70px !important;
+    height: 44px !important; /* テキストボックスと同じ高さに揃える */
+    flex-shrink: 0;
+  }
+
+  .sleep-type-symbol select {
+    width: 100% !important;
+    height: 100% !important;
+    font-size: 18px !important;
+    box-sizing: border-box !important;
   }
 }

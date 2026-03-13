@@ -23,7 +23,7 @@
     max-width: 800px; /* ← これを追加すると、PCで広がりすぎなくなります */
     margin: 20px auto; /* 上下に余白を作り、左右は中央寄せにします */
   }
-  
+
 </style>
 <meta charset="UTF-8">
 <title>個人設定</title>
@@ -201,6 +201,41 @@
   white-space: nowrap;
 }
 
+/* --- スマホ向け最適化 (画面幅600px以下) --- */
+@media (max-width: 600px) {
+   /* 睡眠タイプのカスタマイズエリアをスマホでも表示させる */
+  .sleep-type-editor {
+    display: block !important; /* 強制的に表示 */
+    padding: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .sleep-type-item {
+    display: flex !important;
+    flex-direction: row !important; /* 横並びを維持 */
+    align-items: center !important;
+    gap: 5px !important;
+    height: auto !important; /* 高さを自動調整 */
+    margin-bottom: 10px !important;
+  }
+
+  .sleep-type-label {
+    width: 20px !important;
+    flex-shrink: 0;
+  }
+
+  .sleep-type-symbol {
+    width: 70px !important; /* 記号選択の幅を少し広げる */
+    flex-shrink: 0;
+  }
+
+  .sleep-type-input {
+    flex: 1 !important; /* テキスト入力欄を広げる */
+    min-width: 0 !important; /* はみ出し防止 */
+    height: 40px !important; /* 押しやすい高さ */
+  }
+}
+ 
 </style>
 </head>
 

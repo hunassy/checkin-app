@@ -382,7 +382,8 @@ function sendData() {
   const breakfast = document.getElementById("breakfast").value || "";
   
   // 睡眠データ
-  const sleepType = document.querySelector(".sleep-type-btn.active")?.dataset.value || "";
+  const sleepTypeBtn = document.querySelector(".sleep-type-btn.active");
+  const sleepType = sleepTypeBtn ? sleepTypeBtn.dataset.value : "";
   const bedtimeHour = document.getElementById("bedtimeHour").value || "";
   const bedtimeMinute = document.getElementById("bedtimeMinute").value || "";
   const bedtime = bedtimeHour && bedtimeMinute !== "" ? `${String(bedtimeHour).padStart(2, '0')}:${String(bedtimeMinute).padStart(2, '0')}` : "";

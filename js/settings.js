@@ -6,7 +6,7 @@ let goodSigns = [];
 let badSigns = [];
 let medicines = [];
 let sleepTypes = ["", "", "", "", ""];
-let sleepSymbols = ["◎", "〇", "△", "✕", "✕"];
+let sleepSymbols = ["", "", "", "", ""];
 
 /**
  * 郵便番号から市町村を取得して表示

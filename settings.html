@@ -265,6 +265,43 @@
     position: static !important;
   }
 }
+/* 1. タイトルの縦書き（改行）を強制的に直す */
+h2 {
+  display: block !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  margin: 20px 0 !important;
+  position: static !important;
+}
+
+/* 2. ボタンの重なりを強制的に解除して順番に並べる */
+.footer-buttons {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  margin-top: 40px !important;
+  position: static !important;
+  width: 100% !important;
+  clear: both !important;
+}
+
+.save-btn, .back-link {
+  position: static !important;
+  display: flex !important;
+  width: 100% !important;
+  height: 50px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 5px 0 !important;
+}
+
+/* 3. 親要素の幅が潰れないようにする */
+.container {
+  display: block !important;
+  min-width: 320px !important;
+  box-sizing: border-box !important;
+}
 
 </style>
 </head>
@@ -295,7 +332,7 @@
 <!-- 9. 薬について -->
 <h2>薬について</h2>
 <div class="input-group">
- <input id="medicineInput" placeholder="例 イフェクサーSRカプセル75mg">
+ <input id="medicineInput" placeholder="">
  <button onclick="addMedicine()">追加</button>
 </div>
 <div id="medicineList"></div>

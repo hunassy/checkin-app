@@ -659,6 +659,21 @@ input[type="text"][type="number"] {
     flex-shrink: 0;
   }
 
+  /* 追加された項目の間の余白を紞める */
+  .item-row {
+    margin: 4px 0;
+    padding: 8px 10px;
+  }
+
+  /* 設定保存ボタンを大きくして押しやすくする */
+  button[onclick="saveSettings()"] {
+    width: 100%;
+    height: 55px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
   .sleep-type-input {
     flex: 1 !important; /* テキスト入力欄を広げる */
     min-width: 0 !important; /* はみ出し防止 */

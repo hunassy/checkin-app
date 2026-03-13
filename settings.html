@@ -105,16 +105,14 @@
 /* 2. プルダウン（記号）の設定 */
 .sleep-type-symbol select {
   width: 100%;
-  height: 34px; /* 高さを固定して揃える */
+  height: 34px; /* 高さを固定 */
   box-sizing: border-box; /* 枠線込みの計算 */
-  vertical-align: middle; /* 垂直方向の配置を中央に */
   padding: 0 4px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center; /* 中身を中央に */
+  font-size: 18px; /* 記号の大きさ（必要に応じて調整） */
 }
 
 /* 3. テキスト入力欄の設定 */
@@ -122,12 +120,12 @@
   flex: 1;
   height: 34px; /* プルダウンと同じ高さに固定 */
   box-sizing: border-box; /* 枠線込みの計算 */
-  vertical-align: middle; /* 垂直方向の配置を中央に */
-  padding: 0 10px; /* 左右の余白 */
+  padding: 0 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  box-sizing: border-box; /* 枠線を含めた高さ計算にする */
+  font-size: 14px;
 }
+
 
 .sleep-type-symbol {
   width: 60px;

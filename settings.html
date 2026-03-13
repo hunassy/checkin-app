@@ -94,36 +94,43 @@
   border-radius: 5px;
 }
 
-/* 1. 数字・プルダウン・テキストの間の隙間を調整 */
+/* 1. 各行のレイアウト設定 */
 .sleep-type-item {
   margin: 10px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px; /* 10pxから少し狭くします */
+  display: flex; /* フレックスボックスを使用 */
+  align-items: stretch; /* ← これが重要！中身の高さを枠いっぱいに広げて揃えます */
+  gap: 8px;
 }
 
 /* 2. プルダウン（記号）の設定 */
+.sleep-type-symbol {
+  width: 100px;
+  display: flex; /* 中身を制御するためにflexに */
+}
+
 .sleep-type-symbol select {
   width: 100%;
   height: 34px; /* 高さを固定 */
-  box-sizing: border-box; /* 枠線込みの計算 */
+  box-sizing: border-box;
   padding: 0 4px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
-  text-align: center; /* 中身を中央に */
-  font-size: 18px; /* 記号の大きさ（必要に応じて調整） */
+  text-align: center;
+  font-size: 18px;
+  margin: 0; /* 余計な余白をリセット */
 }
 
 /* 3. テキスト入力欄の設定 */
 .sleep-type-input {
   flex: 1;
   height: 34px; /* プルダウンと同じ高さに固定 */
-  box-sizing: border-box; /* 枠線込みの計算 */
+  box-sizing: border-box;
   padding: 0 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  margin: 0; /* 余計な余白をリセット */
 }
 
 .sleep-type-symbol {

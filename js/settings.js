@@ -194,7 +194,7 @@ function renderSleepTypeEditor() {
     symbolDiv.className = "sleep-type-symbol";
     
     const select = document.createElement("select");
-    const options = ["◎", "○", "△", "×"];
+    const options = ["◎", "〇", "△", "✕"];
     
     options.forEach(opt => {
       const option = document.createElement("option");

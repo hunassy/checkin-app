@@ -164,7 +164,7 @@ function createSleepTypeButtons() {
     textSpan.textContent = type;
     
     const symbolSpan = document.createElement("span");
-    const symbol = sleepSymbols[index] || "○";
+    const symbol = sleepSymbols[index] || "〇";
     let symbolClass = "";
     if (symbol === "◎") symbolClass = "symbol-double-circle";
     else if (symbol === "〇") symbolClass = "symbol-circle";

@@ -97,20 +97,31 @@
 /* 1. 各行のレイアウト設定 */
 .sleep-type-item {
   margin: 10px 0;
-  display: flex; /* フレックスボックスを使用 */
-  align-items: stretch; /* ← これが重要！中身の高さを枠いっぱいに広げて揃えます */
+  display: flex;
+  align-items: center; /* ← stretchからcenterに戻し、上下中央に揃えます */
   gap: 8px;
+  height: 34px; /* ← 行全体の高さを固定します */
 }
 
-/* 2. プルダウン（記号）の設定 */
+/* 2. 数字（1〜5）のラベル */
+.sleep-type-label {
+  width: 20px; /* 幅を少し狭くして数字をスッキリさせます */
+  font-weight: bold;
+  color: #666;
+  display: flex;
+  align-items: center;
+  height: 100%; /* 親の高さに合わせます */
+}
+
+/* 3. プルダウン（記号）の設定 */
 .sleep-type-symbol {
-  width: 100px;
-  display: flex; /* 中身を制御するためにflexに */
+  width: 80px; /* 100pxから少し狭くしてバランスを調整 */
+  height: 100%; /* 親の高さに合わせます */
 }
 
 .sleep-type-symbol select {
   width: 100%;
-  height: 34px; /* 高さを固定 */
+  height: 100%; /* 枠いっぱいの高さに */
   box-sizing: border-box;
   padding: 0 4px;
   border: 1px solid #ddd;
@@ -118,19 +129,18 @@
   background: white;
   text-align: center;
   font-size: 18px;
-  margin: 0; /* 余計な余白をリセット */
+  display: block; /* 余計な隙間を消すためにblockに */
 }
 
-/* 3. テキスト入力欄の設定 */
+/* 4. テキスト入力欄の設定 */
 .sleep-type-input {
   flex: 1;
-  height: 34px; /* プルダウンと同じ高さに固定 */
+  height: 100%; /* 枠いっぱいの高さに */
   box-sizing: border-box;
   padding: 0 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
-  margin: 0; /* 余計な余白をリセット */
 }
 
 .sleep-type-symbol {

@@ -226,34 +226,44 @@
 
 /* --- スマホ向け最適化 (画面幅600px以下) --- */
 @media (max-width: 600px) {
+  /* 1. 親要素の重なりを強制解除 */
   .container {
     width: 100% !important;
     margin: 0 !important;
-    border-radius: 0 !important;
     padding: 15px !important;
-    display: block !important; /* 縦に潰れないようにする */
+    display: flex !important;
+    flex-direction: column !important; /* 縦に順番に並べる */
+    position: relative !important;
   }
 
-  /* 【重要】タイトルを横幅いっぱいに広げ、改行を禁止する */
+  /* 2. タイトルの縦書きを物理的に不可能にする */
   h2 {
+    display: block !important;
     width: 100% !important;
     white-space: nowrap !important; /* 絶対に改行させない */
-    display: block !important;
-    font-size: 20px !important; /* スマホ用に少し小さく */
+    text-align: center !important;
     margin: 10px 0 20px 0 !important;
+    position: static !important; /* 重なりを防止 */
+    order: 1; /* 1番目に表示 */
   }
 
-  /* 郵便番号検索やボタンを縦並びにする */
-  .zipcode-section, .add-item-section, .footer-buttons {
+  /* 3. ボタンの重なりを強制解除して順番に並べる */
+  .footer-buttons {
     display: flex !important;
     flex-direction: column !important;
     gap: 10px !important;
+    margin-top: 20px !important;
+    position: static !important; /* 絶対配置を解除 */
+    order: 10; /* 最後に表示 */
   }
 
-  /* ボタンを押しやすく大きくする */
-  .save-btn, .back-link, .zipcode-section button {
+  .save-btn, .back-link {
+    position: static !important; /* 重なりを強制解除 */
     width: 100% !important;
     height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     margin: 5px 0 !important;
   }
 }

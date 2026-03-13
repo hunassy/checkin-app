@@ -18,13 +18,13 @@
     overflow-x: hidden; /* 横揺れを防止 */
     -webkit-tap-highlight-color: transparent; /* タップ時の青い枠を消す */
   }
-  
   .container {
-    max-width: 100% !important; /* 横幅を画面いっぱいに */
-    margin: 0 !important;
-    padding: 15px !important;
-    box-sizing: border-box;
-  }
+  width: 95%; /* スマホでは画面の95%を使う */
+  max-width: 600px; /* PCでも最大600pxに抑える */
+  margin: 0 auto;
+  padding: 20px 10px; /* 左右の余白を少し詰める */
+  box-sizing: border-box; /* パディングを含めた幅計算にする */
+}
 </style>
 <meta charset="UTF-8">
 <title>個人設定</title>
@@ -216,7 +216,8 @@
 /* --- スマホ向け最適化 (画面幅600px以下) --- */
 @media (max-width: 600px) {
   .container {
-    padding: 15px 10px; /* 左右の余白を最小限に */
+    width: 100% !important; /* 固定幅600pxを解除して画面いっぱいに */
+    padding: 15px 10px !important;
   }
 
   h2 { font-size: 20px; margin-bottom: 15px; }
@@ -226,96 +227,83 @@
   input[type="text"], 
   input[type="number"], 
   select {
-    width: 100% !important;
-    height: 44px !important;
-    font-size: 16px !important; /* 16px以上に固定してズームを防ぐ */
+    width: 100% !important; /* 横幅いっぱいに広げる */
+    height: 44px !important; /* 押しやすい高さ */
+    font-size: 16px !important; /* ズーム防止 */
     box-sizing: border-box;
     margin-bottom: 10px;
   }
 
-  /* 郵便番号検索セクションを縦並びに */
-  .zipcode-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .zipcode-section button {
-    width: 100%;
-    height: 44px;
-    font-size: 16px;
-  }
-
-  /* 睡眠タイプの編集エリアを縦並びに */
+  /* 郵便番号検索・薬の追加・睡眠タイプ編集をすべて縦並びに強制 */
+  .zipcode-section, 
+  .add-item-section, 
   .sleep-type-edit-item {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 15px;
-    gap: 10px;
-    background: #f9f9f9;
-    border-radius: 8px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
   }
 
-  /* 薬・サインの追加セクションを縦並びに */
-  .add-item-section {
-    flex-direction: column;
-    gap: 10px;
+  /* ボタン類を横幅いっぱいに */
+  .zipcode-section button, 
+  .add-item-section button,
+  .save-btn, 
+  .back-link {
+    width: 100% !important;
+    height: 50px !important;
+    margin: 5px 0 !important;
+    font-size: 16px !important;
   }
 
-  .add-item-section button {
-    width: 100%;
-    height: 44px;
-  }
-
-  /* リストアイテム（削除ボタン付き）を押しやすく */
+  /* リストアイテム（削除ボタン付き）の調整 */
   .list-item {
-    padding: 12px;
-    font-size: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 12px !important;
+    font-size: 16px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
   }
 
   .list-item button {
-    padding: 10px 20px; /* 削除ボタンを大きく */
-    background-color: #ff5252;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    padding: 10px 20px !important;
+    background-color: #ff5252 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    width: auto !important; /* 削除ボタンは横幅いっぱいにしない */
   }
 
-  /* 【追加】タップした瞬間の「押し込み感」を出す演出 */
+  /* タップした瞬間の「押し込み感」を出す演出 */
   button:active, 
   .list-item:active,
   .save-btn:active,
   .back-link:active {
     background-color: #e0e0e0 !important;
-    transform: scale(0.97); /* ほんの少しだけ小さくして「押した感」を出す */
+    transform: scale(0.97);
   }
 
   /* 保存・戻るボタンを大きく縦並びに */
   .footer-buttons {
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 30px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-top: 30px !important;
   }
 
   .save-btn, .back-link {
-    width: 100%;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0;
-    border-radius: 8px;
+    height: 55px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
   }
 
   .back-link {
-    background-color: #eee;
-    color: #333;
-    text-decoration: none;
+    background-color: #eee !important;
+    color: #333 !important;
   }
 }
 

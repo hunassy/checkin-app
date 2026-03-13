@@ -289,13 +289,23 @@ window.onload = function() {
     renderMedicineEditor();
   }
   
+    // 1. 睡眠タイプのテキストを読み込む
   if (savedSleepTypes) {
     sleepTypes = JSON.parse(savedSleepTypes);
+  } else {
+    // 【追加】保存データがない場合、デフォルト値をセットする
+    sleepTypes = ["", "", "", "", ""];
   }
   
+  // 2. 睡眠タイプの記号を読み込む
   if (savedSleepSymbols) {
     sleepSymbols = JSON.parse(savedSleepSymbols);
+  } else {
+    // 【追加】保存データがない場合、デフォルトの記号をセットする
+    sleepSymbols = ["-", "-", "-", "-", "-"];
   }
   
+  // 最後に表示を実行
   renderSleepTypeEditor();
+
 };

@@ -36,12 +36,17 @@ async function getCityFromZipcode(zipcode) {
     const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`);
     const data = await res.json();
     
-    if (!data.results) {
+    if (!data || !data.results) {
       throw new Error("郵便番号が見つかりません");
     }
     
     const result = data.results[0];
-    return result.address1 + result.address2; // 都道府県名 + 市区町村名
+    // 都道府県名(address1) + 市区町村名(address2) + 町域名(address3)
+    // 天気取得には市区町村名(address2)が適しているため、分けて返せるようにオブジェクトで返す
+    return {
+      fullAddress: result.address1 + result.address2,
+      cityOnly: result.address2
+    };
   } catch (error) {
     console.error("郵便番号取得エラー:", error);
     throw error;
@@ -53,19 +58,24 @@ async function getCityFromZipcode(zipcode) {
  * @param {string} city 都市名
  * @returns {Promise<object>} 天気情報（weather, temp, pressure）
  */
-async function getWeatherFromCity(city) {
+async function getWeatherFromCity(city, displayCity) {
   const apiKey = "deddd1941a75455fe3e9c7206db41b10";
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},JP&appid=${apiKey}&units=metric&lang=ja`;
+  // 天気取得には市区町村名(city)を使用
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},JP&appid=${apiKey}&units=metric&lang=ja`;
   
   try {
     const res = await fetch(url);
     const data = await res.json();
     
+    if (data.cod !== 200) {
+      throw new Error(data.message || "天気情報の取得に失敗しました");
+    }
+    
     return {
       weather: data.weather[0].description,
-      temp: data.main.temp,
+      temp: Math.round(data.main.temp * 10) / 10, // 小数点第1位まで
       pressure: data.main.pressure,
-      city: city
+      city: displayCity || city // 表示には都道府県名を含めた名前を使用
     };
   } catch (error) {
     console.error("天気取得エラー:", error);

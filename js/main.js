@@ -156,13 +156,7 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [
-    "気持ちよく寝られた",
-    "寝付きは悪いがすっきり寝られた",
-    "すぐに寝付けたが朝起きるのがしんどかった",
-    "なかなか寝付けず、起きるのもしんどかった",
-    "布団には入ったが、ほぼ寝てない"
-  ];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [];
   
   const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
   
@@ -317,8 +311,11 @@ async function getWeather() {
   }
   
   try {
-    const city = await getCityFromZipcode(zipcode);
-    const weatherData = await getWeatherFromCity(city);
+    // 住所データをオブジェクトで取得
+    const addressData = await getCityFromZipcode(zipcode);
+  
+    // 天気取得には「市区町村名」、表示には「フル住所」を渡す
+    const weatherData = await getWeatherFromCity(addressData.cityOnly, addressData.fullAddress);
     
     // 天気情報を表示
     document.getElementById("weatherValue").innerText = weatherData.weather;
@@ -334,6 +331,9 @@ async function getWeather() {
     window.currentTemp = weatherData.temp;
     window.currentPressure = weatherData.pressure;
     window.currentPressureWarning = warning;
+    
+    // 画面の住所表示を「栃木県宇都宮市」に更新
+    document.getElementById("cityValue").innerText = addressData.fullAddress;
     
   } catch (error) {
     document.getElementById("weatherValue").innerText = "取得失敗";

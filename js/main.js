@@ -196,9 +196,9 @@ function createSleepTypeButtons() {
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : [];
+  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : ["","","","",""];
   
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "✕", "✕"];
+  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["-", "-", "-", "-", "-"];
   
   const container = document.getElementById("sleepType");
   container.innerHTML = "";

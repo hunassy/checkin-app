@@ -227,10 +227,20 @@
 /* --- スマホ向け最適化 (画面幅600px以下) --- */
 @media (max-width: 600px) {
   .container {
-    width: 100% !important; /* スマホでは画面いっぱいに広げる */
-    margin: 0 !important;   /* 余白をなくす */
+    width: 100% !important;
+    margin: 0 !important;
     border-radius: 0 !important;
     padding: 15px !important;
+    display: block !important; /* 縦に潰れないようにする */
+  }
+
+  /* 【重要】タイトルを横幅いっぱいに広げ、改行を禁止する */
+  h2 {
+    width: 100% !important;
+    white-space: nowrap !important; /* 絶対に改行させない */
+    display: block !important;
+    font-size: 20px !important; /* スマホ用に少し小さく */
+    margin: 10px 0 20px 0 !important;
   }
 
   /* 郵便番号検索やボタンを縦並びにする */
@@ -244,6 +254,7 @@
   .save-btn, .back-link, .zipcode-section button {
     width: 100% !important;
     height: 50px !important;
+    margin: 5px 0 !important;
   }
 }
 

@@ -215,19 +215,20 @@ html, body {
 }
 
 .sleep-type-btn {
-  padding: 1px;
+  padding: 4px 12px;
   background: #f0f0f0;
   border: 2px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
-  font-size: 14px;
+  font-size: 16px;
   color: #000;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+  min-height: 52px;
 }
 
 .sleep-type-btn:hover {
@@ -241,13 +242,19 @@ html, body {
 }
 
 .sleep-type-symbol {
-  font-size: 36px;
-  min-width: 40px;
-  text-align: center;
+  font-size: 28px;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .symbol-double-circle {
-  font-size: 30px;
+  font-size: 28px;
 }
 
 .symbol-circle {
@@ -255,15 +262,19 @@ html, body {
 }
 
 .symbol-triangle {
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .symbol-cross {
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .sleep-type-text {
   flex: 1;
+  font-size: 16px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
 }
 
 /* 薬セクション */

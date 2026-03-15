@@ -246,6 +246,7 @@ function renderSleepTypeEditor() {
  */
 function saveSettings() {
   const zipcode = document.getElementById("zipcode").value;
+  const gasUrlEl = document.getElementById("gasUrl");
   
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
@@ -253,6 +254,7 @@ function saveSettings() {
   localStorage.setItem("medicines", JSON.stringify(medicines));
   localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
   localStorage.setItem("sleepSymbols", JSON.stringify(sleepSymbols));
+  if (gasUrlEl) localStorage.setItem("gasUrl", gasUrlEl.value.trim());
   
   alert("保存しました");
   window.location.href = "index.html";
@@ -307,5 +309,10 @@ window.onload = function() {
   
   // 最後に表示を実行
   renderSleepTypeEditor();
+
+  // GAS URLを復元
+  const savedGasUrl = localStorage.getItem("gasUrl");
+  const gasUrlEl = document.getElementById("gasUrl");
+  if (savedGasUrl && gasUrlEl) gasUrlEl.value = savedGasUrl;
 
 };

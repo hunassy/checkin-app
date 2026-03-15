@@ -491,23 +491,55 @@ function sendData() {
   // Google Apps Script に送信（URLが設定されている場合）
   const GAS_URL = localStorage.getItem("gasUrl");
   if (GAS_URL) {
-    const form = document.createElement("form");
-    form.action = GAS_URL;
-    form.method = "POST";
-    form.target = "_blank";
-
+    // GASはCORS対応のためfetch + URLSearchParamsで送信
+    const params = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = key;
-      input.value = Array.isArray(value) ? value.join(",") : (value ?? "");
-      form.appendChild(input);
+      params.append(key, Array.isArray(value) ? value.join(",") : (value ?? ""));
     });
 
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString()
+    }).catch(e => console.warn("GAS送信エラー:", e));
   }
 
   alert("✅ 記録を保存しました！");
+
+  // 送信後にフォームをリセット
+  resetForm();
+}
+
+// ============================================
+// フォームのリセット
+// ============================================
+function resetForm() {
+  // セレクトボックスを初期値に戻す
+  ["attendance", "breakfast", "bedtimeHour", "bedtimeMinute",
+   "wakeuptimeHour", "wakeuptimeMinute"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.selectedIndex = 0;
+  });
+
+  // テキスト入力をクリア
+  const dur = document.getElementById("wakeupDuration");
+  if (dur) dur.value = "";
+
+  const comment = document.getElementById("comment");
+  if (comment) comment.value = "";
+
+  // 睡眠時間表示をリセット
+  const sleepResult = document.getElementById("sleepResult");
+  if (sleepResult) sleepResult.textContent = "総睡眠時間：計算中...";
+
+  // 睡眠タイプボタンの選択を解除
+  document.querySelectorAll(".sleep-type-btn").forEach(btn => btn.classList.remove("active"));
+
+  // スコアボタンの選択を解除
+  document.querySelectorAll(".score-emoji-btn").forEach(btn => btn.classList.remove("active"));
+
+  // チェックボックスをすべて解除
+  document.querySelectorAll("#goodList input, #badList input, #medicineList input")
+    .forEach(cb => { cb.checked = false; });
 }

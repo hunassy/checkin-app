@@ -64,7 +64,6 @@ window.onload = function() {
   createScoreButtons();
   initTimeSelects();
   fetchWeather();
-  restoreTodayData();
 };
 
 // ============================================
@@ -507,8 +506,8 @@ function sendData() {
 
   alert("✅ 記録を保存しました！");
 
-  // 送信後にフォームをリセット
-  resetForm();
+  // 送信後にページをリロードして初期状態に戻す
+  location.reload();
 }
 
 // ============================================

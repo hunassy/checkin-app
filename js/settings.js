@@ -28,7 +28,7 @@ function displayCity() {
       document.getElementById("cityDisplay").textContent = "見つかりません";
     }
   }).catch(error => {
-    console.error("市町村取得エラー:", error);
+    console.error("取得エラー:", error);
     document.getElementById("cityDisplay").textContent = "取得エラー";
   });
 }

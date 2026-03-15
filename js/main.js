@@ -1,501 +1,507 @@
 // ============================================
-// メイン画面（index.html）のロジック
+// main.js — メイン画面（index_v10.html）のロジック
 // ============================================
 
-/**
- * 時間選択肢を生成
- */
-function generateTimeOptions() {
-  const bedtimeHourSelect = document.getElementById("bedtimeHour");
-  const wakeuptimeHourSelect = document.getElementById("wakeuptimeHour");
-  
-  // 時間の選択肢を生成（0～23）
-  for (let hour = 0; hour < 24; hour++) {
-    const option1 = document.createElement("option");
-    option1.value = String(hour);
-    option1.textContent = `${String(hour).padStart(2, '0')}時`;
-    bedtimeHourSelect.appendChild(option1);
-    
-    const option2 = document.createElement("option");
-    option2.value = String(hour);
-    option2.textContent = `${String(hour).padStart(2, '0')}時`;
-    wakeuptimeHourSelect.appendChild(option2);
+// ---- グローバル変数 ----
+let goodSigns = [];
+let badSigns = [];
+let medicines = [];
+let sleepTypes = [];
+let sleepSymbols = [];
+
+// スコアの定義（絵文字デザイン）
+const SCORE_CONFIG = {
+  condition: {
+    label: "体調",
+    items: [
+      { emoji: "🤧", label: "とても悪い", value: 1, cls: "score-taichou-1" },
+      { emoji: "😷", label: "悪い",       value: 2, cls: "score-taichou-2" },
+      { emoji: "🙂", label: "普通",       value: 3, cls: "score-taichou-3" },
+      { emoji: "😊", label: "良い",       value: 4, cls: "score-taichou-4" },
+      { emoji: "😄", label: "とても良い", value: 5, cls: "score-taichou-5" }
+    ]
+  },
+  energy: {
+    label: "活力",
+    items: [
+      { battery: 20,  value: 1, cls: "score-katsu-1" },
+      { battery: 40,  value: 2, cls: "score-katsu-2" },
+      { battery: 60,  value: 3, cls: "score-katsu-3" },
+      { battery: 80,  value: 4, cls: "score-katsu-4" },
+      { battery: 100, value: 5, cls: "score-katsu-5" }
+    ]
+  },
+  mental: {
+    label: "メンタル",
+    items: [
+      { emoji: "⛈️", label: "最悪", value: 1, cls: "score-mental-1" },
+      { emoji: "🌧️", label: "悪い", value: 2, cls: "score-mental-2" },
+      { emoji: "☁️",  label: "普通", value: 3, cls: "score-mental-3" },
+      { emoji: "🌤️", label: "良い", value: 4, cls: "score-mental-4" },
+      { emoji: "☀️",  label: "最高", value: 5, cls: "score-mental-5" }
+    ]
+  }
+};
+
+// バッテリーの色設定
+const BATTERY_COLORS = {
+  20:  "#e57373",  // 赤
+  40:  "#ffb74d",  // オレンジ
+  60:  "#ffd54f",  // 黄
+  80:  "#aed581",  // 黄緑
+  100: "#4CAF50"   // 緑
+};
+
+// ============================================
+// ページ読み込み時の初期化
+// ============================================
+window.onload = function() {
+  displayCurrentDate();
+  loadSleepTypes();
+  loadMedicines();
+  loadGoodSigns();
+  loadBadSigns();
+  createScoreButtons();
+  initTimeSelects();
+  fetchWeather();
+  restoreTodayData();
+};
+
+// ============================================
+// 日付表示
+// ============================================
+function displayCurrentDate() {
+  const now = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  const el = document.getElementById("dateSection");
+  if (el) {
+    el.textContent = "本日の日付：" + now.toLocaleDateString('ja-JP', options);
   }
 }
 
-/**
- * 本日の日付を表示
- */
-function displayDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const date = String(today.getDate()).padStart(2, '0');
-  
-  document.getElementById("dateSection").textContent = `本日の日付：${year}年${month}月${date}日`;
+// ============================================
+// 時刻セレクトボックスの初期化
+// ============================================
+function initTimeSelects() {
+  // 就寝時刻（18時〜翌3時）
+  const bedHours = [18,19,20,21,22,23,0,1,2,3];
+  fillHourSelect("bedtimeHour", bedHours);
+
+  // 起床時刻（3時〜13時）
+  const wakeHours = [3,4,5,6,7,8,9,10,11,12,13];
+  fillHourSelect("wakeuptimeHour", wakeHours);
+
+  // 睡眠時間の自動計算
+  ["bedtimeHour","bedtimeMinute","wakeuptimeHour","wakeuptimeMinute","wakeupDuration"]
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("change", calcSleepTime);
+    });
 }
 
-/**
- * Good/Badサインを読み込んで表示
- */
-function loadGoodSigns() {
-  const savedGood = localStorage.getItem("goodSigns");
-  
-  if (!savedGood) return;
-  
-  const goodSigns = JSON.parse(savedGood);
-  const container = document.getElementById("goodList");
-  
-  container.innerHTML = "";
-  
-  goodSigns.forEach(sign => {
-    const label = document.createElement("label");
-    label.className = "good-bad-item"; // label自体をgood-bad-itemにする
-    label.style.display = "flex";
-    label.style.alignItems = "center";
-    label.style.margin = "0";
-    
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "good";
-    const textContent = typeof sign === 'object' ? sign.text : sign;
-    checkbox.value = textContent;
-
-    const textSpan = document.createElement("span");
-    textSpan.textContent = textContent;
-
-    label.appendChild(checkbox);
-    label.appendChild(textSpan);
-    
-    container.appendChild(label);
+function fillHourSelect(id, hours) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  hours.forEach(h => {
+    const opt = document.createElement("option");
+    opt.value = h;
+    opt.textContent = h + "時";
+    sel.appendChild(opt);
   });
 }
 
-function loadBadSigns() {
-  const savedBad = localStorage.getItem("badSigns");
-  
-  if (!savedBad) return;
-  
-  const badSigns = JSON.parse(savedBad);
-  const container = document.getElementById("badList");
-  
-  container.innerHTML = "";
-  
-  badSigns.forEach(sign => {
-    const label = document.createElement("label");
-    label.className = "good-bad-item"; // label自体をgood-bad-itemにする
-    label.style.display = "flex";
-    label.style.alignItems = "center";
-    label.style.margin = "0";
+// ============================================
+// 睡眠時間の計算
+// ============================================
+function calcSleepTime() {
+  const bh = parseInt(document.getElementById("bedtimeHour").value);
+  const bm = parseInt(document.getElementById("bedtimeMinute").value) || 0;
+  const wh = parseInt(document.getElementById("wakeuptimeHour").value);
+  const wm = parseInt(document.getElementById("wakeuptimeMinute").value) || 0;
+  const wakeupDur = parseInt(document.getElementById("wakeupDuration").value) || 0;
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "bad";
-    const textContent = typeof sign === 'object' ? sign.text : sign;
-    checkbox.value = textContent;
-
-    const textSpan = document.createElement("span");
-    textSpan.textContent = textContent;
-
-    label.appendChild(checkbox);
-    label.appendChild(textSpan);
-    
-    container.appendChild(label);
-  });
-}
-
-function loadBadSigns() {
-  const savedBad = localStorage.getItem("badSigns");
-  
-  if (!savedBad) return;
-  
-  const badSigns = JSON.parse(savedBad);
-  const container = document.getElementById("badList");
-  
-  container.innerHTML = "";
-  
-  badSigns.forEach(sign => {
-    const div = document.createElement("div");
-    div.className = "good-bad-item";
-    
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "bad";
-    const text = typeof sign === 'object' ? sign.text : sign;
-    checkbox.value = text;
-    
-    const label = document.createElement("label");
-    label.style.display = "flex";
-    label.style.alignItems = "center";
-    label.style.margin = "0";
-    label.style.width = "100%";
-    
-    label.appendChild(checkbox);
-    label.append(text);
-    
-    div.appendChild(label);
-    container.appendChild(div);
-  });
-}
-
-/**
- * 薬を読み込んで表示
- */
-function loadMedicines() {
-  const savedMedicines = localStorage.getItem("medicines");
-  
-  if (!savedMedicines) return;
-  
-  const medicines = JSON.parse(savedMedicines);
-  const container = document.getElementById("medicineList");
-  
-  container.innerHTML = "";
-  
-  medicines.forEach(medicine => {
-    const label = document.createElement("label");
-    label.className = "medicine-item-label";
-    
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "medicine";
-    checkbox.value = medicine;
-    
-    label.appendChild(checkbox);
-    label.append(" " + medicine);
-    
-    container.appendChild(label);
-  });
-}
-
-/**
- * 1〜9のボタンを生成
- */
-function createButtons(id) {
-  const container = document.getElementById(id);
-  
-  for (let i = 1; i <= 9; i++) {
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    
-    btn.onclick = () => {
-      container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      
-      // 完了時に緑色で色付け
-      updateCompletionStatus();
-    };
-    
-    container.appendChild(btn);
+  if (isNaN(bh) || isNaN(wh)) {
+    document.getElementById("sleepResult").textContent = "総睡眠時間：（時刻を選択してください）";
+    return;
   }
+
+  let bedMin  = bh * 60 + bm;
+  let wakeMin = wh * 60 + wm;
+
+  // 就寝が深夜0時をまたぐ場合
+  if (wakeMin <= bedMin) wakeMin += 24 * 60;
+
+  let totalMin = wakeMin - bedMin - wakeupDur;
+  if (totalMin < 0) totalMin = 0;
+
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  document.getElementById("sleepResult").textContent =
+    `総睡眠時間：${h}時間${m}分`;
 }
 
-/**
- * 睡眠タイプボタンを生成（テキスト表示版 + 〇△×）
- */
+// ============================================
+// 睡眠タイプ
+// ============================================
+function loadSleepTypes() {
+  const savedTypes   = localStorage.getItem("sleepTypes");
+  const savedSymbols = localStorage.getItem("sleepSymbols");
+
+  sleepTypes   = savedTypes   ? JSON.parse(savedTypes)   : (typeof DEFAULT_SLEEP_TYPES   !== "undefined" ? DEFAULT_SLEEP_TYPES   : ["よく眠れた","まあまあ眠れた","そこそこ眠れた","何とか眠れた","眠れなかった"]);
+  sleepSymbols = savedSymbols ? JSON.parse(savedSymbols) : (typeof DEFAULT_SLEEP_SYMBOLS !== "undefined" ? DEFAULT_SLEEP_SYMBOLS : ["◎","○","△","△","×"]);
+
+  createSleepTypeButtons();
+}
+
 function createSleepTypeButtons() {
-  const savedSleepTypes = localStorage.getItem("sleepTypes");
-  const savedSleepSymbols = localStorage.getItem("sleepSymbols");
-  
-  const sleepTypes = savedSleepTypes ? JSON.parse(savedSleepTypes) : ["よく眠れた", "まあまあ眠れた", "そこそこ眠れた", "何とか眠れた", "眠れなかった"];
-  
-  const sleepSymbols = savedSleepSymbols ? JSON.parse(savedSleepSymbols) : ["◎", "〇", "△", "△", "✕"];
-  
   const container = document.getElementById("sleepType");
+  if (!container) return;
   container.innerHTML = "";
-  
+
   sleepTypes.forEach((type, index) => {
     const btn = document.createElement("button");
     btn.className = "sleep-type-btn";
-    btn.dataset.index = index;
     btn.dataset.value = type;
-    
+
+    const symbol = sleepSymbols[index] || "○";
+    let symbolClass = "";
+    if (symbol === "◎") symbolClass = "symbol-double-circle";
+    else if (symbol === "○" || symbol === "〇") symbolClass = "symbol-circle";
+    else if (symbol === "△") symbolClass = "symbol-triangle";
+    else if (symbol === "✕" || symbol === "×") symbolClass = "symbol-cross";
+
+    const symbolSpan = document.createElement("span");
+    symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
+    symbolSpan.textContent = symbol;
+
     const textSpan = document.createElement("span");
     textSpan.className = "sleep-type-text";
     textSpan.textContent = type;
-    
-    const symbolSpan = document.createElement("span");
-    const symbol = sleepSymbols[index] || "〇";
-    let symbolClass = "";
-    if (symbol === "◎") symbolClass = "symbol-double-circle";
-    else if (symbol === "〇") symbolClass = "symbol-circle";
-    else if (symbol === "△") symbolClass = "symbol-triangle";
-    else if (symbol === "✕") symbolClass = "symbol-cross";
-    
-    symbolSpan.className = `sleep-type-symbol ${symbolClass}`;
-    symbolSpan.textContent = symbol;
-    
+
     btn.appendChild(symbolSpan);
     btn.appendChild(textSpan);
-    
+
     btn.onclick = () => {
-      container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      container.querySelectorAll(".sleep-type-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      
-      // 完了時に緑色で色付け
-      updateCompletionStatus();
     };
-    
+
     container.appendChild(btn);
   });
 }
 
-/**
- * 睡眠時間を計算して表示
- */
-function calculateSleepTime() {
-  const bedtimeHour = document.getElementById("bedtimeHour").value;
-  const bedtimeMinute = document.getElementById("bedtimeMinute").value;
-  const wakeuptimeHour = document.getElementById("wakeuptimeHour").value;
-  const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value;
-  
-  let wakeupDuration = document.getElementById("wakeupDuration").value;
-  // 数値に変換、NaNの場合は0に
-  wakeupDuration = isNaN(parseInt(wakeupDuration)) ? 0 : parseInt(wakeupDuration);
-  
-  if (!bedtimeHour || bedtimeMinute === "" || !wakeuptimeHour || wakeuptimeMinute === "") {
-    document.getElementById("sleepResult").textContent = "総睡眠時間：就寝・起床時刻を入力してください";
+// ============================================
+// 薬
+// ============================================
+function loadMedicines() {
+  const saved = localStorage.getItem("medicines");
+  medicines = saved ? JSON.parse(saved) : [];
+  renderMedicines();
+}
+
+function renderMedicines() {
+  const container = document.getElementById("medicineList");
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (medicines.length === 0) {
+    container.innerHTML = "<p style='color:#999;font-size:14px;'>薬が登録されていません（設定画面で登録できます）</p>";
     return;
   }
-  
-  // 時刻を分に変換
-  let bedMinutes = parseInt(bedtimeHour) * 60 + parseInt(bedtimeMinute);
-  let wakeMinutes = parseInt(wakeuptimeHour) * 60 + parseInt(wakeuptimeMinute);
-  
-  // 起床時刻が就寝時刻より前の場合（翌日）
-  if (wakeMinutes <= bedMinutes) {
-    wakeMinutes += 24 * 60;
-  }
-  
-  // 総睡眠時間を計算
-  let totalSleep = wakeMinutes - bedMinutes - wakeupDuration;
-  
-  // 負の値の場合は0に
-  if (totalSleep < 0) {
-    totalSleep = 0;
-  }
-  
-  // 時間と分に変換
-  const hours = Math.floor(totalSleep / 60);
-  const minutes = totalSleep % 60;
-  
-  // 表示
-  const sleepText = minutes > 0 ? `${hours}時間${minutes}分` : `${hours}時間`;
-  document.getElementById("sleepResult").textContent = `総睡眠時間：${sleepText}`;
-  
-  // グローバル変数に保存
-  window.calculatedSleepTime = sleepText;
-  
-  // 完了時に緑色で色付け
-  updateCompletionStatus();
+
+  medicines.forEach((med, index) => {
+    const label = document.createElement("label");
+    label.className = "medicine-item-label";
+    label.innerHTML = `
+      <input type="checkbox" id="med_${index}" value="${med}">
+      ${med}
+    `;
+    container.appendChild(label);
+  });
 }
 
-/**
- * 完了状況を更新（緑色で色付け）
- */
-function updateCompletionStatus() {
-  const attendance = document.getElementById("attendance").value;
-  const breakfast = document.getElementById("breakfast").value;
-  const sleepType = document.querySelector(".sleep-type-btn.active");
-  const condition = document.querySelector("#condition .active");
-  const energy = document.querySelector("#energy .active");
-  const mental = document.querySelector("#mental .active");
-  
-  // 通所/在宅・朝食セクション
-  const attendanceSection = document.querySelector(".attendance-breakfast");
-  if (attendance && breakfast) {
-    attendanceSection.classList.add("completed");
-  } else {
-    attendanceSection.classList.remove("completed");
-  }
-  
-  // 睡眠セクション
-  const sleepSection = document.querySelector(".sleep-section");
-  const bedtimeHour = document.getElementById("bedtimeHour").value;
-  const bedtimeMinute = document.getElementById("bedtimeMinute").value;
-  const wakeuptimeHour = document.getElementById("wakeuptimeHour").value;
-  const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value;
-  
-  if (sleepType && bedtimeHour && bedtimeMinute !== "" && wakeuptimeHour && wakeuptimeMinute !== "") {
-    sleepSection.classList.add("completed");
-  } else {
-    sleepSection.classList.remove("completed");
-  }
-  
-  // スコアセクション
-  const scoreCondition = document.querySelector(".score-section:nth-of-type(1)");
-  const scoreEnergy = document.querySelector(".score-section:nth-of-type(2)");
-  const scoreMental = document.querySelector(".score-section:nth-of-type(3)");
-  
-  if (condition) scoreCondition.classList.add("completed");
-  else scoreCondition.classList.remove("completed");
-  
-  if (energy) scoreEnergy.classList.add("completed");
-  else scoreEnergy.classList.remove("completed");
-  
-  if (mental) scoreMental.classList.add("completed");
-  else scoreMental.classList.remove("completed");
+// ============================================
+// Good/Badサイン
+// ============================================
+function loadGoodSigns() {
+  const saved = localStorage.getItem("goodSigns");
+  goodSigns = saved ? JSON.parse(saved) : [];
+  renderSignList("goodList", goodSigns, "good");
 }
 
-/**
- * 気圧注意度を計算
- */
-function calculatePressureWarning(pressure) {
-  if (pressure < 1000) return "警戒（低気圧）";
-  if (pressure < 1005) return "注意";
-  if (pressure > 1020) return "注意（高気圧）";
-  return "通常";
+function loadBadSigns() {
+  const saved = localStorage.getItem("badSigns");
+  badSigns = saved ? JSON.parse(saved) : [];
+  renderSignList("badList", badSigns, "bad");
 }
 
-/**
- * 天気を自動取得
- */
-async function getWeather() {
+function renderSignList(containerId, signs, type) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (signs.length === 0) {
+    container.innerHTML = "<p style='color:#999;font-size:14px;'>登録されていません（設定画面で登録できます）</p>";
+    return;
+  }
+
+  signs.forEach((sign, index) => {
+    const label = document.createElement("label");
+    label.className = "good-bad-item";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `${type}_${index}`;
+    checkbox.value = sign;
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(" " + sign));
+    container.appendChild(label);
+  });
+}
+
+// ============================================
+// スコアボタン（絵文字デザイン）
+// ============================================
+function createScoreButtons() {
+  Object.keys(SCORE_CONFIG).forEach(scoreId => {
+    const config = SCORE_CONFIG[scoreId];
+    const container = document.getElementById(scoreId);
+    if (!container) return;
+    container.innerHTML = "";
+
+    config.items.forEach(item => {
+      const btn = document.createElement("button");
+      btn.className = `score-emoji-btn ${item.cls}`;
+      btn.dataset.value = item.value;
+      btn.type = "button";
+
+      if (scoreId === "energy") {
+        // バッテリーアイコン
+        btn.appendChild(createBatteryIcon(item.battery));
+      } else {
+        // 絵文字
+        const emojiSpan = document.createElement("span");
+        emojiSpan.textContent = item.emoji;
+        emojiSpan.style.fontSize = "24px";
+        btn.appendChild(emojiSpan);
+      }
+
+      btn.onclick = () => {
+        container.querySelectorAll(".score-emoji-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      };
+
+      container.appendChild(btn);
+    });
+  });
+}
+
+// バッテリーアイコンを生成する関数
+function createBatteryIcon(percent) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "battery-icon";
+
+  const fill = document.createElement("div");
+  fill.className = "battery-fill";
+  fill.style.width = `calc(${percent}% - 2px)`;
+  fill.style.background = BATTERY_COLORS[percent] || "#4CAF50";
+
+  const text = document.createElement("span");
+  text.className = "battery-text";
+  text.textContent = percent + "%";
+
+  wrapper.appendChild(fill);
+  wrapper.appendChild(text);
+  return wrapper;
+}
+
+// ============================================
+// 天気情報の取得
+// ============================================
+async function fetchWeather() {
   const zipcode = localStorage.getItem("zipcode");
-  
-  if (!zipcode) {
-    document.getElementById("weatherValue").innerText = "未設定";
-    document.getElementById("tempValue").innerText = "-";
-    document.getElementById("pressureValue").innerText = "-";
-    document.getElementById("pressureWarning").innerText = "-";
-    return;
-  }
-  
+  if (!zipcode) return;
+
   try {
-    // utils.js の関数を使用して住所と天気を取得
     const addressData = await getCityFromZipcode(zipcode);
+    if (!addressData) return;
+
     const weatherData = await getWeatherFromCity(addressData.cityOnly, addressData.fullAddress);
-    
-    // 天気情報を表示
-    document.getElementById("weatherValue").innerText = weatherData.weather;
-    document.getElementById("tempValue").innerText = `${weatherData.temp}℃`;
-    document.getElementById("pressureValue").innerText = `${weatherData.pressure}hPa`;
-    
-    // 気圧注意度を判定して表示
-    const warning = calculatePressureWarning(weatherData.pressure);
-    document.getElementById("pressureWarning").innerText = warning;
-    
-  } catch (error) {
-    console.error("天気取得エラー:", error);
-    document.getElementById("weatherValue").innerText = "取得失敗";
+
+    const el = v => document.getElementById(v);
+    if (el("weatherValue"))  el("weatherValue").textContent  = weatherData.weather;
+    if (el("tempValue"))     el("tempValue").textContent     = weatherData.temp + "℃";
+    if (el("pressureValue")) el("pressureValue").textContent = weatherData.pressure + "hPa";
+
+    // 気圧注意度
+    const pw = el("pressureWarning");
+    if (pw) {
+      if (weatherData.pressure < 1000) {
+        pw.textContent = "⚠️ 低気圧";
+        pw.style.color = "#d32f2f";
+      } else if (weatherData.pressure > 1015) {
+        pw.textContent = "↑ 高め";
+        pw.style.color = "#f57c00";
+      } else {
+        pw.textContent = "✓ 安定";
+        pw.style.color = "#388e3c";
+      }
+    }
+  } catch (e) {
+    console.warn("天気取得失敗:", e);
   }
 }
 
-/**
- * 気圧注意度を計算
- * @param {number} pressure 気圧(hPa)
- * @returns {string} 注意度メッセージ
- */
-function calculatePressureWarning(pressure) {
-  if (pressure < 1000) {
-    return "警戒（低気圧）";
-  } else if (pressure < 1005) {
-    return "注意";
-  } else if (pressure > 1020) {
-    return "注意（高気圧）";
-  } else {
-    return "通常";
+// ============================================
+// 今日のデータを復元（localStorage から）
+// ============================================
+function restoreTodayData() {
+  const today = getTodayKey();
+  const saved = localStorage.getItem("diary_" + today);
+  if (!saved) return;
+
+  try {
+    const data = JSON.parse(saved);
+
+    // 通所/在宅・朝食
+    if (data.attendance) document.getElementById("attendance").value = data.attendance;
+    if (data.breakfast)  document.getElementById("breakfast").value  = data.breakfast;
+
+    // 就寝・起床時刻
+    if (data.bedtimeHour)      document.getElementById("bedtimeHour").value      = data.bedtimeHour;
+    if (data.bedtimeMinute)    document.getElementById("bedtimeMinute").value    = data.bedtimeMinute;
+    if (data.wakeuptimeHour)   document.getElementById("wakeuptimeHour").value   = data.wakeuptimeHour;
+    if (data.wakeuptimeMinute) document.getElementById("wakeuptimeMinute").value = data.wakeuptimeMinute;
+    if (data.wakeupDuration)   document.getElementById("wakeupDuration").value   = data.wakeupDuration;
+    calcSleepTime();
+
+    // 睡眠タイプ
+    if (data.sleepType) {
+      document.querySelectorAll(".sleep-type-btn").forEach(btn => {
+        if (btn.dataset.value === data.sleepType) btn.classList.add("active");
+      });
+    }
+
+    // スコア
+    ["condition","energy","mental"].forEach(id => {
+      if (data[id]) {
+        const container = document.getElementById(id);
+        if (container) {
+          container.querySelectorAll(".score-emoji-btn").forEach(btn => {
+            if (parseInt(btn.dataset.value) === data[id]) btn.classList.add("active");
+          });
+        }
+      }
+    });
+
+    // Good/Badサイン
+    if (data.goodSigns) {
+      data.goodSigns.forEach(sign => {
+        document.querySelectorAll("#goodList input").forEach(cb => {
+          if (cb.value === sign) cb.checked = true;
+        });
+      });
+    }
+    if (data.badSigns) {
+      data.badSigns.forEach(sign => {
+        document.querySelectorAll("#badList input").forEach(cb => {
+          if (cb.value === sign) cb.checked = true;
+        });
+      });
+    }
+
+    // 薬
+    if (data.medicines) {
+      data.medicines.forEach(med => {
+        document.querySelectorAll("#medicineList input").forEach(cb => {
+          if (cb.value === med) cb.checked = true;
+        });
+      });
+    }
+
+    // コメント
+    if (data.comment) document.getElementById("comment").value = data.comment;
+
+  } catch (e) {
+    console.warn("データ復元エラー:", e);
   }
 }
 
-/**
- * データを送信
- */
+// ============================================
+// 今日の日付キーを取得
+// ============================================
+function getTodayKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+}
+
+// ============================================
+// データ送信
+// ============================================
 function sendData() {
-  const date = new Date();
-  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  
-  const weather = window.currentWeather || "";
-  const temp = window.currentTemp || "";
-  const pressure = window.currentPressure || "";
-  const pressureWarning = window.currentPressureWarning || "";
-  
-  const attendance = document.getElementById("attendance").value || "";
-  const breakfast = document.getElementById("breakfast").value || "";
-  
-  // 睡眠データ
-  const sleepType = document.querySelector(".sleep-type-btn.active")?.dataset.value || "";
-  const bedtimeHour = document.getElementById("bedtimeHour").value || "";
-  const bedtimeMinute = document.getElementById("bedtimeMinute").value || "";
-  const bedtime = bedtimeHour && bedtimeMinute !== "" ? `${String(bedtimeHour).padStart(2, '0')}:${String(bedtimeMinute).padStart(2, '0')}` : "";
-  
-  const wakeuptimeHour = document.getElementById("wakeuptimeHour").value || "";
-  const wakeuptimeMinute = document.getElementById("wakeuptimeMinute").value || "";
-  const wakeuptime = wakeuptimeHour && wakeuptimeMinute !== "" ? `${String(wakeuptimeHour).padStart(2, '0')}:${String(wakeuptimeMinute).padStart(2, '0')}` : "";
-  
-  const wakeupDuration = document.getElementById("wakeupDuration").value || "0";
-  const sleepTime = window.calculatedSleepTime || "";
-  
-  // 薬
-  const medicines = getCheckedValues("medicine").join(",");
-  
-  const condition = document.querySelector("#condition .active")?.textContent || "";
-  const energy = document.querySelector("#energy .active")?.textContent || "";
-  const mental = document.querySelector("#mental .active")?.textContent || "";
-  
-  const comment = document.getElementById("comment").value;
-  
-  const good = getCheckedValues("good").join(",");
-  const bad = getCheckedValues("bad").join(",");
-  
-  const data = {
-    date: dateStr,
-    weather,
-    temp,
-    pressure,
-    pressureWarning,
-    attendance,
-    breakfast,
-    sleepType,
-    bedtime,
-    wakeuptime,
-    wakeupDuration,
-    sleepTime,
-    medicines,
-    condition,
-    energy,
-    mental,
-    good,
-    bad,
-    comment
-  };
-  
-  const form = createFormForSubmit(data);
-  submitForm(form);
-  
-  alert("送信しました");
-  
-  // 送信後、メインページに戻る
-  setTimeout(() => {
-    window.location.href = "https://hunassy.github.io/checkin-app/";
-  }, 1000);
-}
+  const today = getTodayKey();
 
-/**
- * ページ読み込み時の初期化
- */
-window.onload = function() {
-  generateTimeOptions();
-  displayDate();
-  loadGoodSigns();
-  loadBadSigns();
-  loadMedicines();
-  createButtons("condition");
-  createButtons("energy");
-  createButtons("mental");
-  createSleepTypeButtons();
-  
-  // 睡眠時間の計算を監視
-  document.getElementById("bedtimeHour").addEventListener("change", calculateSleepTime);
-  document.getElementById("bedtimeMinute").addEventListener("change", calculateSleepTime);
-  document.getElementById("wakeuptimeHour").addEventListener("change", calculateSleepTime);
-  document.getElementById("wakeuptimeMinute").addEventListener("change", calculateSleepTime);
-  document.getElementById("wakeupDuration").addEventListener("change", calculateSleepTime);
-  document.getElementById("wakeupDuration").addEventListener("input", calculateSleepTime);
-  
-  // 完了状況の監視
-  document.getElementById("attendance").addEventListener("change", updateCompletionStatus);
-  document.getElementById("breakfast").addEventListener("change", updateCompletionStatus);
-  
-  // ページ読み込み時に自動で天気を取得
-  getWeather();
-};
+  // 睡眠タイプ
+  const sleepTypeBtn = document.querySelector(".sleep-type-btn.active");
+  const sleepType = sleepTypeBtn ? sleepTypeBtn.dataset.value : "";
+
+  // スコア
+  const getScore = id => {
+    const btn = document.querySelector(`#${id} .score-emoji-btn.active`);
+    return btn ? parseInt(btn.dataset.value) : null;
+  };
+
+  // Good/Badサイン
+  const getChecked = id => {
+    return [...document.querySelectorAll(`#${id} input:checked`)].map(cb => cb.value);
+  };
+
+  // 薬
+  const checkedMeds = [...document.querySelectorAll("#medicineList input:checked")].map(cb => cb.value);
+
+  const data = {
+    date:          today,
+    attendance:    document.getElementById("attendance").value,
+    breakfast:     document.getElementById("breakfast").value,
+    sleepType:     sleepType,
+    bedtimeHour:   document.getElementById("bedtimeHour").value,
+    bedtimeMinute: document.getElementById("bedtimeMinute").value,
+    wakeuptimeHour:   document.getElementById("wakeuptimeHour").value,
+    wakeuptimeMinute: document.getElementById("wakeuptimeMinute").value,
+    wakeupDuration:   document.getElementById("wakeupDuration").value,
+    condition:     getScore("condition"),
+    energy:        getScore("energy"),
+    mental:        getScore("mental"),
+    goodSigns:     getChecked("goodList"),
+    badSigns:      getChecked("badList"),
+    medicines:     checkedMeds,
+    comment:       document.getElementById("comment").value
+  };
+
+  // localStorageに保存
+  localStorage.setItem("diary_" + today, JSON.stringify(data));
+
+  // Google Apps Script に送信（URLが設定されている場合）
+  const GAS_URL = localStorage.getItem("gasUrl");
+  if (GAS_URL) {
+    const form = document.createElement("form");
+    form.action = GAS_URL;
+    form.method = "POST";
+    form.target = "_blank";
+
+    Object.entries(data).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = Array.isArray(value) ? value.join(",") : (value ?? "");
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  }
+
+  alert("✅ 記録を保存しました！");
+}

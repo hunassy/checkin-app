@@ -1,18 +1,17 @@
-/* 全体設定 */
-body {
-  font-family: sans-serif;
-  background: #f0f0f0;
-  padding: 20px;
-}
+/* =============================================
+   style.css — 基本レイアウト・共通スタイル
+   ============================================= */
 
-/* 画面の上下の余計な隙間をなくし、全体を使い切るための追加CSS */
+/* 全体設定 */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden; /* 横揺れを防止 */
-  -webkit-tap-highlight-color: transparent; /* タップ時の青い枠を消す */
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  font-family: sans-serif;
+  background: #f0f0f0;
 }
 
 .container {
@@ -20,8 +19,8 @@ html, body {
   padding: 20px;
   border-radius: 10px;
   width: 95%;
-  max-width: 800px; /* PCで広がりすぎないように調整 */
-  margin: 20px auto; /* 上下に余白を作り、左右は中央寄せ */
+  max-width: 800px;
+  margin: 20px auto;
 }
 
 .section {
@@ -55,60 +54,6 @@ html, body {
   text-decoration: none;
 }
 
-/* 日付セクション */
-.date-section {
-  background: #e3f2fd;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #1565c0;
-}
-
-/* 天気セクション */
-.weather-section {
-  background: #fff3e0;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 10px;
-}
-
-.weather-item {
-  background: white;
-  padding: 10px;
-  border-radius: 4px;
-  border-left: 4px solid #ff9800;
-  text-align: center;
-}
-
-.weather-item-label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 5px;
-}
-
-.weather-item-value {
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-}
-
-.weather.loading {
-  color: #999;
-}
-
-.weather.error {
-  color: #d32f2f;
-}
-
-.weather.success {
-  color: #388e3c;
-}
-
 /* セクションラベル */
 .section-label {
   font-weight: bold;
@@ -117,307 +62,7 @@ html, body {
   margin-bottom: 10px;
 }
 
-/* 通所/在宅・朝食 */
-.attendance-breakfast {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.attendance-breakfast select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.attendance-breakfast label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  display: block;
-}
-
-/* 睡眠セクション */
-.sleep-section {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-}
-
-.sleep-section h3 {
-  margin-top: 0;
-  color: #333;
-  border-bottom: 2px solid #4CAF50;
-  padding-bottom: 10px;
-}
-
-.sleep-item {
-  margin: 15px 0;
-}
-
-.sleep-item label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #555;
-}
-
-.sleep-item select,
-.sleep-item input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 14px;
-}
-
-.time-input-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.time-input-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 14px;
-}
-
-.time-input-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-  font-size: 14px;
-}
-
-.sleep-result {
-  background: #e8f5e9;
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 10px;
-  font-weight: bold;
-  color: #2e7d32;
-}
-
-.sleep-type-buttons {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  margin-top: 5px;
-}
-
-.sleep-type-btn {
-  padding: 4px 12px;
-  background: #f0f0f0;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s;
-  font-size: 16px;
-  color: #000;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 12px;
-  min-height: 52px;
-}
-
-.sleep-type-btn:hover {
-  background: #e8e8e8;
-}
-
-.sleep-type-btn.active {
-  background: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
-}
-
-.sleep-type-symbol {
-  font-size: 28px;
-  min-width: 44px;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  line-height: 1;
-}
-
-.symbol-double-circle {
-  font-size: 28px;
-}
-
-.symbol-circle {
-  font-size: 26px;
-}
-
-.symbol-triangle {
-  font-size: 24px;
-}
-
-.symbol-cross {
-  font-size: 24px;
-}
-
-.sleep-type-text {
-  flex: 1;
-  font-size: 16px;
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
-}
-
-/* 薬セクション */
-.medicine-section {
-  background: #f3e5f5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-}
-
-.medicine-section h3 {
-  margin-top: 0;
-  color: #333;
-  border-bottom: 2px solid #9c27b0;
-  padding-bottom: 10px;
-}
-
-.medicine-list {
-  margin-top: 10px;
-}
-
-.medicine-item-label {
-  display: block;
-  margin: 8px 0;
-}
-
-.medicine-item-label input[type="checkbox"] {
-  margin-right: 8px;
-}
-
-/* スコアセクション */
-.score-section {
-  margin-top: 15px;
-}
-
-.score-section-title {
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 5px;
-}
-
-.score-labels {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 5px;
-  margin-bottom: 8px;
-  font-size: 11px;
-  text-align: center;
-  color: #999;
-}
-
-.score-labels span {
-  padding: 4px 0;
-}
-
-.score-labels span:nth-child(1) {
-  color: #d32f2f;
-  font-weight: bold;
-  grid-column: 1;
-}
-
-.score-labels span:nth-child(2) {
-  color: #f57c00;
-  font-weight: bold;
-  grid-column: 5;
-}
-
-.score-labels span:nth-child(3) {
-  color: #388e3c;
-  font-weight: bold;
-  grid-column: 9;
-}
-
-.score-buttons {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 5px;
-  margin-top: 8px;
-}
-
-.score-buttons button {
-  padding: 10px;
-  border: none;
-  background: #e0e0e0;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.score-buttons button.active {
-  background: #4CAF50;
-  color: white;
-}
-
-/* Good/Badサインセクション */
-.good-bad-section {
-  margin-top: 15px;
-}
-
-.good-bad-section p {
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-#goodList, #badList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 横幅を確保し、自動でアイテム数を調整 */
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.good-bad-item {
-  display: flex;
-  align-items: center;
-  font-size: 12px !important;
-  background: #f0f0f0;
-  padding: 12px 15px;
-  border-radius: 4px;
-  border: 1px solid #eee;
-  cursor: pointer;
-  white-space: nowrap; /* テキストの折り返しを防ぐ */
-  transition: all 0.2s;
-  margin: 0; /* 余計な余白を消す */
-}
-
-.good-bad-item input {
-  margin-right: 5px;
-}
-
-.completed {
-  background: #e8f5e9;
-  border-radius: 4px;
-  padding: 10px;
-}
-
-textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 8px;
-  box-sizing: border-box;
-}
-
+/* 送信ボタン */
 .submit {
   width: 100%;
   padding: 12px;
@@ -434,6 +79,14 @@ textarea {
   background: #45a049;
 }
 
+/* テキストエリア */
+textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
 /* 数値入力のスピナーを非表示 */
 input[type="text"]::-webkit-outer-spin-button,
 input[type="text"]::-webkit-inner-spin-button {
@@ -445,125 +98,7 @@ input[type="text"][type="number"] {
   -moz-appearance: textfield;
 }
 
-/* 個人設定画面の要素 */
-.zipcode-section {
-  margin-bottom: 20px;
-}
-
-.zipcode-input-group {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.zipcode-input-group input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.zipcode-display {
-  padding: 10px;
-  background: #c8e6c9;
-  border-radius: 4px;
-  border-left: 4px solid #388e3c;
-  font-weight: bold;
-  color: #1b5e20;
-  min-height: 20px;
-}
-
-.item-row {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin: 10px 0;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 4px;
-}
-
-.item-text {
-  flex: 1;
-  word-break: break-all;
-  font-size: 12px; /* ← ここに好きなサイズを書き足してください */
-  color: #333;    /* ついでに文字色も指定しておくと綺麗です */
-}
-
-.item-buttons {
-  display: flex;
-  gap: 10px;
-  white-space: nowrap;
-}
-
-.item-buttons button {
-  margin: 0;
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.sleep-type-editor {
-  margin-top: 10px;
-  margin-bottom: 30px; /* 薬についての上の空白を調整 */
-  padding: 10px;
-  background: #f5f5f5;
-  border-radius: 5px;
-}
-
-/* 各リストの下に30pxの余白を一括追加 */
-#medicineList, #goodList, #badList {
-  margin-bottom: 30px;
-}
-
-.sleep-type-item {
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-}
-
-.sleep-type-label {
-  width: 20px;
-  font-weight: bold;
-  color: #666;
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
-
-.sleep-type-input {
-  flex: 1;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 0 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  position: relative;
-  top: -2px;
-}
-
-.sleep-type-symbol {
-  width: 60px;
-  height: 100%;
-}
-
-.sleep-type-symbol select {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 0 4px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  text-align: center;
-  font-size: 18px;
-  display: block;
-}
-
-/* 入力欄と追加ボタンを横並びにして大きくする設定 */
+/* 入力グループ（横並び） */
 .input-group {
   display: flex;
   gap: 10px;
@@ -576,18 +111,18 @@ input[type="text"][type="number"] {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
-  height: 32px; /* 高さを32pxにアップ */
+  height: 32px;
   box-sizing: border-box;
 }
 
 .input-group button {
   padding: 0 20px;
-  height: 32px; /* ボタンの高さも入力欄に合わせる */
+  height: 32px;
   margin: 0;
   white-space: nowrap;
 }
 
-/* 「最大10個まで登録できます」の文言スタイル */
+/* ヒントテキスト */
 .list-hint {
   font-size: 12px;
   color: #888;
@@ -599,173 +134,7 @@ input[type="text"][type="number"] {
   margin-bottom: 20px;
 }
 
-/* --- スマホ向け最適化 (画面幅600px以下) --- */
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  /* 天気情報を2列ずつ表示 */
-  .weather-section {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  /* 各セクションを1列に並べる */
-  .attendance-breakfast, .time-input-group, #goodList, #badList {
-    grid-template-columns: 1fr;
-  }
-
-  /* スコアボタン(1〜9)を3列ずつにして押しやすくする */
-  .score-labels, .score-buttons {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .score-labels span:nth-child(2) { grid-column: 2; }
-  .score-labels span:nth-child(3) { grid-column: 3; }
-
-  /* 【追加】Good/Badサイン：チェックが入った時に背景色を変える */
-  .good-bad-item:has(input:checked) {
-    background-color: #e8f5e9 !important; /* 薄い緑色 */
-    border-color: #4CAF50 !important; /* 枠線も緑に */
-  }
-
-  .good-bad-item {
-    height: 50px;
-    font-size: 16px;
-    margin-bottom: 5px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  /* 【追加】タップした瞬間の「押し込み感」を出す演出 */
-  .sleep-type-btn:active,
-  .score-buttons button:active,
-  .submit:active,
-  .good-bad-item:active {
-    background-color: #e0e0e0 !important;
-    transform: scale(0.97); /* ほんの少しだけ小さくして「押した感」を出す */
-  }
-
-  /* 入力フィールド全般のサイズアップ（ズーム防止） */
-  select, input[type="text"], textarea {
-    font-size: 16px !important;
-    height: 44px;
-  }
-
-  textarea {
-    height: 100px;
-  }
-
-  .submit {
-    height: 55px;
-    font-size: 18px;
-    font-weight: bold;
-  }
-
-  /* 睡眠タイプのカスタマイズエリアをスマホでも表示させる */
-  .sleep-type-editor {
-    display: block !important; /* 強制的に表示 */
-    padding: 10px !important;
-    margin-bottom: 20px !important;
-  }
-
-  .sleep-type-item {
-    display: flex !important;
-    flex-direction: row !important; /* 横並びを維持 */
-    align-items: center !important;
-    gap: 5px !important;
-    height: auto !important; /* 高さを自動調整 */
-    margin-bottom: 10px !important;
-  }
-
-  .sleep-type-label {
-    width: 20px !important;
-    flex-shrink: 0;
-  }
-
-  /* 追加された項目の間の余白を紞める */
-  .item-row {
-    margin: 4px 0;
-    padding: 8px 10px;
-  }
-
-  /* 設定保存ボタンを大きくして押しやすくする */
-  button[onclick="saveSettings()"] {
-    width: 100%;
-    height: 55px;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 10px;
-  }
-
-  .sleep-type-input {
-    flex: 1 !important; /* テキスト入力欄を広げる */
-    min-width: 0 !important; /* はみ出し防止 */
-    height: 44px !important; /* 押しやすい高さ（プルダウンと揃える） */
-    font-size: 16px !important;
-    box-sizing: border-box !important;
-  }
-
-  .sleep-type-symbol {
-    width: 70px !important;
-    height: 44px !important; /* テキストボックスと同じ高さに揃える */
-    flex-shrink: 0;
-  }
-
-  .sleep-type-symbol select {
-    width: 100% !important;
-    height: 100% !important;
-    font-size: 18px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* 設定画面：Good/Badリストをスマホでは4項目分の高さに固定してスクロール */
-  .scroll-list-wrapper {
-    max-height: 212px;
-    overflow-y: auto;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background: #f9f9f9;
-    padding: 4px;
-    margin-bottom: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* メイン画面：Good/Badサインをスマホで2列グリッド表示（.main-gridクラスが付いた要素のみ） */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  /* 就寝・起床時刻：時間と分を横並びに表示 */
-  .time-row {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    align-items: flex-end;
-  }
-
-  .time-col {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  .time-col select {
-    width: 100%;
-    height: 44px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    padding: 0 8px;
-    background: #f5f5f5;
-    box-sizing: border-box;
-  }
-
-  .time-label {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 4px;
-    display: block;
-  }
+/* 各リストの下に余白 */
+#medicineList, #goodList, #badList {
+  margin-bottom: 30px;
 }

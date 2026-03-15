@@ -309,10 +309,4 @@ window.onload = function() {
   
   // 最後に表示を実行
   renderSleepTypeEditor();
-
-  // GAS URLを復元
-  const savedGasUrl = localStorage.getItem("gasUrl");
-  const gasUrlEl = document.getElementById("gasUrl");
-  if (savedGasUrl && gasUrlEl) gasUrlEl.value = savedGasUrl;
-
 };

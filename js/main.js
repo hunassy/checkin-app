@@ -282,9 +282,15 @@ function createScoreButtons() {
       } else {
         // 絵文字
         const emojiSpan = document.createElement("span");
+        emojiSpan.className = "score-emoji";
         emojiSpan.textContent = item.emoji;
-        emojiSpan.style.fontSize = "24px";
         btn.appendChild(emojiSpan);
+
+        // ラベルテキスト
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "score-label";
+        labelSpan.textContent = item.label;
+        btn.appendChild(labelSpan);
       }
 
       btn.onclick = () => {

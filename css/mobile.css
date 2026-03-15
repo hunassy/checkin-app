@@ -177,9 +177,17 @@
   }
 
   .score-emoji-btn {
-    font-size: 22px;
-    min-height: 52px;
+    min-height: 64px;
     padding: 6px 2px;
+  }
+
+  .score-emoji {
+    font-size: 22px;
+  }
+
+  .score-label {
+    font-size: 9px;
+    margin-top: 3px;
   }
 
   /* バッテリーアイコンのスマホ調整 */

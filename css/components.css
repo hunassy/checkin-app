@@ -256,9 +256,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 24px;
   line-height: 1;
-  min-height: 56px;
+  min-height: 72px;
 }
 
 .score-emoji-btn:hover {
@@ -336,41 +335,20 @@
 .score-emoji-btn.active.score-katsu-4 { background: #f1f8e9; border-color: #aed581; }
 .score-emoji-btn.active.score-katsu-5 { background: #e8f5e9; border-color: #4CAF50; }
 
-/* 旧スコアボタン（後方互換のため残す） */
-.score-labels {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 5px;
-  margin-bottom: 8px;
-  font-size: 11px;
+/* 絵文字スコアボタン内のテキスト */
+.score-emoji {
+  font-size: 24px;
+  line-height: 1;
+  display: block;
+}
+
+.score-label {
+  font-size: 10px;
+  color: #555;
+  margin-top: 4px;
+  line-height: 1.2;
   text-align: center;
-  color: #999;
-}
-
-.score-labels span { padding: 4px 0; }
-.score-labels span:nth-child(1) { color: #d32f2f; font-weight: bold; grid-column: 1; }
-.score-labels span:nth-child(2) { color: #f57c00; font-weight: bold; grid-column: 5; }
-.score-labels span:nth-child(3) { color: #388e3c; font-weight: bold; grid-column: 9; }
-
-.score-buttons {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 5px;
-  margin-top: 8px;
-}
-
-.score-buttons button {
-  padding: 10px;
-  border: none;
-  background: #e0e0e0;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.score-buttons button.active {
-  background: #4CAF50;
-  color: white;
+  display: block;
 }
 
 /* ---- Good/Badサインセクション ---- */

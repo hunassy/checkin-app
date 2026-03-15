@@ -487,8 +487,9 @@ function sendData() {
   // localStorageに保存
   localStorage.setItem("diary_" + today, JSON.stringify(data));
 
-  // Google Apps Script に送信（URLが設定されている場合）
-  const GAS_URL = localStorage.getItem("gasUrl");
+  // Google Apps Script に送信
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
+    || localStorage.getItem("gasUrl");
   if (GAS_URL) {
     // GASはCORS対応のためfetch + URLSearchParamsで送信
     const params = new URLSearchParams();

@@ -17,6 +17,7 @@ html, body {
 .container {
   background: white;
   padding: 20px;
+  padding-bottom: 84px;
   border-radius: 10px;
   width: 95%;
   max-width: 800px;
@@ -38,6 +39,10 @@ html, body {
 .header h1, .header h2 {
   margin: 0;
   flex: 1;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .settings-link, .back-link {

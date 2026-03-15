@@ -28,7 +28,7 @@ function displayCity() {
       document.getElementById("cityDisplay").textContent = "見つかりません";
     }
   }).catch(error => {
-    console.error("取得エラー:", error);
+    console.error("市町村取得エラー:", error);
     document.getElementById("cityDisplay").textContent = "取得エラー";
   });
 }
@@ -309,4 +309,10 @@ window.onload = function() {
   
   // 最後に表示を実行
   renderSleepTypeEditor();
+
+  // GAS URLを復元
+  const savedGasUrl = localStorage.getItem("gasUrl");
+  const gasUrlEl = document.getElementById("gasUrl");
+  if (savedGasUrl && gasUrlEl) gasUrlEl.value = savedGasUrl;
+
 };

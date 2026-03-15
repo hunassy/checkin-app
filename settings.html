@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <title>個人設定</title>
-<script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773560487547&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2FsessionFile%2FqbxZAHazSchcJEpkuuyHRB%2Fsandbox%2FYIOfzKmv3L4diKEAuK8j5C_1773566493577_na1fn_L2hvbWUvdWJ1bnR1L3NldHRpbmdz.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvcWJ4WkFIYXpTY2hjSkVwa3V1eUhSQi9zYW5kYm94L1lJT2Z6S212M0w0ZGlLRUF1SzhqNUNfMTc3MzU2NjQ5MzU3N19uYTFmbl9MMmh2YldVdmRXSjFiblIxTDNObGRIUnBibWR6Lmh0bWwiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DdZpDbtBVeZx-ZNgnCu3kNfo9tk~kTBl2Rc7Uq32m1fVV2cjP4nR0PB2kWYPCHGwxiD5hxCiwTKOFhqRzEHd5WBZ0SYJ21-xtWcWwj4rpBxHGYXlBg3dmw7JvwyPc41yltLvx3huTNfPvmufmQ6yCp2i54B5Wr5qnw6lXtf4yvsCRqLDDA~0ludXOeMS-2NsqMK2HYvumrds2ZgwnVVDjLmlkZ~eAVlz0Hkl~UhhR29Abvz8E9DcVMi2bsBzoX69ajPALPKdk4hPt85o1~q-DG8QUG8Kq0dqbthOQlcmgG~Yrfhc1OuViVHrLOb-CJSU9rK7pmyrs1wb6PsQGELdibQ__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773560487547&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/mobile.css">
 </head>
@@ -20,7 +20,6 @@
 
 <div class="header">
   <h1>個人設定</h1>
-  <a href="index.html" class="back-link">戻る</a>
 </div>
 
 <!-- 1. 郵便番号 -->
@@ -66,6 +65,13 @@
   <div id="badList"></div>
 </div>
 
+<!-- GAS URL -->
+<h2>スプレッドシート連携</h2>
+<p class="list-hint">Google Apps Scriptのウェブアプリ URLを入力するとスプレッドシートに記録が送信されます</p>
+<div class="zipcode-section">
+  <input id="gasUrl" type="url" placeholder="https://script.google.com/macros/s/..." style="width:100%;box-sizing:border-box;">
+</div>
+
 <button onclick="saveSettings()">設定保存</button>
 
 </div>
@@ -74,6 +80,23 @@
 <script src="js/defaults.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/settings.js" defer></script>
+
+<!-- ボトムナビゲーション -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item">
+    <span class="nav-icon">📝</span>
+    <span class="nav-label">記録</span>
+  </a>
+  <a href="analysis.html" class="nav-item">
+    <span class="nav-icon">📈</span>
+    <span class="nav-label">分析</span>
+  </a>
+  <a href="settings.html" class="nav-item active">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">設定</span>
+    <span class="nav-dot"></span>
+  </a>
+</nav>
 
 </body>
 </html>

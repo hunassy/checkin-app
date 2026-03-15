@@ -505,3 +505,62 @@
   font-size: 18px;
   display: block;
 }
+
+/* ============================================
+   ボトムナビゲーション
+   ============================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+  z-index: 1000;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 8px 0;
+  text-decoration: none;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.nav-item .nav-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.nav-item .nav-label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: #4CAF50;
+}
+
+.nav-item.active .nav-label {
+  font-weight: bold;
+}
+
+.nav-item .nav-dot {
+  width: 4px;
+  height: 4px;
+  background: #4CAF50;
+  border-radius: 50%;
+}
+
+

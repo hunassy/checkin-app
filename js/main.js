@@ -9,6 +9,14 @@ let medicines = [];
 let sleepTypes = [];
 let sleepSymbols = [];
 
+// 天気データ（fetchWeather で取得後に保存）
+let weatherCache = {
+  weather: "",
+  temp: "",
+  pressure: "",
+  pressureWarning: ""
+};
+
 // スコアの定義（絵文字デザイン）
 const SCORE_CONFIG = {
   condition: {
@@ -340,19 +348,30 @@ async function fetchWeather() {
     if (el("pressureValue")) el("pressureValue").textContent = weatherData.pressure + "hPa";
 
     // 気圧注意度
+    let pressureWarningText = "";
     const pw = el("pressureWarning");
     if (pw) {
       if (weatherData.pressure < 1000) {
-        pw.textContent = "⚠️ 低気圧";
+        pressureWarningText = "⚠️ 低気圧";
+        pw.textContent = pressureWarningText;
         pw.style.color = "#d32f2f";
       } else if (weatherData.pressure > 1015) {
-        pw.textContent = "↑ 高め";
+        pressureWarningText = "↑ 高め";
+        pw.textContent = pressureWarningText;
         pw.style.color = "#f57c00";
       } else {
-        pw.textContent = "✓ 安定";
+        pressureWarningText = "✓ 安定";
+        pw.textContent = pressureWarningText;
         pw.style.color = "#388e3c";
       }
     }
+
+    // グローバル変数に保存（送信時に使用）
+    weatherCache.weather         = weatherData.weather;
+    weatherCache.temp            = weatherData.temp;
+    weatherCache.pressure        = weatherData.pressure;
+    weatherCache.pressureWarning = pressureWarningText;
+
   } catch (e) {
     console.warn("天気取得失敗:", e);
   }
@@ -466,10 +485,14 @@ function sendData() {
   const checkedMeds = [...document.querySelectorAll("#medicineList input:checked")].map(cb => cb.value);
 
   const data = {
-    date:          today,
-    attendance:    document.getElementById("attendance").value,
-    breakfast:     document.getElementById("breakfast").value,
-    sleepType:     sleepType,
+    date:            today,
+    attendance:      document.getElementById("attendance").value,
+    breakfast:       document.getElementById("breakfast").value,
+    sleepType:       sleepType,
+    weather:         weatherCache.weather,
+    temp:            weatherCache.temp,
+    pressure:        weatherCache.pressure,
+    pressureWarning: weatherCache.pressureWarning,
     bedtimeHour:   document.getElementById("bedtimeHour").value,
     bedtimeMinute: document.getElementById("bedtimeMinute").value,
     wakeuptimeHour:   document.getElementById("wakeuptimeHour").value,

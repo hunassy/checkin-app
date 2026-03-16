@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <title>体調分析 - コンディションノート</title>
-<link rel="stylesheet" href="css/style.css">
+<script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773665263596&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2FsessionFile%2FqbxZAHazSchcJEpkuuyHRB%2Fsandbox%2F7SFdQUhYa96PcDJaVTuJMB_1773665636052_na1fn_YW5hbHlzaXM.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvcWJ4WkFIYXpTY2hjSkVwa3V1eUhSQi9zYW5kYm94LzdTRmRRVWhZYTk2UGNESmFWVHVKTUJfMTc3MzY2NTYzNjA1Ml9uYTFmbl9ZVzVoYkhsemFYTS5odG1sIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DcPK8qnWLeV7vdNh9yVxe5Ho1S6PMEcN3pu5XVOoKnI9fp4g2ArLzy3pjND8QelpWPdpDCIPRzSBu2vlOYkB5u9BO6FBfVIYWO9gC5YLvEdJelqzpx3IM3Ex5TV5AwTx6ab7BEcTruDuATF2UOxpTBBNHyZz18GWG8ZWJuDEsMtR-kLKTkRa-U0NclvfPrsztU1nI04HAp6SfbWo3HRPciCi~EexKo6uXgo6xosx70rW8aU0yNISqCPnBuYc~cpl~eJls3~4kMho~GZQmdXgpElXSRny8NL3eIlYQffAg4YpJe6t~62jiUbWXJrL9P6X16E~IfGEciW4ufzwNgwVcfQ__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773665263596&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/mobile.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -183,6 +183,8 @@ const GAS_URL_KEY = "gasUrl";
 const FIXED_GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
 
 let allRecords = [];
+let allEveningRecords = [];
+let allMergedByDate = [];
 let currentPeriod = 30; // 表示期間（日数）
 
 window.onload = function() {
@@ -209,6 +211,8 @@ async function loadData() {
     }
 
     allRecords = json.records || [];
+    allEveningRecords = json.eveningRecords || [];
+    allMergedByDate = json.mergedByDate || [];
 
     if (allRecords.length === 0) {
       document.getElementById("mainContent").innerHTML =
@@ -216,7 +220,7 @@ async function loadData() {
       return;
     }
 
-    renderAll();
+      renderAll();
   } catch(e) {
     showError("データの取得に失敗しました。<br>GAS URLが正しいか確認してください。<br><small>" + e.message + "</small>");
   }
@@ -225,6 +229,8 @@ async function loadData() {
 // ---- 全セクションを描画 ----
 function renderAll() {
   const records = filterByPeriod(allRecords, currentPeriod);
+  const eveningRecords = filterByPeriod(allEveningRecords, currentPeriod);
+  const mergedData = filterMergedByPeriod(allMergedByDate, currentPeriod);
 
   document.getElementById("mainContent").innerHTML = `
     <!-- 期間タブ -->
@@ -282,11 +288,11 @@ function renderAll() {
   renderDayOfWeekPattern(records);
   renderAttendanceCorrelation(records);
   renderSignPattern(records);
-  renderLowFlightPeriod(records);
-  renderWeeklyEnergyChart(records);
-  renderBodyMindGap(records);
-  renderGoodDayPattern(records);
-  renderWeatherDetail(records);
+  renderLowFlightPeriod(records, eveningRecords, mergedData);
+  renderWeeklyEnergyChart(records, eveningRecords);
+  renderBodyMindGap(records, eveningRecords, mergedData);
+  renderGoodDayPattern(records, eveningRecords, mergedData);
+  renderWeatherDetail(records, eveningRecords);
 }
 
 function changePeriod(days) {
@@ -298,6 +304,12 @@ function filterByPeriod(records, days) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
   return records.filter(r => r.date && new Date(r.date) >= cutoff);
+}
+
+function filterMergedByPeriod(merged, days) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  return merged.filter(d => d.date && new Date(d.date) >= cutoff);
 }
 
 // ---- 平均スコア ----
@@ -607,23 +619,37 @@ function renderSignPattern(records) {
 }
 
 // ---- 低空飛行期間の可視化 ----
-function renderLowFlightPeriod(records) {
+function renderLowFlightPeriod(records, eveningRecords, mergedData) {
   const sec = document.getElementById("sec-lowflight");
   sec.innerHTML = '<h3>🟡 低空飛行期間の可視化</h3>';
 
-  const sorted = [...records].filter(r => r.date && r.mental).sort((a,b) => a.date.localeCompare(b.date));
+  // 朝・夜の平均スコアで判定（夜データがある日は朝夜平均、ない日は朝のみ）
+  const dateScoreMap = {};
+  records.filter(r => r.date && r.mental).forEach(r => {
+    if (!dateScoreMap[r.date]) dateScoreMap[r.date] = { scores: [] };
+    dateScoreMap[r.date].scores.push(Number(r.mental));
+  });
+  eveningRecords.filter(r => r.date && r.mental).forEach(r => {
+    if (!dateScoreMap[r.date]) dateScoreMap[r.date] = { scores: [] };
+    dateScoreMap[r.date].scores.push(Number(r.mental));
+  });
+
+  const sorted = Object.keys(dateScoreMap).sort().map(date => ({
+    date,
+    avgMental: dateScoreMap[date].scores.reduce((s,v)=>s+v,0) / dateScoreMap[date].scores.length
+  }));
+
   if (sorted.length < 3) {
     sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足</p>';
     return;
   }
 
-  // メンタルスコアが2以下の日を低空飛行日と定義
   const THRESHOLD = 2;
   let maxStreak = 0, currentStreak = 0, streakStart = null, maxStart = null, maxEnd = null;
   let lowDays = 0;
 
-  sorted.forEach((r, i) => {
-    if (Number(r.mental) <= THRESHOLD) {
+  sorted.forEach((r) => {
+    if (r.avgMental <= THRESHOLD) {
       if (currentStreak === 0) streakStart = r.date;
       currentStreak++;
       lowDays++;
@@ -640,7 +666,7 @@ function renderLowFlightPeriod(records) {
   // 現在進行中の連続日数
   let ongoingStreak = 0;
   for (let i = sorted.length - 1; i >= 0; i--) {
-    if (Number(sorted[i].mental) <= THRESHOLD) ongoingStreak++;
+    if (sorted[i].avgMental <= THRESHOLD) ongoingStreak++;
     else break;
   }
 
@@ -674,7 +700,7 @@ function renderLowFlightPeriod(records) {
 }
 
 // ---- 週間エネルギーグラフ ----
-function renderWeeklyEnergyChart(records) {
+function renderWeeklyEnergyChart(records, eveningRecords) {
   const sec = document.getElementById("sec-weekly-energy");
   sec.innerHTML = '<h3>🔋 エネルギー残量（週間パターン）</h3>';
 
@@ -700,30 +726,54 @@ function renderWeeklyEnergyChart(records) {
   sec.innerHTML += `<div class="chart-wrap"><canvas id="weeklyEnergyChart"></canvas></div>`;
 
   const labels = sorted.map(r => r.date.slice(5));
-  const energyData = sorted.map(r => Number(r.energy));
+  const morningEnergyData = sorted.map(r => Number(r.energy));
+
+  // 夜の活力データを日付マップに
+  const eveningEnergyMap = {};
+  eveningRecords.filter(r => r.date && r.energy).forEach(r => {
+    eveningEnergyMap[r.date] = Number(r.energy);
+  });
+  const eveningEnergyData = sorted.map(r => eveningEnergyMap[r.date] !== undefined ? eveningEnergyMap[r.date] : null);
+  const hasEveningData = eveningEnergyData.some(v => v !== null);
+
+  const datasets = [{
+    label: "活力（朝）",
+    type: "bar",
+    data: morningEnergyData,
+    backgroundColor: morningEnergyData.map(v =>
+      v <= 2 ? "rgba(229,115,115,0.7)" :
+      v === 3 ? "rgba(255,213,79,0.7)" :
+      "rgba(76,175,80,0.7)"
+    ),
+    borderRadius: 4,
+    order: 2
+  }];
+
+  if (hasEveningData) {
+    datasets.push({
+      label: "活力（夜）",
+      type: "line",
+      data: eveningEnergyData,
+      borderColor: "rgba(92,107,192,0.9)",
+      backgroundColor: "rgba(92,107,192,0.2)",
+      borderWidth: 2,
+      pointRadius: 4,
+      tension: 0.3,
+      spanGaps: true,
+      order: 1
+    });
+  }
 
   new Chart(document.getElementById("weeklyEnergyChart"), {
     type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "活力スコア",
-        data: energyData,
-        backgroundColor: energyData.map(v =>
-          v <= 2 ? "rgba(229,115,115,0.7)" :
-          v === 3 ? "rgba(255,213,79,0.7)" :
-          "rgba(76,175,80,0.7)"
-        ),
-        borderRadius: 4
-      }]
-    },
+    data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
         y: { min: 0, max: 5, ticks: { stepSize: 1 } },
         x: { ticks: { maxRotation: 45, font: { size: 9 } } }
       },
-      plugins: { legend: { display: false } }
+      plugins: { legend: { display: hasEveningData } }
     }
   });
 
@@ -735,75 +785,138 @@ function renderWeeklyEnergyChart(records) {
     const maxDay = weekAvg.indexOf(Math.max(...weekAvg.filter(v=>v!==null)));
     const minLabel = weekLabels[minDay];
     const maxLabel = weekLabels[maxDay];
-    sec.innerHTML += `<p class="corr-value">曜日別平均：${weekLabels.map((d,i)=>weekAvg[i]!==null?d+weekAvg[i].toFixed(1):d+'-').join(' / ')}</p>`;
+    sec.innerHTML += `<p class="corr-value">曜日別平均（朝）：${weekLabels.map((d,i)=>weekAvg[i]!==null?d+weekAvg[i].toFixed(1):d+'-').join(' / ')}</p>`;
     sec.innerHTML += `<p class="corr-value">最も活力が高い曜日：<strong>${maxLabel}曜日</strong>／最も低い曜日：<strong>${minLabel}曜日</strong></p>`;
   }
 }
 
 // ---- 体と心のズレ ----
-function renderBodyMindGap(records) {
+function renderBodyMindGap(records, eveningRecords, mergedData) {
   const sec = document.getElementById("sec-bodymind");
   sec.innerHTML = '<h3>🔀 体と心のズレ分析</h3>';
 
-  const valid = records.filter(r => r.condition && r.mental);
-  if (valid.length < 3) {
+  // 夜データがある日は「朝→夜の変化」で検出、ない日は朝の体調・メンタルの差で検出
+  const hasMerged = mergedData.some(d => d.morning && d.evening);
+
+  let gapDays = [];
+  let analysisLabel = "";
+
+  if (hasMerged) {
+    // 朝夜比較：体調またはメンタルが朝→夜で大きく変化した日
+    analysisLabel = "（朝→夜の変化で分析）";
+    mergedData.forEach(d => {
+      if (!d.morning || !d.evening) return;
+      const mCond = Number(d.morning.condition), eCond = Number(d.evening.condition);
+      const mMental = Number(d.morning.mental), eMental = Number(d.evening.mental);
+      if (isNaN(mCond) || isNaN(eCond) || isNaN(mMental) || isNaN(eMental)) return;
+      const condChange = eCond - mCond;
+      const mentalChange = eMental - mMental;
+      gapDays.push({
+        date: d.date,
+        condChange,
+        mentalChange,
+        type: condChange <= -2 || mentalChange <= -2 ? "deteriorated" :
+              condChange >= 2 || mentalChange >= 2 ? "improved" : "stable"
+      });
+    });
+  } else {
+    // 夜データなし：朝の体調とメンタルの差
+    analysisLabel = "（朝の体調・メンタルの差で分析）";
+    const valid = records.filter(r => r.condition && r.mental);
+    valid.forEach(r => {
+      const gap = Number(r.condition) - Number(r.mental);
+      gapDays.push({
+        date: r.date,
+        condChange: gap,
+        mentalChange: -gap,
+        type: gap >= 2 ? "bodyHigh" : gap <= -2 ? "mindHigh" : "stable"
+      });
+    });
+  }
+
+  if (gapDays.length < 3) {
     sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足</p>';
     return;
   }
 
-  // ズレ：体調とメンタルの差が2以上の日
-  const gapDays = valid.map(r => ({
-    date: r.date,
-    condition: Number(r.condition),
-    mental: Number(r.mental),
-    gap: Number(r.condition) - Number(r.mental)
-  }));
+  const deteriorated = gapDays.filter(d => d.type === "deteriorated" || d.type === "bodyHigh");
+  const improved     = gapDays.filter(d => d.type === "improved"     || d.type === "mindHigh");
+  const stable       = gapDays.filter(d => d.type === "stable");
 
-  const bodyHighMindLow = gapDays.filter(d => d.gap >= 2);  // 体は元気だが心がつらい
-  const mindHighBodyLow = gapDays.filter(d => d.gap <= -2); // 心は元気だが体がつらい
-  const aligned = gapDays.filter(d => Math.abs(d.gap) <= 1); // 一致している
+  const deterioratedLabel = hasMerged ? "午後に悪化した日" : "体は元気心がつらい";
+  const improvedLabel     = hasMerged ? "午後に改善した日" : "心は元気体がつらい";
 
-  let html = `
+  let html = `<p style="font-size:11px;color:#888;margin-bottom:10px">${analysisLabel}</p>`;
+  html += `
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
-      <div style="background:#e3f2fd;border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:#1565c0">体は元気心がつらい</div>
-        <div style="font-size:22px;font-weight:bold;color:#1565c0">${bodyHighMindLow.length}日</div>
-      </div>
-      <div style="background:#fce4ec;border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:#880e4f">心は元気体がつらい</div>
-        <div style="font-size:22px;font-weight:bold;color:#880e4f">${mindHighBodyLow.length}日</div>
+      <div style="background:#fde8e8;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#c62828">${deterioratedLabel}</div>
+        <div style="font-size:22px;font-weight:bold;color:#c62828">${deteriorated.length}日</div>
       </div>
       <div style="background:#e8f5e9;border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:#2e7d32">体心一致</div>
-        <div style="font-size:22px;font-weight:bold;color:#2e7d32">${aligned.length}日</div>
+        <div style="font-size:10px;color:#2e7d32">${improvedLabel}</div>
+        <div style="font-size:22px;font-weight:bold;color:#2e7d32">${improved.length}日</div>
+      </div>
+      <div style="background:#f5f5f5;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#555">安定していた日</div>
+        <div style="font-size:22px;font-weight:bold;color:#555">${stable.length}日</div>
       </div>
     </div>
   `;
 
-  if (bodyHighMindLow.length > 0) {
-    const recentGap = bodyHighMindLow.slice(-3).map(d => d.date.slice(5)).join(', ');
-    html += `<div class="alert-item alert-warn">📍 体は動けるのに心がつらい日が${bodyHighMindLow.length}日あります。直近：${recentGap}</div>`;
+  if (deteriorated.length > 0) {
+    const recent = deteriorated.slice(-3).map(d => d.date.slice(5)).join(', ');
+    html += `<div class="alert-item alert-warn">📍 ${deterioratedLabel}が${deteriorated.length}日あります。直近：${recent}</div>`;
   }
-  if (mindHighBodyLow.length > 0) {
-    const recentGap = mindHighBodyLow.slice(-3).map(d => d.date.slice(5)).join(', ');
-    html += `<div class="alert-item alert-warn">📍 気持ちは良いのに体調がつらい日が${mindHighBodyLow.length}日あります。直近：${recentGap}</div>`;
+  if (improved.length > 0) {
+    const recent = improved.slice(-3).map(d => d.date.slice(5)).join(', ');
+    html += `<div class="alert-item alert-ok">📍 ${improvedLabel}が${improved.length}日あります。直近：${recent}</div>`;
   }
 
   sec.innerHTML += html;
 }
 
 // ---- 良い日のパターン自動検出 ----
-function renderGoodDayPattern(records) {
+function renderGoodDayPattern(records, eveningRecords, mergedData) {
   const sec = document.getElementById("sec-goodday");
   sec.innerHTML = '<h3>✨ 良い日のパターン自動検出</h3>';
 
-  const goodDays = records.filter(r =>
-    r.condition && r.energy && r.mental &&
-    Number(r.condition) >= 4 && Number(r.energy) >= 4 && Number(r.mental) >= 4
-  );
+  // 良い日の定義：朝夜両方のデータがある日は平均スコアで判定、ない日は朝のみ
+  let goodDays = [];
+  const hasMerged = mergedData.some(d => d.morning && d.evening);
+
+  if (hasMerged) {
+    mergedData.forEach(d => {
+      if (!d.morning) return;
+      const scores = [];
+      if (d.morning.condition) scores.push(Number(d.morning.condition));
+      if (d.morning.energy)    scores.push(Number(d.morning.energy));
+      if (d.morning.mental)    scores.push(Number(d.morning.mental));
+      if (d.evening) {
+        if (d.evening.condition) scores.push(Number(d.evening.condition));
+        if (d.evening.energy)    scores.push(Number(d.evening.energy));
+        if (d.evening.mental)    scores.push(Number(d.evening.mental));
+      }
+      if (scores.length === 0) return;
+      const avg = scores.reduce((s,v)=>s+v,0)/scores.length;
+      if (avg >= 4) {
+        goodDays.push({
+          date: d.date,
+          sleepType: d.morning.sleepType,
+          weather: d.morning.weather,
+          factors: d.evening ? d.evening.factors : (d.morning.factors || "")
+        });
+      }
+    });
+  } else {
+    goodDays = records.filter(r =>
+      r.condition && r.energy && r.mental &&
+      Number(r.condition) >= 4 && Number(r.energy) >= 4 && Number(r.mental) >= 4
+    ).map(r => ({ date: r.date, sleepType: r.sleepType, weather: r.weather, factors: r.factors || "" }));
+  }
 
   if (goodDays.length < 3) {
-    sec.innerHTML += '<p style="color:#888;font-size:13px">良い日（全項目4以上）が3日未満のため分析できません</p>';
+    sec.innerHTML += '<p style="color:#888;font-size:13px">良い日（平均スコア4以上）が3日未満のため分析できません</p>';
     return;
   }
 
@@ -827,7 +940,7 @@ function renderGoodDayPattern(records) {
   });
   const topWeather = Object.entries(weatherMap).sort((a,b)=>b[1]-a[1])[0];
 
-  // 影響要因
+  // 影響要因（夜の影響要因を優先使用）
   const factorMap = {};
   goodDays.forEach(r => {
     if (r.factors) {
@@ -857,11 +970,16 @@ function renderGoodDayPattern(records) {
 }
 
 // ---- 気温・気圧詳細分析 ----
-function renderWeatherDetail(records) {
+function renderWeatherDetail(records, eveningRecords) {
   const sec = document.getElementById("sec-weather-detail");
   sec.innerHTML = '<h3>🌡️ 気温・気圧と体調の関係</h3>';
 
-  const valid = records.filter(r => r.temp && r.pressure && r.condition && !isNaN(Number(r.temp)) && !isNaN(Number(r.pressure)));
+  // 朝・夜の天気データをマージ（サンプル数を増やす）
+  const allWeatherRecords = [
+    ...records.map(r => ({ ...r, source: "morning" })),
+    ...eveningRecords.map(r => ({ ...r, source: "evening" }))
+  ];
+  const valid = allWeatherRecords.filter(r => r.temp && r.pressure && r.condition && !isNaN(Number(r.temp)) && !isNaN(Number(r.pressure)));
   if (valid.length < 5) {
     sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足（5件以上必要）</p>';
     return;

@@ -484,8 +484,16 @@ function sendData() {
   // 薬
   const checkedMeds = [...document.querySelectorAll("#medicineList input:checked")].map(cb => cb.value);
 
+  // 昨日との比較
+  const compareBtn = document.querySelector(".compare-btn.active");
+  const compareYesterday = compareBtn ? compareBtn.dataset.value : "";
+
+  // 影響要因
+  const factors = typeof getSelectedFactors === "function" ? getSelectedFactors() : [];
+
   const data = {
     date:            today,
+    recordType:      "morning",
     attendance:      document.getElementById("attendance").value,
     breakfast:       document.getElementById("breakfast").value,
     sleepType:       sleepType,
@@ -501,14 +509,16 @@ function sendData() {
     condition:     getScore("condition"),
     energy:        getScore("energy"),
     mental:        getScore("mental"),
+    compareYesterday: compareYesterday,
+    factors:       factors,
     goodSigns:     getChecked("goodList"),
     badSigns:      getChecked("badList"),
     medicines:     checkedMeds,
     comment:       document.getElementById("comment").value
   };
 
-  // localStorageに保存
-  localStorage.setItem("diary_" + today, JSON.stringify(data));
+  // localStorageに保存（朝の記録用キー）
+  localStorage.setItem("morning_" + today, JSON.stringify(data));
 
   // Google Apps Script に送信
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
@@ -528,7 +538,7 @@ function sendData() {
     }).catch(e => console.warn("GAS送信エラー:", e));
   }
 
-  alert("✅ 記録を保存しました！");
+  alert("✅ 朝の記録を保存しました！");
 
   // 送信後にページをリロードして初期状態に戻す
   location.reload();

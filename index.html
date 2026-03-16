@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>コンディションノート</title>
+<title>朝の記録 - コンディションノート</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/mobile.css">
@@ -42,36 +42,10 @@
 </div>
 </div>
 
-<!-- 6-7. 通所/在宅・朝食 -->
-<div class="attendance-breakfast">
-<div>
-<label>通所/在宅</label>
-<select class="attendance-dropdown" id="attendance">
-<option value="">選択してください</option>
-<option value="通所">通所</option>
-<option value="在宅">在宅</option>
-<option value="休み">休み</option>
-</select>
-</div>
-<div>
-<label>朝食は食べましたか？</label>
-<select class="breakfast-dropdown" id="breakfast">
-<option value="">選択してください</option>
-<option value="食べた">食べた</option>
-<option value="食べていない">食べていない</option>
-</select>
-</div>
-</div>
-
-<!-- 8. 睡眠について -->
+<!-- 睡眠について（順序：就寝→起床→途中起床→睡眠タイプ） -->
 <div class="sleep-section">
 
 <h3>🌙 睡眠について</h3>
-
-<div class="sleep-item">
-<label>睡眠タイプ</label>
-<div class="sleep-type-buttons" id="sleepType"></div>
-</div>
 
 <div class="sleep-item">
 <label>就寝時刻</label>
@@ -126,15 +100,14 @@
 総睡眠時間：計算中...
 </div>
 
+<div class="sleep-item">
+<label>睡眠タイプ</label>
+<div class="sleep-type-buttons" id="sleepType"></div>
 </div>
 
-<!-- 9. 薬について -->
-<div class="medicine-section">
-<h3>💊 薬について</h3>
-<div class="medicine-list" id="medicineList"></div>
 </div>
 
-<!-- 10. 体調・活力・メンタル（絵文字スコアボタン） -->
+<!-- 体調・活力・メンタル（絵文字スコアボタン） -->
 <div class="score-section">
   <div class="score-section-title">体調</div>
   <div class="score-emoji-buttons" id="condition"></div>
@@ -150,7 +123,17 @@
   <div class="score-emoji-buttons" id="mental"></div>
 </div>
 
-<!-- 11. Good/Badサイン -->
+<!-- 昨日との比較 -->
+<div class="section">
+<p class="section-label">昨日と比べて全体的な調子は？</p>
+<div class="compare-buttons" id="compareYesterday">
+  <button class="compare-btn" data-value="better" type="button">😊 良い</button>
+  <button class="compare-btn" data-value="same"   type="button">😐 同じ</button>
+  <button class="compare-btn" data-value="worse"  type="button">😔 悪い</button>
+</div>
+</div>
+
+<!-- Good/Badサイン -->
 <div class="good-bad-section">
 <p>Goodサイン</p>
 <div id="goodList" class="main-grid"></div>
@@ -161,13 +144,13 @@
 <div id="badList" class="main-grid"></div>
 </div>
 
-<!-- 12. コメント -->
+<!-- コメント -->
 <div class="section">
 <p>コメント</p>
 <textarea id="comment"></textarea>
 </div>
 
-<button class="submit" onclick="sendData()">送信</button>
+<button class="submit" onclick="sendData()">朝の記録を送信</button>
 
 </div>
 
@@ -189,8 +172,10 @@
 </nav>
 
 <!-- 外部JavaScriptファイルの読み込み -->
+<script>const PAGE_TYPE = 'morning';</script>
 <script src="js/utils.js"></script>
 <script src="js/main.js"></script>
+<script src="js/record-router.js"></script>
 
 </body>
 </html>

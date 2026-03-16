@@ -18,6 +18,8 @@
 
 <div class="container">
 
+
+
 <!-- 1. 郵便番号 -->
 <h2>郵便番号</h2>
 <div class="zipcode-section">
@@ -31,14 +33,6 @@
 <h2>睡眠タイプ</h2>
 <p>睡眠タイプをカスタマイズできます</p>
 <div class="sleep-type-editor" id="sleepTypeEditor"></div>
-
-<!-- 9. 薬について -->
-<h2>薬について</h2>
-<div class="input-group">
-  <input id="medicineInput" placeholder="例 イフェクサーSRカプセル75mg">
-  <button onclick="addMedicine()">追加</button>
-</div>
-<div id="medicineList"></div>
 
 <!-- 10. Good/Badサイン -->
 <h2>Goodサイン</h2>
@@ -59,6 +53,13 @@
 </div>
 <div class="scroll-list-wrapper">
   <div id="badList"></div>
+</div>
+
+<!-- GAS URL -->
+<h2>スプレッドシート連携</h2>
+<p class="list-hint">Google Apps Scriptのウェブアプリ URLを入力するとスプレッドシートに記録が送信されます</p>
+<div class="zipcode-section">
+  <input id="gasUrl" type="url" placeholder="https://script.google.com/macros/s/..." style="width:100%;box-sizing:border-box;">
 </div>
 
 <button onclick="saveSettings()">設定保存</button>

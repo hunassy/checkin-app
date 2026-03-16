@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>夜の振り返り - コンディションノート</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/mobile.css">
+<script src="js/defaults.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- 日付 -->
+<div class="date-section" id="dateSection">
+本日の日付：読み込み中...
+</div>
+
+<!-- 朝との比較バナー -->
+<div class="morning-compare-banner" id="morningCompareBanner" style="display:none;"></div>
+
+<!-- 在宅・通所 -->
+<div class="attendance-breakfast">
+<div>
+<label>今日の通所/在宅</label>
+<select class="attendance-dropdown" id="attendance">
+<option value="">選択してください</option>
+<option value="通所">通所</option>
+<option value="在宅">在宅</option>
+<option value="休み">休み</option>
+</select>
+</div>
+</div>
+
+<!-- 体調・活力・メンタル（夜） -->
+<div class="score-section">
+  <div class="score-section-title">今日1日の体調</div>
+  <div class="score-emoji-buttons" id="condition"></div>
+</div>
+
+<div class="score-section">
+  <div class="score-section-title">今日1日の活力</div>
+  <div class="score-emoji-buttons" id="energy"></div>
+</div>
+
+<div class="score-section">
+  <div class="score-section-title">今日1日のメンタル</div>
+  <div class="score-emoji-buttons" id="mental"></div>
+</div>
+
+<!-- 影響要因 -->
+<div class="section">
+<p class="section-label">今日の影響要因（当てはまるものを選択）</p>
+<div class="factor-list" id="factorList"></div>
+</div>
+
+<!-- コメント -->
+<div class="section">
+<p class="section-label">今日の振り返り（自由記述）</p>
+<textarea id="comment" placeholder="今日どんな一日でしたか？気になったこと、感じたことを自由に書いてください。"></textarea>
+</div>
+
+<button class="submit" onclick="sendEveningData()">夜の振り返りを送信</button>
+
+</div>
+
+<!-- ボトムナビゲーション -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item active">
+    <span class="nav-icon">📝</span>
+    <span class="nav-label">記録</span>
+    <span class="nav-dot"></span>
+  </a>
+  <a href="analysis.html" class="nav-item">
+    <span class="nav-icon">📈</span>
+    <span class="nav-label">分析</span>
+  </a>
+  <a href="settings.html" class="nav-item">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">設定</span>
+  </a>
+</nav>
+
+<script>const PAGE_TYPE = 'evening';</script>
+<script src="js/utils.js"></script>
+<script src="js/factors.js"></script>
+<script src="js/record-router.js"></script>
+<script>
+// ============================================
+// evening.js — 夜の振り返りページのロジック
+// ============================================
+
+// スコアの定義（main.js と同じ）
+const SCORE_CONFIG = {
+  condition: {
+    items: [
+      { emoji: "🤧", label: "とても悪い", value: 1, cls: "score-taichou-1" },
+      { emoji: "😷", label: "悪い",       value: 2, cls: "score-taichou-2" },
+      { emoji: "🙂", label: "普通",       value: 3, cls: "score-taichou-3" },
+      { emoji: "😊", label: "良い",       value: 4, cls: "score-taichou-4" },
+      { emoji: "😄", label: "とても良い", value: 5, cls: "score-taichou-5" }
+    ]
+  },
+  energy: {
+    items: [
+      { battery: 20,  value: 1, cls: "score-katsu-1" },
+      { battery: 40,  value: 2, cls: "score-katsu-2" },
+      { battery: 60,  value: 3, cls: "score-katsu-3" },
+      { battery: 80,  value: 4, cls: "score-katsu-4" },
+      { battery: 100, value: 5, cls: "score-katsu-5" }
+    ]
+  },
+  mental: {
+    items: [
+      { emoji: "⛈️", label: "最悪", value: 1, cls: "score-mental-1" },
+      { emoji: "🌧️", label: "悪い", value: 2, cls: "score-mental-2" },
+      { emoji: "☁️",  label: "普通", value: 3, cls: "score-mental-3" },
+      { emoji: "🌤️", label: "良い", value: 4, cls: "score-mental-4" },
+      { emoji: "☀️",  label: "最高", value: 5, cls: "score-mental-5" }
+    ]
+  }
+};
+
+const BATTERY_COLORS = {
+  20: "#e57373", 40: "#ffb74d", 60: "#ffd54f", 80: "#aed581", 100: "#4CAF50"
+};
+
+function getTodayKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+}
+
+window.onload = function() {
+  // 日付表示
+  const now = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  const el = document.getElementById("dateSection");
+  if (el) el.textContent = "本日の日付：" + now.toLocaleDateString('ja-JP', options);
+
+  // スコアボタン生成
+  createScoreButtons();
+
+  // 朝の記録との比較バナー表示
+  showMorningCompareBanner();
+};
+
+function createScoreButtons() {
+  Object.keys(SCORE_CONFIG).forEach(scoreId => {
+    const config = SCORE_CONFIG[scoreId];
+    const container = document.getElementById(scoreId);
+    if (!container) return;
+    container.innerHTML = "";
+
+    config.items.forEach(item => {
+      const btn = document.createElement("button");
+      btn.className = `score-emoji-btn ${item.cls}`;
+      btn.dataset.value = item.value;
+      btn.type = "button";
+
+      if (scoreId === "energy") {
+        btn.appendChild(createBatteryIcon(item.battery));
+      } else {
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "score-emoji";
+        emojiSpan.textContent = item.emoji;
+        btn.appendChild(emojiSpan);
+
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "score-label";
+        labelSpan.textContent = item.label;
+        btn.appendChild(labelSpan);
+      }
+
+      btn.onclick = () => {
+        container.querySelectorAll(".score-emoji-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      };
+
+      container.appendChild(btn);
+    });
+  });
+}
+
+function createBatteryIcon(percent) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "battery-icon";
+
+  const fill = document.createElement("div");
+  fill.className = "battery-fill";
+  fill.style.width = `calc(${percent}% - 2px)`;
+  fill.style.background = BATTERY_COLORS[percent] || "#4CAF50";
+
+  const text = document.createElement("span");
+  text.className = "battery-text";
+  text.textContent = percent + "%";
+
+  wrapper.appendChild(fill);
+  wrapper.appendChild(text);
+  return wrapper;
+}
+
+function showMorningCompareBanner() {
+  const today = getTodayKey();
+  const morningData = localStorage.getItem("morning_" + today);
+  const banner = document.getElementById("morningCompareBanner");
+  if (!banner) return;
+
+  if (morningData) {
+    try {
+      const d = JSON.parse(morningData);
+      const scoreEmoji = { 1:"🤧", 2:"😷", 3:"🙂", 4:"😊", 5:"😄" };
+      const energyLabel = { 1:"20%", 2:"40%", 3:"60%", 4:"80%", 5:"100%" };
+      const mentalEmoji = { 1:"⛈️", 2:"🌧️", 3:"☁️", 4:"🌤️", 5:"☀️" };
+
+      banner.innerHTML = `
+        <div style="font-size:12px;color:#555;margin-bottom:4px;">朝の記録</div>
+        <div style="display:flex;gap:16px;font-size:14px;">
+          <span>体調 ${scoreEmoji[d.condition] || "-"}</span>
+          <span>活力 ${energyLabel[d.energy] || "-"}</span>
+          <span>メンタル ${mentalEmoji[d.mental] || "-"}</span>
+        </div>
+      `;
+      banner.style.display = "block";
+    } catch(e) {}
+  }
+}
+
+function sendEveningData() {
+  const today = getTodayKey();
+
+  const getScore = id => {
+    const btn = document.querySelector(`#${id} .score-emoji-btn.active`);
+    return btn ? parseInt(btn.dataset.value) : null;
+  };
+
+  const factors = typeof getSelectedFactors === "function" ? getSelectedFactors() : [];
+
+  const data = {
+    date:       today,
+    recordType: "evening",
+    attendance: document.getElementById("attendance") ? document.getElementById("attendance").value : "",
+    condition:  getScore("condition"),
+    energy:     getScore("energy"),
+    mental:     getScore("mental"),
+    factors:    factors,
+    comment:    document.getElementById("comment").value
+  };
+
+  // localStorageに保存（夜の記録用キー）
+  localStorage.setItem("evening_" + today, JSON.stringify(data));
+
+  // Google Apps Script に送信
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
+    || localStorage.getItem("gasUrl");
+
+  if (GAS_URL) {
+    const params = new URLSearchParams();
+    Object.entries(data).forEach(([key, value]) => {
+      params.append(key, Array.isArray(value) ? value.join(",") : (value ?? ""));
+    });
+
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString()
+    }).catch(e => console.warn("GAS送信エラー:", e));
+  }
+
+  alert("✅ 夜の振り返りを保存しました！");
+  location.reload();
+}
+</script>
+
+</body>
+</html>

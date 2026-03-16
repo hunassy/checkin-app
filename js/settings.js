@@ -4,7 +4,6 @@
 
 let goodSigns = [];
 let badSigns = [];
-let medicines = [];
 let sleepTypes = [];
 let sleepSymbols = [];
 
@@ -122,51 +121,6 @@ function renderBad() {
     btn.onclick = function() {
       badSigns.splice(index, 1);
       renderBad();
-    };
-    
-    buttons.appendChild(btn);
-    div.appendChild(text);
-    div.appendChild(buttons);
-    list.appendChild(div);
-  });
-}
-
-/**
- * 薬を追加
- */
-function addMedicine() {
-  const text = document.getElementById("medicineInput").value;
-  
-  if (!text) return;
-  
-  medicines.push(text);
-  renderMedicineEditor();
-  document.getElementById("medicineInput").value = "";
-}
-
-/**
- * 薬をレンダリング
- */
-function renderMedicineEditor() {
-  const list = document.getElementById("medicineList");
-  list.innerHTML = "";
-  
-  medicines.forEach((medicine, index) => {
-    const div = document.createElement("div");
-    div.className = "item-row";
-    
-    const text = document.createElement("span");
-    text.className = "item-text";
-    text.textContent = medicine;
-    
-    const buttons = document.createElement("div");
-    buttons.className = "item-buttons";
-    
-    const btn = document.createElement("button");
-    btn.textContent = "削除";
-    btn.onclick = function() {
-      medicines.splice(index, 1);
-      renderMedicineEditor();
     };
     
     buttons.appendChild(btn);

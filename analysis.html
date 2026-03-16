@@ -165,6 +165,8 @@
 
 <div class="container">
 
+
+
 <div id="mainContent">
   <div class="loading-msg">データを読み込んでいます...</div>
 </div>
@@ -255,6 +257,21 @@ function renderAll() {
 
     <!-- Good/Badサイン -->
     <div class="analysis-section" id="sec-signs"></div>
+
+    <!-- 低空飛行期間 -->
+    <div class="analysis-section" id="sec-lowflight"></div>
+
+    <!-- 週間エネルギーグラフ -->
+    <div class="analysis-section" id="sec-weekly-energy"></div>
+
+    <!-- 体と心のズレ -->
+    <div class="analysis-section" id="sec-bodymind"></div>
+
+    <!-- 良い日のパターン -->
+    <div class="analysis-section" id="sec-goodday"></div>
+
+    <!-- 気温・気圧分析 -->
+    <div class="analysis-section" id="sec-weather-detail"></div>
   `;
 
   renderAvgScores(records);
@@ -265,6 +282,11 @@ function renderAll() {
   renderDayOfWeekPattern(records);
   renderAttendanceCorrelation(records);
   renderSignPattern(records);
+  renderLowFlightPeriod(records);
+  renderWeeklyEnergyChart(records);
+  renderBodyMindGap(records);
+  renderGoodDayPattern(records);
+  renderWeatherDetail(records);
 }
 
 function changePeriod(days) {
@@ -582,6 +604,316 @@ function renderSignPattern(records) {
         : '<span style="color:#888;font-size:13px">データ不足</span>'}
     </div>
   `;
+}
+
+// ---- 低空飛行期間の可視化 ----
+function renderLowFlightPeriod(records) {
+  const sec = document.getElementById("sec-lowflight");
+  sec.innerHTML = '<h3>🟡 低空飛行期間の可視化</h3>';
+
+  const sorted = [...records].filter(r => r.date && r.mental).sort((a,b) => a.date.localeCompare(b.date));
+  if (sorted.length < 3) {
+    sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足</p>';
+    return;
+  }
+
+  // メンタルスコアが2以下の日を低空飛行日と定義
+  const THRESHOLD = 2;
+  let maxStreak = 0, currentStreak = 0, streakStart = null, maxStart = null, maxEnd = null;
+  let lowDays = 0;
+
+  sorted.forEach((r, i) => {
+    if (Number(r.mental) <= THRESHOLD) {
+      if (currentStreak === 0) streakStart = r.date;
+      currentStreak++;
+      lowDays++;
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+        maxStart = streakStart;
+        maxEnd = r.date;
+      }
+    } else {
+      currentStreak = 0;
+    }
+  });
+
+  // 現在進行中の連続日数
+  let ongoingStreak = 0;
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (Number(sorted[i].mental) <= THRESHOLD) ongoingStreak++;
+    else break;
+  }
+
+  const totalDays = sorted.length;
+  const lowPercent = Math.round(lowDays / totalDays * 100);
+
+  let html = `
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px">
+      <div style="background:#fff3e0;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:#e65100">低空飛行日の割合</div>
+        <div style="font-size:24px;font-weight:bold;color:#e65100">${lowPercent}%</div>
+        <div style="font-size:11px;color:#888">${lowDays}/${totalDays}日</div>
+      </div>
+      <div style="background:#fde8e8;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:#c62828">最長連続低調期間</div>
+        <div style="font-size:24px;font-weight:bold;color:#c62828">${maxStreak}日</div>
+        <div style="font-size:11px;color:#888">${maxStart ? maxStart.slice(5)+'〜'+maxEnd.slice(5) : '-'}</div>
+      </div>
+    </div>
+  `;
+
+  if (ongoingStreak >= 3) {
+    html += `<div class="alert-item alert-bad">⚠️ 現在進行中：メンタルスコアが低い日が${ongoingStreak}日連続しています。支援者への共有を検討してください。</div>`;
+  } else if (ongoingStreak > 0) {
+    html += `<div class="alert-item alert-warn">🟡 現在進行中：メンタルスコアが低い日が${ongoingStreak}日連続しています。</div>`;
+  } else {
+    html += `<div class="alert-item alert-ok">✅ 現在は低空飛行期間ではありません。</div>`;
+  }
+
+  sec.innerHTML += html;
+}
+
+// ---- 週間エネルギーグラフ ----
+function renderWeeklyEnergyChart(records) {
+  const sec = document.getElementById("sec-weekly-energy");
+  sec.innerHTML = '<h3>🔋 エネルギー残量（週間パターン）</h3>';
+
+  const sorted = [...records].filter(r => r.date && r.energy).sort((a,b) => a.date.localeCompare(b.date)).slice(-28);
+  if (sorted.length < 5) {
+    sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足（5件以上必要）</p>';
+    return;
+  }
+
+  // 曜日別の平均エネルギー
+  const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+  const dayMap = {};
+  for (let i = 0; i < 7; i++) dayMap[i] = [];
+  sorted.forEach(r => {
+    const dow = new Date(r.date).getDay();
+    dayMap[dow].push(Number(r.energy));
+  });
+  const weekAvg = [1,2,3,4,5,6,0].map(d => {
+    const arr = dayMap[d];
+    return arr.length > 0 ? arr.reduce((s,v)=>s+v,0)/arr.length : null;
+  });
+
+  sec.innerHTML += `<div class="chart-wrap"><canvas id="weeklyEnergyChart"></canvas></div>`;
+
+  const labels = sorted.map(r => r.date.slice(5));
+  const energyData = sorted.map(r => Number(r.energy));
+
+  new Chart(document.getElementById("weeklyEnergyChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "活力スコア",
+        data: energyData,
+        backgroundColor: energyData.map(v =>
+          v <= 2 ? "rgba(229,115,115,0.7)" :
+          v === 3 ? "rgba(255,213,79,0.7)" :
+          "rgba(76,175,80,0.7)"
+        ),
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { min: 0, max: 5, ticks: { stepSize: 1 } },
+        x: { ticks: { maxRotation: 45, font: { size: 9 } } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // 曜日別平均コメント
+  const weekLabels = ['月', '火', '水', '木', '金', '土', '日'];
+  const validWeek = weekAvg.filter(v => v !== null);
+  if (validWeek.length > 0) {
+    const minDay = weekAvg.indexOf(Math.min(...weekAvg.filter(v=>v!==null)));
+    const maxDay = weekAvg.indexOf(Math.max(...weekAvg.filter(v=>v!==null)));
+    const minLabel = weekLabels[minDay];
+    const maxLabel = weekLabels[maxDay];
+    sec.innerHTML += `<p class="corr-value">曜日別平均：${weekLabels.map((d,i)=>weekAvg[i]!==null?d+weekAvg[i].toFixed(1):d+'-').join(' / ')}</p>`;
+    sec.innerHTML += `<p class="corr-value">最も活力が高い曜日：<strong>${maxLabel}曜日</strong>／最も低い曜日：<strong>${minLabel}曜日</strong></p>`;
+  }
+}
+
+// ---- 体と心のズレ ----
+function renderBodyMindGap(records) {
+  const sec = document.getElementById("sec-bodymind");
+  sec.innerHTML = '<h3>🔀 体と心のズレ分析</h3>';
+
+  const valid = records.filter(r => r.condition && r.mental);
+  if (valid.length < 3) {
+    sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足</p>';
+    return;
+  }
+
+  // ズレ：体調とメンタルの差が2以上の日
+  const gapDays = valid.map(r => ({
+    date: r.date,
+    condition: Number(r.condition),
+    mental: Number(r.mental),
+    gap: Number(r.condition) - Number(r.mental)
+  }));
+
+  const bodyHighMindLow = gapDays.filter(d => d.gap >= 2);  // 体は元気だが心がつらい
+  const mindHighBodyLow = gapDays.filter(d => d.gap <= -2); // 心は元気だが体がつらい
+  const aligned = gapDays.filter(d => Math.abs(d.gap) <= 1); // 一致している
+
+  let html = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+      <div style="background:#e3f2fd;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#1565c0">体は元気心がつらい</div>
+        <div style="font-size:22px;font-weight:bold;color:#1565c0">${bodyHighMindLow.length}日</div>
+      </div>
+      <div style="background:#fce4ec;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#880e4f">心は元気体がつらい</div>
+        <div style="font-size:22px;font-weight:bold;color:#880e4f">${mindHighBodyLow.length}日</div>
+      </div>
+      <div style="background:#e8f5e9;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#2e7d32">体心一致</div>
+        <div style="font-size:22px;font-weight:bold;color:#2e7d32">${aligned.length}日</div>
+      </div>
+    </div>
+  `;
+
+  if (bodyHighMindLow.length > 0) {
+    const recentGap = bodyHighMindLow.slice(-3).map(d => d.date.slice(5)).join(', ');
+    html += `<div class="alert-item alert-warn">📍 体は動けるのに心がつらい日が${bodyHighMindLow.length}日あります。直近：${recentGap}</div>`;
+  }
+  if (mindHighBodyLow.length > 0) {
+    const recentGap = mindHighBodyLow.slice(-3).map(d => d.date.slice(5)).join(', ');
+    html += `<div class="alert-item alert-warn">📍 気持ちは良いのに体調がつらい日が${mindHighBodyLow.length}日あります。直近：${recentGap}</div>`;
+  }
+
+  sec.innerHTML += html;
+}
+
+// ---- 良い日のパターン自動検出 ----
+function renderGoodDayPattern(records) {
+  const sec = document.getElementById("sec-goodday");
+  sec.innerHTML = '<h3>✨ 良い日のパターン自動検出</h3>';
+
+  const goodDays = records.filter(r =>
+    r.condition && r.energy && r.mental &&
+    Number(r.condition) >= 4 && Number(r.energy) >= 4 && Number(r.mental) >= 4
+  );
+
+  if (goodDays.length < 3) {
+    sec.innerHTML += '<p style="color:#888;font-size:13px">良い日（全項目4以上）が3日未満のため分析できません</p>';
+    return;
+  }
+
+  // 曜日分布
+  const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+  const dowCount = new Array(7).fill(0);
+  goodDays.forEach(r => dowCount[new Date(r.date).getDay()]++);
+  const topDow = dowCount.indexOf(Math.max(...dowCount));
+
+  // 睡眠タイプ
+  const sleepMap = {};
+  goodDays.forEach(r => {
+    if (r.sleepType) sleepMap[r.sleepType] = (sleepMap[r.sleepType] || 0) + 1;
+  });
+  const topSleep = Object.entries(sleepMap).sort((a,b)=>b[1]-a[1])[0];
+
+  // 天気
+  const weatherMap = {};
+  goodDays.forEach(r => {
+    if (r.weather) weatherMap[r.weather] = (weatherMap[r.weather] || 0) + 1;
+  });
+  const topWeather = Object.entries(weatherMap).sort((a,b)=>b[1]-a[1])[0];
+
+  // 影響要因
+  const factorMap = {};
+  goodDays.forEach(r => {
+    if (r.factors) {
+      r.factors.split(',').forEach(f => {
+        const t = f.trim();
+        if (t) factorMap[t] = (factorMap[t] || 0) + 1;
+      });
+    }
+  });
+  const topFactors = Object.entries(factorMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  let html = `<p style="font-size:13px;color:#555;margin-bottom:10px">良い日（全項目4以上）：<strong>${goodDays.length}日</strong></p>`;
+
+  html += `<table class="analysis-table">`;
+  html += `<tr><th>条件</th><th>内容</th></tr>`;
+  html += `<tr><td>最多の曜日</td><td><strong>${dayNames[topDow]}曜日</strong>（${dowCount[topDow]}日）</td></tr>`;
+  if (topSleep) html += `<tr><td>睡眠タイプ</td><td><strong>${topSleep[0]}</strong>（${topSleep[1]}日）</td></tr>`;
+  if (topWeather) html += `<tr><td>天気</td><td><strong>${topWeather[0]}</strong>（${topWeather[1]}日）</td></tr>`;
+  html += `</table>`;
+
+  if (topFactors.length > 0) {
+    html += `<p style="font-size:13px;font-weight:bold;margin:10px 0 6px">良い日に多い影響要因：</p>`;
+    html += `<div class="sign-list">${topFactors.map(([f,n]) => `<span class="sign-tag good">${f}(${n}回)</span>`).join('')}</div>`;
+  }
+
+  sec.innerHTML += html;
+}
+
+// ---- 気温・気圧詳細分析 ----
+function renderWeatherDetail(records) {
+  const sec = document.getElementById("sec-weather-detail");
+  sec.innerHTML = '<h3>🌡️ 気温・気圧と体調の関係</h3>';
+
+  const valid = records.filter(r => r.temp && r.pressure && r.condition && !isNaN(Number(r.temp)) && !isNaN(Number(r.pressure)));
+  if (valid.length < 5) {
+    sec.innerHTML += '<p style="color:#888;font-size:13px">データ不足（5件以上必要）</p>';
+    return;
+  }
+
+  // 気温帯別分析
+  const cold  = valid.filter(r => Number(r.temp) < 10);
+  const cool  = valid.filter(r => Number(r.temp) >= 10 && Number(r.temp) < 20);
+  const warm  = valid.filter(r => Number(r.temp) >= 20 && Number(r.temp) < 28);
+  const hot   = valid.filter(r => Number(r.temp) >= 28);
+
+  const avgC = arr => arr.length > 0 ? (arr.reduce((s,r)=>s+Number(r.condition),0)/arr.length).toFixed(2) : '-';
+  const avgM = arr => arr.length > 0 ? (arr.reduce((s,r)=>s+Number(r.mental),0)/arr.length).toFixed(2) : '-';
+
+  let html = `
+    <p style="font-size:13px;font-weight:bold;margin-bottom:8px">気温帯別 体調・メンタル平均</p>
+    <table class="analysis-table">
+      <tr><th>気温帯</th><th>件数</th><th>体調</th><th>メンタル</th></tr>
+      <tr><td>寒い（10℃未満）</td><td>${cold.length}</td><td style="background:${isNaN(avgC(cold))?'#fff':scoreColor(Number(avgC(cold)))}">${avgC(cold)}</td><td style="background:${isNaN(avgM(cold))?'#fff':scoreColor(Number(avgM(cold)))}">${avgM(cold)}</td></tr>
+      <tr><td>涼しい（10〜20℃）</td><td>${cool.length}</td><td style="background:${isNaN(avgC(cool))?'#fff':scoreColor(Number(avgC(cool)))}">${avgC(cool)}</td><td style="background:${isNaN(avgM(cool))?'#fff':scoreColor(Number(avgM(cool)))}">${avgM(cool)}</td></tr>
+      <tr><td>暖かい（20〜28℃）</td><td>${warm.length}</td><td style="background:${isNaN(avgC(warm))?'#fff':scoreColor(Number(avgC(warm)))}">${avgC(warm)}</td><td style="background:${isNaN(avgM(warm))?'#fff':scoreColor(Number(avgM(warm)))}">${avgM(warm)}</td></tr>
+      <tr><td>暑い（28℃以上）</td><td>${hot.length}</td><td style="background:${isNaN(avgC(hot))?'#fff':scoreColor(Number(avgC(hot)))}">${avgC(hot)}</td><td style="background:${isNaN(avgM(hot))?'#fff':scoreColor(Number(avgM(hot)))}">${avgM(hot)}</td></tr>
+    </table>
+  `;
+
+  // 気温とメンタルの相関
+  const tempXs = valid.map(r => Number(r.temp));
+  const mentalYs = valid.map(r => Number(r.mental));
+  const tempMentalCorr = pearson(tempXs, mentalYs);
+
+  // 気圧変動幅分析（前日比）
+  const sortedValid = [...valid].sort((a,b) => a.date.localeCompare(b.date));
+  const pressureChanges = [];
+  for (let i = 1; i < sortedValid.length; i++) {
+    const diff = Number(sortedValid[i].pressure) - Number(sortedValid[i-1].pressure);
+    pressureChanges.push({ date: sortedValid[i].date, diff, condition: Number(sortedValid[i].condition), mental: Number(sortedValid[i].mental) });
+  }
+
+  const bigDrop = pressureChanges.filter(p => p.diff <= -5); // 気圧が5hPa以上下落
+  if (bigDrop.length >= 2) {
+    const avgCond = bigDrop.reduce((s,p)=>s+p.condition,0)/bigDrop.length;
+    html += `<div class="alert-item alert-warn" style="margin-top:10px">🌧️ 気圧が5hPa以上下落した日（${bigDrop.length}件）の体調平均：${avgCond.toFixed(1)}。気圧変動に注意が必要です。</div>`;
+  }
+
+  let corrText = `気温とメンタルの相関係数：${tempMentalCorr.toFixed(3)}`;
+  if (tempMentalCorr > 0.3) corrText += '（気温が高いほどメンタルが良い傾向）';
+  else if (tempMentalCorr < -0.3) corrText += '（気温が低いほどメンタルが良い傾向）';
+  else corrText += '（相関は弱い）';
+
+  html += `<p class="corr-value">${corrText}</p>`;
+
+  sec.innerHTML += html;
 }
 
 // ---- ユーティリティ ----

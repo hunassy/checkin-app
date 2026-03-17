@@ -1,34 +1,60 @@
 // ============================================
 // record-router.js — 記録タブの自動切り替えロジック
+// デバイス間同期対応版：GASから今日の記録状態を取得して判定
 // ============================================
-// 使用方法：
-//   ボトムナビの「記録」タブのリンクを href="javascript:void(0)" にして
-//   onclick="navigateToRecord()" を呼び出す
 
-function getTodayKeyForRouter() {
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
+
+function getTodayKeyForRouter( ) {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
 }
 
-function navigateToRecord() {
+// ============================================
+// GASから今日の記録状態を取得する
+// 取得できない場合はlocalStorageにフォールバック
+// ============================================
+async function fetchTodayStatus(today) {
+  try {
+    const res = await fetch(`${GAS_URL}?action=getRecordStatus&date=${today}`);
+    const data = await res.json();
+    if (data.status === "ok") {
+      // GASの値でlocalStorageを上書き（同期）
+      if (data.morningDone) {
+        localStorage.setItem("morning_" + today, "1");
+      }
+      if (data.eveningDone) {
+        localStorage.setItem("evening_" + today, "1");
+      }
+      return { morningDone: data.morningDone, eveningDone: data.eveningDone };
+    }
+  } catch (e) {
+    console.warn("記録状態の取得に失敗しました（localStorageで判定します）:", e);
+  }
+  // フォールバック：localStorageで判定
+  return {
+    morningDone: !!localStorage.getItem("morning_" + today),
+    eveningDone: !!localStorage.getItem("evening_" + today)
+  };
+}
+
+// ============================================
+// ボトムナビの「記録」タブをタップしたときの処理
+// ============================================
+async function navigateToRecord() {
   const today = getTodayKeyForRouter();
-  const morningDone = !!localStorage.getItem("morning_" + today);
-  const eveningDone = !!localStorage.getItem("evening_" + today);
+  const { morningDone, eveningDone } = await fetchTodayStatus(today);
 
   if (!morningDone) {
-    // 朝の記録がまだ → 朝の記録へ
     window.location.href = "index.html";
   } else if (!eveningDone) {
-    // 朝は済んでいるが夜がまだ → 夜の振り返りへ
     window.location.href = "evening.html";
   } else {
-    // 両方済んでいる → 完了メッセージ
     showRecordCompleteMessage();
   }
 }
 
 function showRecordCompleteMessage() {
-  // すでに完了ページにいる場合はメッセージを表示
   const msg = "✅ 今日の記録はすべて完了しています！\n\n朝の記録を修正する場合は「朝の記録」、\n夜の振り返りを修正する場合は「夜の振り返り」を選んでください。";
   if (confirm(msg + "\n\n朝の記録を開きますか？（キャンセルで夜の振り返りを開きます）")) {
     window.location.href = "index.html";
@@ -37,17 +63,24 @@ function showRecordCompleteMessage() {
   }
 }
 
-// ページ読み込み時に現在のページが適切かチェック（自動リダイレクト）
-document.addEventListener("DOMContentLoaded", function() {
+// ============================================
+// ページ読み込み時：GASから状態を取得してバナー表示
+// ============================================
+document.addEventListener("DOMContentLoaded", async function() {
   const today = getTodayKeyForRouter();
-  const morningDone = !!localStorage.getItem("morning_" + today);
-  const eveningDone = !!localStorage.getItem("evening_" + today);
-  const currentPage = window.location.pathname.split("/").pop();
+  const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+  // GASから状態を取得（localStorageも同期される）
+  const { morningDone, eveningDone } = await fetchTodayStatus(today);
 
   // index.html（朝の記録）を開いたが、朝は済んでいて夜がまだの場合
   if (currentPage === "index.html" && morningDone && !eveningDone) {
-    // 自動リダイレクトはせず、バナーで案内する
     showEveningPromptBanner();
+  }
+
+  // index.html を開いたが、両方済んでいる場合
+  if (currentPage === "index.html" && morningDone && eveningDone) {
+    showAllDoneBanner();
   }
 
   // evening.html を開いたが、朝の記録がまだの場合
@@ -58,7 +91,10 @@ document.addEventListener("DOMContentLoaded", function() {
       "#fff3e0",
       "#e65100"
     );
-    document.querySelector(".container").insertBefore(banner, document.querySelector(".container").firstChild.nextSibling);
+    const container = document.querySelector(".container");
+    if (container) {
+      container.insertBefore(banner, container.firstChild.nextSibling);
+    }
   }
 });
 
@@ -74,7 +110,25 @@ function showEveningPromptBanner() {
 
   const container = document.querySelector(".container");
   if (container) {
-    // 日付セクションの後に挿入
+    const dateSection = document.getElementById("dateSection");
+    if (dateSection && dateSection.nextSibling) {
+      container.insertBefore(banner, dateSection.nextSibling);
+    } else {
+      container.insertBefore(banner, container.firstChild);
+    }
+  }
+}
+
+function showAllDoneBanner() {
+  const banner = createBanner(
+    "✅ 今日の記録は完了しています",
+    "朝・夜ともに記録済みです。お疲れさまでした！",
+    "#e3f2fd",
+    "#1565c0"
+  );
+
+  const container = document.querySelector(".container");
+  if (container) {
     const dateSection = document.getElementById("dateSection");
     if (dateSection && dateSection.nextSibling) {
       container.insertBefore(banner, dateSection.nextSibling);
@@ -95,6 +149,7 @@ function createBanner(title, message, bgColor, textColor) {
     font-size: 14px;
     color: ${textColor};
   `;
-  banner.innerHTML = `<strong>${title}</strong><br>${message}`;
+  banner.innerHTML = `<strong>${title}</strong>  
+${message}`;
   return banner;
 }

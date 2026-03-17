@@ -494,8 +494,8 @@ function sendData() {
   const data = {
     date:            today,
     recordType:      "morning",
-    attendance:      document.getElementById("attendance").value,
-    breakfast:       document.getElementById("breakfast").value,
+    attendance:      "",
+    breakfast:       "",
     sleepType:       sleepType,
     weather:         weatherCache.weather,
     temp:            weatherCache.temp,

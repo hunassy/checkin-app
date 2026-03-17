@@ -4,14 +4,15 @@
 
 let goodSigns = [];
 let badSigns = [];
-let medicines = [];
 let sleepTypes = [];
 let sleepSymbols = [];
+
+const gasUrl = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
 
 /**
  * 郵便番号から市町村を取得して表示
  */
-function displayCity() {
+function displayCity( ) {
   const zipcode = document.getElementById("zipcode").value;
   
   if (!zipcode || zipcode.length !== 7) {
@@ -19,10 +20,8 @@ function displayCity() {
     return;
   }
   
-    // 郵便番号から市町村を取得
   getCityFromZipcode(zipcode).then(addressData => {
     if (addressData && addressData.fullAddress) {
-      // city ではなく addressData.fullAddress を表示するように変更
       document.getElementById("cityDisplay").textContent = addressData.fullAddress;
     } else {
       document.getElementById("cityDisplay").textContent = "見つかりません";
@@ -170,7 +169,6 @@ function renderSleepTypeEditor() {
       select.appendChild(option);
     });
     
-    // 記号に応じたクラスを適用する関数
     const updateSelectClass = (sel) => {
       sel.classList.remove("symbol-double-circle", "symbol-circle", "symbol-triangle", "symbol-cross");
       if (sel.value === "◎") sel.classList.add("symbol-double-circle");
@@ -184,14 +182,13 @@ function renderSleepTypeEditor() {
       updateSelectClass(select);
     };
     
-    // 初期表示時にもクラスを適用
     updateSelectClass(select);
     
     symbolDiv.appendChild(select);
     
     item.appendChild(label);
-    item.appendChild(symbolDiv); // 記号を左側に
-    item.appendChild(input);     // テキストを右側に
+    item.appendChild(symbolDiv);
+    item.appendChild(input);
     editor.appendChild(item);
   });
 }
@@ -201,17 +198,41 @@ function renderSleepTypeEditor() {
  */
 function saveSettings() {
   const zipcode = document.getElementById("zipcode").value;
-  const gasUrlEl = document.getElementById("gasUrl");
-  
+
+  // ローカルに保存
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
   localStorage.setItem("badSigns", JSON.stringify(badSigns));
   localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
   localStorage.setItem("sleepSymbols", JSON.stringify(sleepSymbols));
-  if (gasUrlEl) localStorage.setItem("gasUrl", gasUrlEl.value.trim());
-  
-  alert("保存しました");
-  window.location.href = "index.html";
+
+  // GASにも設定を同期保存
+  const params = new URLSearchParams();
+  params.append("action", "saveSettings"); // doPostで分岐させるためのキー
+  params.append("zipcode", zipcode);
+  params.append("goodSigns", JSON.stringify(goodSigns));
+  params.append("badSigns", JSON.stringify(badSigns));
+  params.append("sleepTypes", JSON.stringify(sleepTypes));
+  params.append("sleepSymbols", JSON.stringify(sleepSymbols));
+
+  fetch(gasUrl, { 
+    method: "POST", 
+    body: params,
+    // mode: 'no-cors' // doPostの戻り値を受け取らない場合
+  })
+  .then(response => response.json())
+  .then(data => {
+      if(data.status === 'ok'){
+          alert("保存しました");
+          window.location.href = "index.html";
+      } else {
+          throw new Error(data.message || '設定の保存に失敗しました。');
+      }
+  })
+  .catch(err => {
+      console.error("設定のGAS保存失敗:", err);
+      alert("サーバーへの設定保存に失敗しました。\nネットワーク接続を確認してください。");
+  });
 }
 
 /**
@@ -239,22 +260,17 @@ window.onload = function() {
     renderBad();
   }
   
-    // 1. 睡眠タイプのテキストを読み込む
   if (savedSleepTypes) {
     sleepTypes = JSON.parse(savedSleepTypes);
   } else {
-    // 【追加】保存データがない場合、デフォルト値をセットする
     sleepTypes = ["よく眠れた", "まあまあ眠れた", "そこそこ眠れた", "何とか眠れた", "眠れなかった"];
   }
   
-  // 2. 睡眠タイプの記号を読み込む
   if (savedSleepSymbols) {
     sleepSymbols = JSON.parse(savedSleepSymbols);
   } else {
-    // 【追加】保存データがない場合、デフォルトの記号をセットする
     sleepSymbols = ["◎", "〇", "△", "△", "✕"];
   }
   
-  // 最後に表示を実行
   renderSleepTypeEditor();
 };

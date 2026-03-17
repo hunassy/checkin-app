@@ -132,51 +132,6 @@ function renderBad() {
 }
 
 /**
- * 薬を追加
- */
-function addMedicine() {
-  const text = document.getElementById("medicineInput").value;
-  
-  if (!text) return;
-  
-  medicines.push(text);
-  renderMedicineEditor();
-  document.getElementById("medicineInput").value = "";
-}
-
-/**
- * 薬をレンダリング
- */
-function renderMedicineEditor() {
-  const list = document.getElementById("medicineList");
-  list.innerHTML = "";
-  
-  medicines.forEach((medicine, index) => {
-    const div = document.createElement("div");
-    div.className = "item-row";
-    
-    const text = document.createElement("span");
-    text.className = "item-text";
-    text.textContent = medicine;
-    
-    const buttons = document.createElement("div");
-    buttons.className = "item-buttons";
-    
-    const btn = document.createElement("button");
-    btn.textContent = "削除";
-    btn.onclick = function() {
-      medicines.splice(index, 1);
-      renderMedicineEditor();
-    };
-    
-    buttons.appendChild(btn);
-    div.appendChild(text);
-    div.appendChild(buttons);
-    list.appendChild(div);
-  });
-}
-
-/**
  * 睡眠タイプを編集
  */
 function renderSleepTypeEditor() {
@@ -267,7 +222,6 @@ window.onload = function() {
   const savedZip = localStorage.getItem("zipcode");
   const savedGood = localStorage.getItem("goodSigns");
   const savedBad = localStorage.getItem("badSigns");
-  const savedMedicines = localStorage.getItem("medicines");
   const savedSleepTypes = localStorage.getItem("sleepTypes");
   const savedSleepSymbols = localStorage.getItem("sleepSymbols");
   
@@ -309,10 +263,4 @@ window.onload = function() {
   
   // 最後に表示を実行
   renderSleepTypeEditor();
-
-  // GAS URLを復元
-  const savedGasUrl = localStorage.getItem("gasUrl");
-  const gasUrlEl = document.getElementById("gasUrl");
-  if (savedGasUrl && gasUrlEl) gasUrlEl.value = savedGasUrl;
-
 };

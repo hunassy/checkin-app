@@ -272,12 +272,15 @@ function sendEveningData() {
     Object.entries(data).forEach(([key, value]) => {
       params.append(key, Array.isArray(value) ? value.join(",") : (value ?? ""));
     });
+  
     fetch(GAS_URL, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params.toString()
-    }).catch(e => console.warn("GAS送信エラー:", e));
+    })
+    .then(res => res.json())
+    .then(result => {console.log("GAS送信完了:", result);})
+    .catch(e => console.warn("GAS送信エラー:", e));
   }
 
   alert("✅ 夜の振り返りを保存しました！");

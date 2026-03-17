@@ -530,10 +530,12 @@ function sendData() {
 
     fetch(GAS_URL, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params.toString()
-    }).catch(e => console.warn("GAS送信エラー:", e));
+    })
+    .then(res => res.json())
+    .then(result => {console.log("GAS送信完了:", result);})
+    .catch(e => console.warn("GAS送信エラー:", e));
   }
 
   alert("✅ 朝の記録を保存しました！");

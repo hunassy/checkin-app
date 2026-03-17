@@ -206,7 +206,6 @@ function saveSettings() {
   localStorage.setItem("zipcode", zipcode);
   localStorage.setItem("goodSigns", JSON.stringify(goodSigns));
   localStorage.setItem("badSigns", JSON.stringify(badSigns));
-  localStorage.setItem("medicines", JSON.stringify(medicines));
   localStorage.setItem("sleepTypes", JSON.stringify(sleepTypes));
   localStorage.setItem("sleepSymbols", JSON.stringify(sleepSymbols));
   if (gasUrlEl) localStorage.setItem("gasUrl", gasUrlEl.value.trim());
@@ -238,11 +237,6 @@ window.onload = function() {
   if (savedBad) {
     badSigns = JSON.parse(savedBad);
     renderBad();
-  }
-  
-  if (savedMedicines) {
-    medicines = JSON.parse(savedMedicines);
-    renderMedicineEditor();
   }
   
     // 1. 睡眠タイプのテキストを読み込む

@@ -494,8 +494,6 @@ function sendData() {
   const data = {
     date:            today,
     recordType:      "morning",
-    attendance:      "",
-    breakfast:       "",
     sleepType:       sleepType,
     weather:         weatherCache.weather,
     temp:            weatherCache.temp,

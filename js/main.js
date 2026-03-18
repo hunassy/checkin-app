@@ -481,9 +481,6 @@ function sendData() {
     return [...document.querySelectorAll(`#${id} input:checked`)].map(cb => cb.value);
   };
 
-  // 薬
-  const checkedMeds = [...document.querySelectorAll("#medicineList input:checked")].map(cb => cb.value);
-
   // 昨日との比較
   const compareBtn = document.querySelector(".compare-btn.active");
   const compareYesterday = compareBtn ? compareBtn.dataset.value : "";
@@ -511,12 +508,12 @@ function sendData() {
     factors:       factors,
     goodSigns:     getChecked("goodList"),
     badSigns:      getChecked("badList"),
-    medicines:     checkedMeds,
     comment:       document.getElementById("comment").value
   };
 
   // localStorageに保存（朝の記録用キー）
   localStorage.setItem("morning_" + today, JSON.stringify(data));
+  localStorage.setItem("morning_" + today + "_done", "1");
 
   // Google Apps Script に送信
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"

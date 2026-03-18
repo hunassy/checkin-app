@@ -4,25 +4,26 @@
 
 const DEFAULT_FACTORS = [
   // 人との関わり
-  { id: "talked",     label: "人と話した",       category: "social" },
-  { id: "alone",      label: "ひとりで過ごした",  category: "social" },
-  { id: "crowded",    label: "人が多い場所にいた", category: "social" },
+  { id: "人と話した",  label: "人と話した",  category: "social" },
+  { id: "ひとりで過ごした",  label: "ひとりで過ごした",  category: "social" },
+  { id: "人と過ごした",  label: "人と過ごした", category: "social" },
   // 活動
-  { id: "went_out",   label: "外出した",          category: "activity" },
-  { id: "exercised",  label: "体を動かした",       category: "activity" },
-  { id: "did_nothing",label: "何もできなかった",   category: "activity" },
+  { id: "外出した",   label: "外出した",  category: "activity" },
+  { id: "体を動かした",  label: "家事をした",  category: "activity" },
+  { id: "何もできなかった",label: "何もできなかった",  category: "activity" },
+  { id: "お風呂に入った",  label: "お風呂に入った",   category: "activity" },
   // 環境・予定
-  { id: "busy",       label: "予定が多かった",     category: "schedule" },
-  { id: "changed",    label: "急な予定変更があった",category: "schedule" },
-  { id: "quiet",      label: "静かに過ごせた",     category: "schedule" },
+  { id: "予定が多かった",  label: "予定が多かった",  category: "schedule" },
+  { id: "急な予定変更があった",  label: "急な予定変更があった",category: "schedule" },
+  { id: "静かに過ごせた",  label: "静かに過ごせた",  category: "schedule" },
   // 身体
-  { id: "ate_well",   label: "よく食べられた",     category: "body" },
-  { id: "no_appetite",label: "食欲がなかった",     category: "body" },
-  { id: "sunlight",   label: "日光を浴びた",       category: "body" },
+  { id: "よく食べられた",   label: "よく食べられた",  category: "body" },
+  { id: "食欲がなかった",label: "食欲がなかった",  category: "body" },
+  { id: "日光を浴びた",   label: "日光を浴びた",  category: "body" },
   // 出来事
-  { id: "bad_event",  label: "嫌なことがあった",   category: "event" },
-  { id: "good_event", label: "うれしいことがあった",category: "event" },
-  { id: "stressed",   label: "ストレスを感じた",   category: "event" },
+  { id: "嫌なことがあった",  label: "嫌なことがあった",  category: "event" },
+  { id: "うれしいことがあった", label: "うれしいことがあった",category: "event" },
+  { id: "ストレスを感じた",  label: "ストレスを感じた",  category: "event" },
 ];
 
 // カテゴリ色

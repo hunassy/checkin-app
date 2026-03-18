@@ -118,6 +118,10 @@
 // evening.js — 夜の振り返りページのロジック
 // ============================================
 
+// ★★★ 修正点 ★★★
+// このページの記録対象となる日付をグローバルに保持する
+let pageTargetDate = "";
+
 // スコアの定義（main.js と同じ）
 const SCORE_CONFIG = {
   condition: {
@@ -155,46 +159,45 @@ const BATTERY_COLORS = {
 
 // ============================================
 // URLパラメータから記録対象の日付を取得する
-// ?date=2026-03-17 のように指定された場合はその日付を使う
-// 指定がなければ論理日付（午前0〜4時は前日）を使う
 // ============================================
-function getTargetDate() {
+function getTargetDateFromURL() {
   const params = new URLSearchParams(window.location.search);
   const dateParam = params.get("date");
   if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
     return dateParam;
   }
-  // URLパラメータがなければ論理日付を使う
-  if (typeof getLogicalDate === "function") {
-    return getLogicalDate();
-  }
-  // フォールバック
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  return null;
 }
 
-function getTodayKey() {
-  return getTargetDate();
-}
-
-// 実際の今日の日付かどうかを判定
-function isRecordingForPastDate() {
-  const target = getTargetDate();
-  const now = new Date();
-  const actual = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-  return target !== actual;
-}
-
+// ============================================
+// ページ読み込み時の初期化
+// ============================================
 window.onload = function() {
-  const targetDate = getTargetDate();
+  // ★★★ 修正点 ★★★
+  // 1. URLパラメータから日付を取得
+  // 2. なければ論理日付を取得
+  // 3. グローバル変数 pageTargetDate に保存
+  pageTargetDate = getTargetDateFromURL();
+  if (!pageTargetDate) {
+    if (typeof getLogicalDate === "function") {
+      pageTargetDate = getLogicalDate();
+    } else {
+      // フォールバック
+      const now = new Date();
+      pageTargetDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+    }
+  }
 
   // 日付表示
-  const dateParts = targetDate.split("-");
+  const dateParts = pageTargetDate.split("-");
   const targetDateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
   const el = document.getElementById("dateSection");
 
-  if (isRecordingForPastDate()) {
+  const now = new Date();
+  const actualToday = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+
+  if (pageTargetDate !== actualToday) {
     // 前日分の記録であることを明示
     el.textContent = "📅 " + targetDateObj.toLocaleDateString('ja-JP', options) + " の振り返り";
     el.style.background = "#fff8e1";
@@ -269,8 +272,9 @@ function createBatteryIcon(percent) {
 }
 
 function showMorningCompareBanner() {
-  const today = getTodayKey();
-  const morningData = localStorage.getItem("morning_" + today);
+  // ★★★ 修正点 ★★★
+  // グローバル変数 pageTargetDate を使う
+  const morningData = localStorage.getItem("morning_" + pageTargetDate);
   const banner = document.getElementById("morningCompareBanner");
   if (!banner) return;
 
@@ -295,7 +299,12 @@ function showMorningCompareBanner() {
 }
 
 function sendEveningData() {
-  const targetDate = getTargetDate();
+  // ★★★ 修正点 ★★★
+  // グローバル変数 pageTargetDate を使う
+  if (!pageTargetDate) {
+    alert("エラー：記録対象の日付が不明です。ページを再読み込みしてください。");
+    return;
+  }
 
   const getScore = id => {
     const btn = document.querySelector(`#${id} .score-emoji-btn.active`);
@@ -304,11 +313,10 @@ function sendEveningData() {
 
   const factors = typeof getSelectedFactors === "function" ? getSelectedFactors() : [];
 
-  // 天気データ（fetchWeather で取得済みのキャッシュを使用）
   const wc = typeof weatherCache !== "undefined" ? weatherCache : {};
 
   const data = {
-    date:            targetDate,
+    date:            pageTargetDate,
     recordType:      "evening",
     attendance:      document.getElementById("attendance") ? document.getElementById("attendance").value : "",
     weather:         wc.weather || "",
@@ -322,38 +330,42 @@ function sendEveningData() {
     comment:         document.getElementById("comment").value
   };
 
-  // localStorageに保存（対象日付の夜の記録用キー）
-  localStorage.setItem("evening_" + targetDate, JSON.stringify(data));
-  // 記録状態もlocalStorageに保存（即座に反映するため）
-  localStorage.setItem("evening_" + targetDate + "_done", "1");
+  localStorage.setItem("evening_" + pageTargetDate, JSON.stringify(data));
+  localStorage.setItem("evening_" + pageTargetDate + "_done", "1");
 
-  // Google Apps Script に送信
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
+  const SEND_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
     || localStorage.getItem("gasUrl" );
 
-  if (GAS_URL) {
+  if (SEND_URL) {
     const params = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
       params.append(key, Array.isArray(value) ? value.join(",") : (value ?? ""));
     });
 
-    fetch(GAS_URL, {
+    fetch(SEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params.toString()
     })
+    .then(res => res.json())
+    .then(result => {
+      console.log("GAS送信完了:", result);
+    })
     .catch(e => console.warn("GAS送信エラー:", e));
   }
 
-  if (isRecordingForPastDate()) {
-    alert("✅ " + targetDate + " の夜の振り返りを保存しました！");
+  const now = new Date();
+  const actualToday = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+
+  if (pageTargetDate !== actualToday) {
+    alert("✅ " + pageTargetDate + " の夜の振り返りを保存しました！");
   } else {
     alert("✅ 夜の振り返りを保存しました！");
   }
-  // 送信後はトップページに戻る
   window.location.href = "index.html";
 }
 </script>
 
 </body>
+</html>
 </html>

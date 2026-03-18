@@ -1,3 +1,4 @@
+
 // ============================================
 // record-router.js — 記録タブの自動切り替えロジック
 // デバイス間同期対応版 + 猶予時間対応（午前0〜4時は前日扱い）
@@ -9,6 +10,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GG
 // 日付ユーティリティ
 // ============================================
 
+// 「論理日付」を返す：午前0〜3:59は前日扱い、午前4時以降は当日
 function getLogicalDate( ) {
   const now = new Date();
   if (now.getHours() < 4) {
@@ -19,32 +21,36 @@ function getLogicalDate( ) {
   return formatDateKey(now);
 }
 
+// 「実際の今日の日付」を返す（猶予時間を考慮しない）
 function getActualToday() {
   return formatDateKey(new Date());
 }
 
+// Date → "yyyy-MM-dd" 文字列
 function formatDateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
+// 前日の日付キーを返す
 function getYesterdayKey() {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   return formatDateKey(yesterday);
 }
 
+// 午前0〜3:59の猶予時間帯かどうか
 function isGracePeriod() {
   return new Date().getHours() < 4;
 }
 
 // ============================================
 // localStorageから記録状態を判定する（フォールバック用）
+// ★★★ 修正点 ★★★
+// "_done" キーのみで判定する。データ本体のキーは使わない。
 // ============================================
 function getLocalRecordStatus(dateKey) {
-  const morningDone = !!localStorage.getItem("morning_" + dateKey + "_done")
-                   || !!localStorage.getItem("morning_" + dateKey);
-  const eveningDone = !!localStorage.getItem("evening_" + dateKey + "_done")
-                   || !!localStorage.getItem("evening_" + dateKey);
+  const morningDone = !!localStorage.getItem("morning_" + dateKey + "_done");
+  const eveningDone = !!localStorage.getItem("evening_" + dateKey + "_done");
   return { morningDone, eveningDone };
 }
 
@@ -105,26 +111,24 @@ document.addEventListener("DOMContentLoaded", async function() {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
   if (currentPage === "index.html") {
-    // --- 猶予時間帯（午前0〜4時）---
     if (isGracePeriod()) {
       const logicalDate = getLogicalDate();
       const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
       if (morningDone && !eveningDone) {
         showYesterdayEveningBanner(logicalDate);
-        return; // ★★★ 修正点 ★★★
+        return;
       }
       if (morningDone && eveningDone) {
         showAllDoneBanner();
-        return; // ★★★ 修正点 ★★★
+        return;
       }
       return;
     }
 
-    // --- 午前4時以降の通常処理 ---
     const yesterdayStatus = await fetchRecordStatus(yesterdayKey);
     if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
       showYesterdayEveningBanner(yesterdayKey);
-      return; // ★★★ 修正点 ★★★
+      return;
     }
 
     const todayStatus = await fetchRecordStatus(actualToday);
@@ -135,7 +139,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
   }
 
-  // evening.html を開いたが、朝の記録がまだの場合（猶予時間帯以外、かつ?dateなし）
   if (currentPage === "evening.html" && !isGracePeriod()) {
     const todayStatus = await fetchRecordStatus(actualToday);
     const urlParams = new URLSearchParams(window.location.search);

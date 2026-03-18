@@ -9,7 +9,7 @@ const DEFAULT_FACTORS = [
   { id: "人と過ごした",  label: "人と過ごした", category: "social" },
   // 活動
   { id: "外出した",   label: "外出した",  category: "activity" },
-  { id: "体を動かした",  label: "家事をした",  category: "activity" },
+  { id: "家事をした",  label: "家事をした",  category: "activity" },
   { id: "何もできなかった",label: "何もできなかった",  category: "activity" },
   { id: "お風呂に入った",  label: "お風呂に入った",   category: "activity" },
   // 環境・予定
@@ -69,13 +69,4 @@ function getFactorLabel(id) {
 // ページ読み込み時に描画
 document.addEventListener("DOMContentLoaded", function() {
   renderFactorList("factorList");
-
-  // 昨日との比較ボタンのクリック処理
-  const compareBtns = document.querySelectorAll(".compare-btn");
-  compareBtns.forEach(btn => {
-    btn.addEventListener("click", function() {
-      compareBtns.forEach(b => b.classList.remove("active"));
-      this.classList.add("active");
-    });
-  });
 });

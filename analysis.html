@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <title>体調分析 - コンディションノート</title>
-<script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773665263596&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2FsessionFile%2FqbxZAHazSchcJEpkuuyHRB%2Fsandbox%2F7SFdQUhYa96PcDJaVTuJMB_1773665636052_na1fn_YW5hbHlzaXM.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvcWJ4WkFIYXpTY2hjSkVwa3V1eUhSQi9zYW5kYm94LzdTRmRRVWhZYTk2UGNESmFWVHVKTUJfMTc3MzY2NTYzNjA1Ml9uYTFmbl9ZVzVoYkhsemFYTS5odG1sIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DcPK8qnWLeV7vdNh9yVxe5Ho1S6PMEcN3pu5XVOoKnI9fp4g2ArLzy3pjND8QelpWPdpDCIPRzSBu2vlOYkB5u9BO6FBfVIYWO9gC5YLvEdJelqzpx3IM3Ex5TV5AwTx6ab7BEcTruDuATF2UOxpTBBNHyZz18GWG8ZWJuDEsMtR-kLKTkRa-U0NclvfPrsztU1nI04HAp6SfbWo3HRPciCi~EexKo6uXgo6xosx70rW8aU0yNISqCPnBuYc~cpl~eJls3~4kMho~GZQmdXgpElXSRny8NL3eIlYQffAg4YpJe6t~62jiUbWXJrL9P6X16E~IfGEciW4ufzwNgwVcfQ__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773665263596&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/mobile.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -173,15 +173,16 @@
 
 </div>
 
+<script src="js/config.js"></script>
 <script src="js/defaults.js"></script>
+
 <script>
 // ============================================
 // 分析ページ メインスクリプト
 // ============================================
 
 const GAS_URL_KEY = "gasUrl";
-const FIXED_GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
-
+const FIXED_GAS_URL = APP_CONFIG.GAS_URL;
 let allRecords = [];
 let allEveningRecords = [];
 let allMergedByDate = [];

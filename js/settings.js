@@ -7,8 +7,7 @@ let badSigns = [];
 let sleepTypes = [];
 let sleepSymbols = [];
 
-const gasUrl = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
-
+const gasUrl = APP_CONFIG.GAS_URL;
 /**
  * 郵便番号から市町村を取得して表示
  */
@@ -208,7 +207,7 @@ function saveSettings() {
 
   // GASにも設定を同期保存
   const params = new URLSearchParams();
-  params.append("action", "saveSettings"); // doPostで分岐させるためのキー
+  params.append("recordType", "settings"); // doPostで分岐させるためのキー
   params.append("zipcode", zipcode);
   params.append("goodSigns", JSON.stringify(goodSigns));
   params.append("badSigns", JSON.stringify(badSigns));
@@ -218,7 +217,6 @@ function saveSettings() {
   fetch(gasUrl, { 
     method: "POST", 
     body: params,
-    // mode: 'no-cors' // doPostの戻り値を受け取らない場合
   })
   .then(response => response.json())
   .then(data => {

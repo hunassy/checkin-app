@@ -3,7 +3,7 @@
 // ============================================
 
 (function() {
-  const gasUrl = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
+  const gasUrl = APP_CONFIG.GAS_URL;
 
   // 設定をGASから取得してlocalStorageに反映
   fetch(gasUrl + "?action=getSettings" )

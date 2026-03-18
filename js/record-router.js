@@ -3,7 +3,7 @@
 // デバイス間同期対応版 + 猶予時間対応（午前0〜4時は前日扱い）
 // ============================================
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
+const GAS_URL = APP_CONFIG.GAS_URL;
 
 // ============================================
 // 日付ユーティリティ

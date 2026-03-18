@@ -1,11 +1,10 @@
 // ============================================
-// main.js — メイン画面（index_v10.html）のロジック
+// main.js — メイン画面（index.html）のロジック
 // ============================================
 
 // ---- グローバル変数 ----
 let goodSigns = [];
 let badSigns = [];
-let medicines = [];
 let sleepTypes = [];
 let sleepSymbols = [];
 
@@ -17,61 +16,26 @@ let weatherCache = {
   pressureWarning: ""
 };
 
-// スコアの定義（絵文字デザイン）
-const SCORE_CONFIG = {
-  condition: {
-    label: "体調",
-    items: [
-      { emoji: "🤧", label: "とても悪い", value: 1, cls: "score-taichou-1" },
-      { emoji: "😷", label: "悪い",       value: 2, cls: "score-taichou-2" },
-      { emoji: "🙂", label: "普通",       value: 3, cls: "score-taichou-3" },
-      { emoji: "😊", label: "良い",       value: 4, cls: "score-taichou-4" },
-      { emoji: "😄", label: "とても良い", value: 5, cls: "score-taichou-5" }
-    ]
-  },
-  energy: {
-    label: "活力",
-    items: [
-      { battery: 20,  value: 1, cls: "score-katsu-1" },
-      { battery: 40,  value: 2, cls: "score-katsu-2" },
-      { battery: 60,  value: 3, cls: "score-katsu-3" },
-      { battery: 80,  value: 4, cls: "score-katsu-4" },
-      { battery: 100, value: 5, cls: "score-katsu-5" }
-    ]
-  },
-  mental: {
-    label: "メンタル",
-    items: [
-      { emoji: "⛈️", label: "最悪", value: 1, cls: "score-mental-1" },
-      { emoji: "🌧️", label: "悪い", value: 2, cls: "score-mental-2" },
-      { emoji: "☁️",  label: "普通", value: 3, cls: "score-mental-3" },
-      { emoji: "🌤️", label: "良い", value: 4, cls: "score-mental-4" },
-      { emoji: "☀️",  label: "最高", value: 5, cls: "score-mental-5" }
-    ]
-  }
-};
-
-// バッテリーの色設定
-const BATTERY_COLORS = {
-  20:  "#e57373",  // 赤
-  40:  "#ffb74d",  // オレンジ
-  60:  "#ffd54f",  // 黄
-  80:  "#aed581",  // 黄緑
-  100: "#4CAF50"   // 緑
-};
-
 // ============================================
 // ページ読み込み時の初期化
 // ============================================
 window.onload = function() {
   displayCurrentDate();
   loadSleepTypes();
-  loadMedicines();
   loadGoodSigns();
   loadBadSigns();
   createScoreButtons();
   initTimeSelects();
   fetchWeather();
+
+　// 昨日との比較ボタンのクリック処理
+  const compareBtns = document.querySelectorAll(".compare-btn");
+  compareBtns.forEach(btn => {
+    btn.addEventListener("click", function() {
+      compareBtns.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+    });
+  });
 };
 
 // ============================================
@@ -198,36 +162,6 @@ function createSleepTypeButtons() {
 }
 
 // ============================================
-// 薬
-// ============================================
-function loadMedicines() {
-  const saved = localStorage.getItem("medicines");
-  medicines = saved ? JSON.parse(saved) : [];
-  renderMedicines();
-}
-
-function renderMedicines() {
-  const container = document.getElementById("medicineList");
-  if (!container) return;
-  container.innerHTML = "";
-
-  if (medicines.length === 0) {
-    container.innerHTML = "<p style='color:#999;font-size:14px;'>薬が登録されていません（設定画面で登録できます）</p>";
-    return;
-  }
-
-  medicines.forEach((med, index) => {
-    const label = document.createElement("label");
-    label.className = "medicine-item-label";
-    label.innerHTML = `
-      <input type="checkbox" id="med_${index}" value="${med}">
-      ${med}
-    `;
-    container.appendChild(label);
-  });
-}
-
-// ============================================
 // Good/Badサイン
 // ============================================
 function loadGoodSigns() {
@@ -265,68 +199,6 @@ function renderSignList(containerId, signs, type) {
     label.appendChild(document.createTextNode(" " + sign));
     container.appendChild(label);
   });
-}
-
-// ============================================
-// スコアボタン（絵文字デザイン）
-// ============================================
-function createScoreButtons() {
-  Object.keys(SCORE_CONFIG).forEach(scoreId => {
-    const config = SCORE_CONFIG[scoreId];
-    const container = document.getElementById(scoreId);
-    if (!container) return;
-    container.innerHTML = "";
-
-    config.items.forEach(item => {
-      const btn = document.createElement("button");
-      btn.className = `score-emoji-btn ${item.cls}`;
-      btn.dataset.value = item.value;
-      btn.type = "button";
-
-      if (scoreId === "energy") {
-        // バッテリーアイコン
-        btn.appendChild(createBatteryIcon(item.battery));
-      } else {
-        // 絵文字
-        const emojiSpan = document.createElement("span");
-        emojiSpan.className = "score-emoji";
-        emojiSpan.textContent = item.emoji;
-        btn.appendChild(emojiSpan);
-
-        // ラベルテキスト
-        const labelSpan = document.createElement("span");
-        labelSpan.className = "score-label";
-        labelSpan.textContent = item.label;
-        btn.appendChild(labelSpan);
-      }
-
-      btn.onclick = () => {
-        container.querySelectorAll(".score-emoji-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      };
-
-      container.appendChild(btn);
-    });
-  });
-}
-
-// バッテリーアイコンを生成する関数
-function createBatteryIcon(percent) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "battery-icon";
-
-  const fill = document.createElement("div");
-  fill.className = "battery-fill";
-  fill.style.width = `calc(${percent}% - 2px)`;
-  fill.style.background = BATTERY_COLORS[percent] || "#4CAF50";
-
-  const text = document.createElement("span");
-  text.className = "battery-text";
-  text.textContent = percent + "%";
-
-  wrapper.appendChild(fill);
-  wrapper.appendChild(text);
-  return wrapper;
 }
 
 // ============================================
@@ -374,81 +246,6 @@ async function fetchWeather() {
 
   } catch (e) {
     console.warn("天気取得失敗:", e);
-  }
-}
-
-// ============================================
-// 今日のデータを復元（localStorage から）
-// ============================================
-function restoreTodayData() {
-  const today = getTodayKey();
-  const saved = localStorage.getItem("diary_" + today);
-  if (!saved) return;
-
-  try {
-    const data = JSON.parse(saved);
-
-    // 通所/在宅・朝食
-    if (data.attendance) document.getElementById("attendance").value = data.attendance;
-    if (data.breakfast)  document.getElementById("breakfast").value  = data.breakfast;
-
-    // 就寝・起床時刻
-    if (data.bedtimeHour)      document.getElementById("bedtimeHour").value      = data.bedtimeHour;
-    if (data.bedtimeMinute)    document.getElementById("bedtimeMinute").value    = data.bedtimeMinute;
-    if (data.wakeuptimeHour)   document.getElementById("wakeuptimeHour").value   = data.wakeuptimeHour;
-    if (data.wakeuptimeMinute) document.getElementById("wakeuptimeMinute").value = data.wakeuptimeMinute;
-    if (data.wakeupDuration)   document.getElementById("wakeupDuration").value   = data.wakeupDuration;
-    calcSleepTime();
-
-    // 睡眠タイプ
-    if (data.sleepType) {
-      document.querySelectorAll(".sleep-type-btn").forEach(btn => {
-        if (btn.dataset.value === data.sleepType) btn.classList.add("active");
-      });
-    }
-
-    // スコア
-    ["condition","energy","mental"].forEach(id => {
-      if (data[id]) {
-        const container = document.getElementById(id);
-        if (container) {
-          container.querySelectorAll(".score-emoji-btn").forEach(btn => {
-            if (parseInt(btn.dataset.value) === data[id]) btn.classList.add("active");
-          });
-        }
-      }
-    });
-
-    // Good/Badサイン
-    if (data.goodSigns) {
-      data.goodSigns.forEach(sign => {
-        document.querySelectorAll("#goodList input").forEach(cb => {
-          if (cb.value === sign) cb.checked = true;
-        });
-      });
-    }
-    if (data.badSigns) {
-      data.badSigns.forEach(sign => {
-        document.querySelectorAll("#badList input").forEach(cb => {
-          if (cb.value === sign) cb.checked = true;
-        });
-      });
-    }
-
-    // 薬
-    if (data.medicines) {
-      data.medicines.forEach(med => {
-        document.querySelectorAll("#medicineList input").forEach(cb => {
-          if (cb.value === med) cb.checked = true;
-        });
-      });
-    }
-
-    // コメント
-    if (data.comment) document.getElementById("comment").value = data.comment;
-
-  } catch (e) {
-    console.warn("データ復元エラー:", e);
   }
 }
 
@@ -516,8 +313,7 @@ function sendData() {
   localStorage.setItem("morning_" + today + "_done", "1");
 
   // Google Apps Script に送信
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
-    || localStorage.getItem("gasUrl");
+  const GAS_URL = APP_CONFIG.GAS_URL;
   if (GAS_URL) {
     // GASはCORS対応のためfetch + URLSearchParamsで送信
     const params = new URLSearchParams();
@@ -539,37 +335,4 @@ function sendData() {
 
   // 送信後にページをリロードして初期状態に戻す
   location.reload();
-}
-
-// ============================================
-// フォームのリセット
-// ============================================
-function resetForm() {
-  // セレクトボックスを初期値に戻す
-  ["attendance", "breakfast", "bedtimeHour", "bedtimeMinute",
-   "wakeuptimeHour", "wakeuptimeMinute"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.selectedIndex = 0;
-  });
-
-  // テキスト入力をクリア
-  const dur = document.getElementById("wakeupDuration");
-  if (dur) dur.value = "";
-
-  const comment = document.getElementById("comment");
-  if (comment) comment.value = "";
-
-  // 睡眠時間表示をリセット
-  const sleepResult = document.getElementById("sleepResult");
-  if (sleepResult) sleepResult.textContent = "総睡眠時間：計算中...";
-
-  // 睡眠タイプボタンの選択を解除
-  document.querySelectorAll(".sleep-type-btn").forEach(btn => btn.classList.remove("active"));
-
-  // スコアボタンの選択を解除
-  document.querySelectorAll(".score-emoji-btn").forEach(btn => btn.classList.remove("active"));
-
-  // チェックボックスをすべて解除
-  document.querySelectorAll("#goodList input, #badList input, #medicineList input")
-    .forEach(cb => { cb.checked = false; });
 }

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/mobile.css">
+<script src="js/config.js"></script>
 <script src="js/defaults.js"></script>
 <script src="js/sync.js"></script>
 </head>
@@ -109,10 +110,14 @@
 </nav>
 
 <script>const PAGE_TYPE = 'evening';</script>
+<script src="js/config.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/score-ui.js"></script>
 <script src="js/factors.js"></script>
 <script src="js/main_weather.js"></script>
+<script src="js/evening.js"></script>
 <script src="js/record-router.js"></script>
+
 <script>
 // ============================================
 // evening.js — 夜の振り返りページのロジック
@@ -121,41 +126,6 @@
 // ★★★ 修正点 ★★★
 // このページの記録対象となる日付をグローバルに保持する
 let pageTargetDate = "";
-
-// スコアの定義（main.js と同じ）
-const SCORE_CONFIG = {
-  condition: {
-    items: [
-      { emoji: "🤧", label: "とても悪い", value: 1, cls: "score-taichou-1" },
-      { emoji: "😷", label: "悪い",       value: 2, cls: "score-taichou-2" },
-      { emoji: "🙂", label: "普通",       value: 3, cls: "score-taichou-3" },
-      { emoji: "😊", label: "良い",       value: 4, cls: "score-taichou-4" },
-      { emoji: "😄", label: "とても良い", value: 5, cls: "score-taichou-5" }
-    ]
-  },
-  energy: {
-    items: [
-      { battery: 20,  value: 1, cls: "score-katsu-1" },
-      { battery: 40,  value: 2, cls: "score-katsu-2" },
-      { battery: 60,  value: 3, cls: "score-katsu-3" },
-      { battery: 80,  value: 4, cls: "score-katsu-4" },
-      { battery: 100, value: 5, cls: "score-katsu-5" }
-    ]
-  },
-  mental: {
-    items: [
-      { emoji: "⛈️", label: "最悪", value: 1, cls: "score-mental-1" },
-      { emoji: "🌧️", label: "悪い", value: 2, cls: "score-mental-2" },
-      { emoji: "☁️",  label: "普通", value: 3, cls: "score-mental-3" },
-      { emoji: "🌤️", label: "良い", value: 4, cls: "score-mental-4" },
-      { emoji: "☀️",  label: "最高", value: 5, cls: "score-mental-5" }
-    ]
-  }
-};
-
-const BATTERY_COLORS = {
-  20: "#e57373", 40: "#ffb74d", 60: "#ffd54f", 80: "#aed581", 100: "#4CAF50"
-};
 
 // ============================================
 // URLパラメータから記録対象の日付を取得する
@@ -333,8 +303,7 @@ function sendEveningData() {
   localStorage.setItem("evening_" + pageTargetDate, JSON.stringify(data));
   localStorage.setItem("evening_" + pageTargetDate + "_done", "1");
 
-  const SEND_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
-    || localStorage.getItem("gasUrl" );
+  const SEND_URL = APP_CONFIG.GAS_URL;
 
   if (SEND_URL) {
     const params = new URLSearchParams();
@@ -367,5 +336,4 @@ function sendEveningData() {
 </script>
 
 </body>
-</html>
 </html>

@@ -59,7 +59,7 @@ async function getCityFromZipcode(zipcode) {
  * @returns {Promise<object>} 天気情報（weather, temp, pressure）
  */
 async function getWeatherFromCity(city, displayCity) {
-  const apiKey = "deddd1941a75455fe3e9c7206db41b10";
+  const apiKey = APP_CONFIG.WEATHER_API_KEY;
   // 天気取得には市区町村名(city)を使用
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},JP&appid=${apiKey}&units=metric&lang=ja`;
   
@@ -100,34 +100,4 @@ function formatWeatherText(weatherData) {
 function getCheckedValues(name) {
   return [...document.querySelectorAll(`input[name="${name}"]:checked`)]
     .map(el => el.value);
-}
-
-/**
- * フォーム送信用のデータを作成
- * @param {object} data 送信するデータ
- * @returns {HTMLFormElement} フォーム要素
- */
-function createFormForSubmit(data) {
-  const form = document.createElement("form");
-  form.action = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
-  form.method = "POST";
-  
-  for (const [key, value] of Object.entries(data)) {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = key;
-    input.value = value;
-    form.appendChild(input);
-  }
-  
-  return form;
-}
-
-/**
- * フォームを送信
- * @param {HTMLFormElement} form フォーム要素
- */
-function submitForm(form) {
-  document.body.appendChild(form);
-  form.submit();
 }

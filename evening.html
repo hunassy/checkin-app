@@ -324,6 +324,8 @@ function sendEveningData() {
 
   // localStorageに保存（対象日付の夜の記録用キー）
   localStorage.setItem("evening_" + targetDate, JSON.stringify(data));
+  // 記録状態もlocalStorageに保存（即座に反映するため）
+  localStorage.setItem("evening_" + targetDate + "_done", "1");
 
   // Google Apps Script に送信
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec"
@@ -337,10 +339,10 @@ function sendEveningData() {
 
     fetch(GAS_URL, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params.toString()
-    }).catch(e => console.warn("GAS送信エラー:", e));
+    })
+    .catch(e => console.warn("GAS送信エラー:", e));
   }
 
   if (isRecordingForPastDate()) {

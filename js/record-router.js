@@ -31,6 +31,13 @@ function formatDateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
+// 前日の日付キーを返す
+function getYesterdayKey() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return formatDateKey(yesterday);
+}
+
 // 午前0〜3:59の猶予時間帯かどうか
 function isGracePeriod() {
   return new Date().getHours() < 4;
@@ -45,6 +52,7 @@ async function fetchRecordStatus(dateKey) {
     const res = await fetch(`${GAS_URL}?action=getRecordStatus&date=${dateKey}`);
     const data = await res.json();
     if (data.status === "ok") {
+      // localStorageも同期
       if (data.morningDone) localStorage.setItem("morning_" + dateKey, "1");
       if (data.eveningDone) localStorage.setItem("evening_" + dateKey, "1");
       return { morningDone: data.morningDone, eveningDone: data.eveningDone };
@@ -66,8 +74,8 @@ async function navigateToRecord() {
   const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
 
   if (isGracePeriod() && morningDone && !eveningDone) {
-    // 猶予時間帯：前日の夜の振り返りが未完了 → 夜の振り返りへ
-    window.location.href = "evening.html";
+    // 猶予時間帯：前日の夜の振り返りが未完了 → 夜の振り返りへ（前日日付付き）
+    window.location.href = "evening.html?date=" + logicalDate;
   } else if (!morningDone) {
     window.location.href = "index.html";
   } else if (!eveningDone) {
@@ -90,62 +98,70 @@ function showRecordCompleteMessage() {
 // ページ読み込み時：状態を取得してバナー表示
 // ============================================
 document.addEventListener("DOMContentLoaded", async function() {
-  const logicalDate = getLogicalDate();
   const actualToday = getActualToday();
+  const yesterdayKey = getYesterdayKey();
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-  // 論理日付の記録状態を取得
-  const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
+  // index.html の場合のバナー表示ロジック
+  if (currentPage === "index.html") {
 
-  // --- 猶予時間帯（午前0〜4時）の特別処理 ---
-  if (isGracePeriod()) {
-    // 朝の記録ページを開いたが、前日の夜がまだの場合
-    if (currentPage === "index.html" && morningDone && !eveningDone) {
-      showYesterdayEveningBanner(logicalDate);
+    // --- 猶予時間帯（午前0〜4時）---
+    if (isGracePeriod()) {
+      // 猶予時間帯では「前日」の状態を確認
+      const logicalDate = getLogicalDate(); // = 前日
+      const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
+
+      if (morningDone && !eveningDone) {
+        // 前日の朝は済み、夜がまだ → 夜の振り返りを促す
+        showYesterdayEveningBanner(logicalDate);
+        return;
+      }
+      if (morningDone && eveningDone) {
+        // 前日の朝・夜ともに完了 → 完了バナー
+        showAllDoneBanner();
+        return;
+      }
+      // 前日の朝もまだ → 通常表示（朝の記録フォームをそのまま表示）
       return;
     }
-  }
 
-  // --- 午前4時以降の通常処理 ---
-  if (currentPage === "index.html") {
-    // 前日の夜が未完了の場合（午前4時以降に気づいた場合）
-    if (!isGracePeriod()) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayKey = formatDateKey(yesterday);
-      const yesterdayStatus = await fetchRecordStatus(yesterdayKey);
+    // --- 午前4時以降の通常処理 ---
 
-      if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
-        showYesterdayEveningBanner(yesterdayKey);
-      }
+    // 1) まず昨日の夜が未完了かチェック
+    const yesterdayStatus = await fetchRecordStatus(yesterdayKey);
+    if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
+      showYesterdayEveningBanner(yesterdayKey);
     }
 
-    // 今日の朝が済んでいて夜がまだの場合
-    const todayStatus = isGracePeriod()
-      ? { morningDone, eveningDone }
-      : await fetchRecordStatus(actualToday);
+    // 2) 今日の記録状態をチェック
+    const todayStatus = await fetchRecordStatus(actualToday);
 
-    if (todayStatus.morningDone && !todayStatus.eveningDone) {
+    if (todayStatus.morningDone && todayStatus.eveningDone) {
+      // 今日は朝・夜ともに完了
+      showAllDoneBanner();
+    } else if (todayStatus.morningDone && !todayStatus.eveningDone) {
+      // 今日の朝は完了、夜はまだ
       showEveningPromptBanner();
     }
-
-    // 両方済んでいる場合
-    if (todayStatus.morningDone && todayStatus.eveningDone) {
-      showAllDoneBanner();
-    }
+    // 朝がまだの場合は何も表示しない（そのまま朝の記録フォーム）
   }
 
-  // evening.html を開いたが、朝の記録がまだの場合
-  if (currentPage === "evening.html" && !morningDone && !isGracePeriod()) {
-    const banner = createBanner(
-      "⚠️ 朝の記録がまだです",
-      "先に朝の記録を入力してください。",
-      "#fff3e0",
-      "#e65100"
-    );
-    const container = document.querySelector(".container");
-    if (container) {
-      container.insertBefore(banner, container.firstChild.nextSibling);
+  // evening.html を開いたが、朝の記録がまだの場合（猶予時間帯以外）
+  if (currentPage === "evening.html" && !isGracePeriod()) {
+    const todayStatus = await fetchRecordStatus(actualToday);
+    // URLに?date=パラメータがない場合のみ警告
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.get("date") && !todayStatus.morningDone) {
+      const banner = createBanner(
+        "⚠️ 朝の記録がまだです",
+        "先に朝の記録を入力してください。",
+        "#fff3e0",
+        "#e65100"
+      );
+      const container = document.querySelector(".container");
+      if (container) {
+        container.insertBefore(banner, container.firstChild.nextSibling);
+      }
     }
   }
 });
@@ -156,8 +172,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 function showYesterdayEveningBanner(dateKey) {
   const banner = createBanner(
-    "🌙 昨日の夜の振り返りが未完了です",
-    "タップして昨日の振り返りを記録しましょう。",
+    "🌙 " + dateKey + " の夜の振り返りが未完了です",
+    "タップして振り返りを記録しましょう。",
     "#fff8e1",
     "#f57f17"
   );

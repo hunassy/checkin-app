@@ -1,40 +1,60 @@
 // ============================================
 // record-router.js — 記録タブの自動切り替えロジック
-// デバイス間同期対応版：GASから今日の記録状態を取得して判定
+// デバイス間同期対応版 + 猶予時間対応（午前0〜4時は前日扱い）
 // ============================================
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec";
 
-function getTodayKeyForRouter( ) {
+// ============================================
+// 日付ユーティリティ
+// ============================================
+
+// 「論理日付」を返す：午前0〜3:59は前日扱い、午前4時以降は当日
+function getLogicalDate( ) {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  if (now.getHours() < 4) {
+    // 前日の日付を返す
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    return formatDateKey(yesterday);
+  }
+  return formatDateKey(now);
+}
+
+// 「実際の今日の日付」を返す（猶予時間を考慮しない）
+function getActualToday() {
+  return formatDateKey(new Date());
+}
+
+// Date → "yyyy-MM-dd" 文字列
+function formatDateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+// 午前0〜3:59の猶予時間帯かどうか
+function isGracePeriod() {
+  return new Date().getHours() < 4;
 }
 
 // ============================================
-// GASから今日の記録状態を取得する
+// GASから記録状態を取得する
 // 取得できない場合はlocalStorageにフォールバック
 // ============================================
-async function fetchTodayStatus(today) {
+async function fetchRecordStatus(dateKey) {
   try {
-    const res = await fetch(`${GAS_URL}?action=getRecordStatus&date=${today}`);
+    const res = await fetch(`${GAS_URL}?action=getRecordStatus&date=${dateKey}`);
     const data = await res.json();
     if (data.status === "ok") {
-      // GASの値でlocalStorageを上書き（同期）
-      if (data.morningDone) {
-        localStorage.setItem("morning_" + today, "1");
-      }
-      if (data.eveningDone) {
-        localStorage.setItem("evening_" + today, "1");
-      }
+      if (data.morningDone) localStorage.setItem("morning_" + dateKey, "1");
+      if (data.eveningDone) localStorage.setItem("evening_" + dateKey, "1");
       return { morningDone: data.morningDone, eveningDone: data.eveningDone };
     }
   } catch (e) {
     console.warn("記録状態の取得に失敗しました（localStorageで判定します）:", e);
   }
-  // フォールバック：localStorageで判定
   return {
-    morningDone: !!localStorage.getItem("morning_" + today),
-    eveningDone: !!localStorage.getItem("evening_" + today)
+    morningDone: !!localStorage.getItem("morning_" + dateKey),
+    eveningDone: !!localStorage.getItem("evening_" + dateKey)
   };
 }
 
@@ -42,10 +62,13 @@ async function fetchTodayStatus(today) {
 // ボトムナビの「記録」タブをタップしたときの処理
 // ============================================
 async function navigateToRecord() {
-  const today = getTodayKeyForRouter();
-  const { morningDone, eveningDone } = await fetchTodayStatus(today);
+  const logicalDate = getLogicalDate();
+  const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
 
-  if (!morningDone) {
+  if (isGracePeriod() && morningDone && !eveningDone) {
+    // 猶予時間帯：前日の夜の振り返りが未完了 → 夜の振り返りへ
+    window.location.href = "evening.html";
+  } else if (!morningDone) {
     window.location.href = "index.html";
   } else if (!eveningDone) {
     window.location.href = "evening.html";
@@ -64,27 +87,56 @@ function showRecordCompleteMessage() {
 }
 
 // ============================================
-// ページ読み込み時：GASから状態を取得してバナー表示
+// ページ読み込み時：状態を取得してバナー表示
 // ============================================
 document.addEventListener("DOMContentLoaded", async function() {
-  const today = getTodayKeyForRouter();
+  const logicalDate = getLogicalDate();
+  const actualToday = getActualToday();
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-  // GASから状態を取得（localStorageも同期される）
-  const { morningDone, eveningDone } = await fetchTodayStatus(today);
+  // 論理日付の記録状態を取得
+  const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
 
-  // index.html（朝の記録）を開いたが、朝は済んでいて夜がまだの場合
-  if (currentPage === "index.html" && morningDone && !eveningDone) {
-    showEveningPromptBanner();
+  // --- 猶予時間帯（午前0〜4時）の特別処理 ---
+  if (isGracePeriod()) {
+    // 朝の記録ページを開いたが、前日の夜がまだの場合
+    if (currentPage === "index.html" && morningDone && !eveningDone) {
+      showYesterdayEveningBanner(logicalDate);
+      return;
+    }
   }
 
-  // index.html を開いたが、両方済んでいる場合
-  if (currentPage === "index.html" && morningDone && eveningDone) {
-    showAllDoneBanner();
+  // --- 午前4時以降の通常処理 ---
+  if (currentPage === "index.html") {
+    // 前日の夜が未完了の場合（午前4時以降に気づいた場合）
+    if (!isGracePeriod()) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayKey = formatDateKey(yesterday);
+      const yesterdayStatus = await fetchRecordStatus(yesterdayKey);
+
+      if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
+        showYesterdayEveningBanner(yesterdayKey);
+      }
+    }
+
+    // 今日の朝が済んでいて夜がまだの場合
+    const todayStatus = isGracePeriod()
+      ? { morningDone, eveningDone }
+      : await fetchRecordStatus(actualToday);
+
+    if (todayStatus.morningDone && !todayStatus.eveningDone) {
+      showEveningPromptBanner();
+    }
+
+    // 両方済んでいる場合
+    if (todayStatus.morningDone && todayStatus.eveningDone) {
+      showAllDoneBanner();
+    }
   }
 
   // evening.html を開いたが、朝の記録がまだの場合
-  if (currentPage === "evening.html" && !morningDone) {
+  if (currentPage === "evening.html" && !morningDone && !isGracePeriod()) {
     const banner = createBanner(
       "⚠️ 朝の記録がまだです",
       "先に朝の記録を入力してください。",
@@ -97,6 +149,34 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
   }
 });
+
+// ============================================
+// バナー表示関数
+// ============================================
+
+function showYesterdayEveningBanner(dateKey) {
+  const banner = createBanner(
+    "🌙 昨日の夜の振り返りが未完了です",
+    "タップして昨日の振り返りを記録しましょう。",
+    "#fff8e1",
+    "#f57f17"
+  );
+  banner.style.cursor = "pointer";
+  banner.onclick = () => {
+    // 前日日付を evening.html に渡す
+    window.location.href = "evening.html?date=" + dateKey;
+  };
+
+  const container = document.querySelector(".container");
+  if (container) {
+    const dateSection = document.getElementById("dateSection");
+    if (dateSection && dateSection.nextSibling) {
+      container.insertBefore(banner, dateSection.nextSibling);
+    } else {
+      container.insertBefore(banner, container.firstChild);
+    }
+  }
+}
 
 function showEveningPromptBanner() {
   const banner = createBanner(

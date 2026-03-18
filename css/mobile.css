@@ -5,7 +5,8 @@
 @media (max-width: 600px) {
 
   .container {
-    padding: 10px;
+  padding: 10px;
+  padding-bottom: 84px;
   }
 
   /* 天気情報を2列表示 */

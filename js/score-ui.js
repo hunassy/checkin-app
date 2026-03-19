@@ -1,7 +1,6 @@
 // ============================================
 // score-ui.js — スコアボタンの共通定義と描画
 // ============================================
-console.log("score-ui.js loaded");
 
 window.addEventListener("load", function() {
     console.log("onload fired");

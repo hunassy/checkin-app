@@ -3,15 +3,8 @@
 // ============================================
 
 window.addEventListener("load", function() {
-    console.log("onload fired");
-    initScoreUI(); // もし関数名がこれなら呼ぶ
+    console.log("onload fired (test)");
 });
-
-function initScoreUI() {
-    console.log("initScoreUI called");
-    createScoreButtons(); 
-    // ここで要素生成処理
-}
 
 const SCORE_CONFIG = {
   condition: {

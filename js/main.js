@@ -331,8 +331,9 @@ function sendData() {
     .catch(e => console.warn("GAS送信エラー:", e));
   }
 
-  alert("✅ 朝の記録を保存しました！");
+  alert("✅ 朝の記録を保存しました！\n続けて夜の振り返りを入力できます。");
 
-  // 送信後にページをリロードして初期状態に戻す
-  location.reload();
+// 送信後に夜の振り返りページへ遷移
+window.location.href = "evening.html";
+
 }

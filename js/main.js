@@ -336,3 +336,20 @@ function sendData() {
   // 送信後にページをリロードして初期状態に戻す
   location.reload();
 }
+
+window.addEventListener("load", () => {
+    console.log("onload fired - initializing all UI");
+
+    // スコアボタン
+    setTimeout(() => {
+        window.initScoreUI();
+    }, 50);
+
+    // Good/Bad サイン
+    loadGoodSigns();
+    loadBadSigns();
+
+    // 日付・天気もあればここで呼ぶ
+    // initDate();
+    // initWeather();
+});

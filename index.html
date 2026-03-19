@@ -182,14 +182,15 @@
 <script src="js/record-router.js"></script>
 
 <script>
-window.onload = function() {
+window.addEventListener("load", function() {
   const today = getLogicalDate();
   const morningDone = localStorage.getItem("morning_" + today + "_done");
 
   if (morningDone) {
     window.location.href = "evening.html";
   }
-};
+});
+
 </script>
 
 </body>

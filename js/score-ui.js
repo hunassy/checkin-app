@@ -5,10 +5,14 @@
 window.addEventListener("load", function() {
     console.log("onload fired");
     setTimeout(() => {
-        console.log("initScoreUI called");
-        initScoreUI(); // ボタン生成
-    }, 50); // 50ms 遅延させて DOM 確実に準備
+        initScoreUI(); // 少し遅延させて DOM が準備できている状態で呼ぶ
+    }, 50); 
 });
+
+function initScoreUI() {
+    console.log("initScoreUI called");
+    createScoreButtons(); // ここでボタン生成
+}
 
 const SCORE_CONFIG = {
   condition: {

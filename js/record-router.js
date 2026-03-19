@@ -135,9 +135,10 @@ document.addEventListener("DOMContentLoaded", async function() {
       const { morningDone, eveningDone } = await fetchRecordStatus(logicalDate);
 
       if (morningDone && !eveningDone) {
-        showYesterdayEveningBanner(logicalDate);
-        return;
+       window.location.href = "evening.html?date=" + logicalDate;
+       return;
       }
+
       if (morningDone && eveningDone) {
         showAllDoneBanner();
         return;
@@ -150,8 +151,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     // 1) まず昨日の夜が未完了かチェック
     const yesterdayStatus = await fetchRecordStatus(yesterdayKey);
     if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
-      showYesterdayEveningBanner(yesterdayKey);
-      return; // 昨日の未完了が優先、今日のバナーは出さない
+      window.location.href = "evening.html?date=" + yesterdayKey;
+      return;
     }
 
     // 2) 今日の記録状態をチェック
@@ -160,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (todayStatus.morningDone && todayStatus.eveningDone) {
       showAllDoneBanner();
     } else if (todayStatus.morningDone && !todayStatus.eveningDone) {
-      showEveningPromptBanner();
+      window.location.href = "evening.html";
     }
   }
 

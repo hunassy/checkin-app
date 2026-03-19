@@ -10,6 +10,7 @@ window.addEventListener("load", function() {
 
 function initScoreUI() {
     console.log("initScoreUI called");
+    createScoreButtons(); 
     // ここで要素生成処理
 }
 

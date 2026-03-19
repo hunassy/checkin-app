@@ -267,8 +267,6 @@ function showMorningCompareBanner() {
 }
 
 function sendEveningData() {
-  // ★★★ 修正点 ★★★
-  // グローバル変数 pageTargetDate を使う
   if (!pageTargetDate) {
     alert("エラー：記録対象の日付が不明です。ページを再読み込みしてください。");
     return;
@@ -280,7 +278,6 @@ function sendEveningData() {
   };
 
   const factors = typeof getSelectedFactors === "function" ? getSelectedFactors() : [];
-
   const wc = typeof weatherCache !== "undefined" ? weatherCache : {};
 
   const data = {
@@ -298,11 +295,27 @@ function sendEveningData() {
     comment:         document.getElementById("comment").value
   };
 
+  // 夜のデータ保存
   localStorage.setItem("evening_" + pageTargetDate, JSON.stringify(data));
   localStorage.setItem("evening_" + pageTargetDate + "_done", "1");
 
-  const SEND_URL = APP_CONFIG.GAS_URL;
+  // ====================================
+  // 翌日用のフラグリセット
+  // ====================================
+  const now = new Date();
+  const nextDay = new Date(now.getTime() + 24*60*60*1000); // 翌日
+  const nextLogicalDate = typeof getLogicalDate === "function"
+                          ? getLogicalDate(nextDay.getTime())
+                          : `${nextDay.getFullYear()}-${String(nextDay.getMonth()+1).padStart(2,"0")}-${String(nextDay.getDate()).padStart(2,"0")}`;
 
+  // 翌日の朝・夜フラグを消す
+  localStorage.removeItem("morning_" + nextLogicalDate + "_done");
+  localStorage.removeItem("evening_" + nextLogicalDate + "_done");
+
+  // ====================================
+  // GAS 送信（任意）
+  // ====================================
+  const SEND_URL = APP_CONFIG.GAS_URL;
   if (SEND_URL) {
     const params = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
@@ -315,22 +328,22 @@ function sendEveningData() {
       body: params.toString()
     })
     .then(res => res.json())
-    .then(result => {
-      console.log("GAS送信完了:", result);
-    })
+    .then(result => console.log("GAS送信完了:", result))
     .catch(e => console.warn("GAS送信エラー:", e));
   }
 
-  const now = new Date();
+  // 保存完了アラート
   const actualToday = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-
   if (pageTargetDate !== actualToday) {
     alert("✅ " + pageTargetDate + " の夜の振り返りを保存しました！");
   } else {
     alert("✅ 夜の振り返りを保存しました！");
   }
+
+  // 朝ページに自動遷移
   window.location.href = "index.html";
 }
+
 </script>
 
 </body>

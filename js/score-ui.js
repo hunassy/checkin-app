@@ -1,7 +1,17 @@
 // ============================================
 // score-ui.js — スコアボタンの共通定義と描画
 // ============================================
-console.log("score-ui loaded")
+console.log("score-ui.js loaded");
+
+window.addEventListener("load", function() {
+    console.log("onload fired");
+    initScoreUI(); // もし関数名がこれなら呼ぶ
+});
+
+function initScoreUI() {
+    console.log("initScoreUI called");
+    // ここで要素生成処理
+}
 
 const SCORE_CONFIG = {
   condition: {

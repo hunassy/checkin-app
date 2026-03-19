@@ -266,3 +266,55 @@ function createBanner(title, message, bgColor, textColor) {
 ${message}`;
   return banner;
 }
+
+// ============================================
+// 定期的に記録状態をチェックし、自動遷移する（30秒ごと）
+// ============================================
+(function startAutoSync() {
+  const INTERVAL = 30000; // 30秒
+
+  setInterval(async () => {
+    const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+    // index.html と evening.html でのみ動作
+    if (currentPage !== "index.html" && currentPage !== "evening.html") return;
+
+    const actualToday = getActualToday();
+    const logicalDate = getLogicalDate();
+    const yesterdayKey = getYesterdayKey();
+
+    if (currentPage === "index.html") {
+      // 猶予時間帯
+      if (isGracePeriod()) {
+        const status = await fetchRecordStatus(logicalDate);
+        if (status.morningDone && !status.eveningDone) {
+          window.location.href = "evening.html?date=" + logicalDate;
+          return;
+        }
+      } else {
+        // 昨日の夜が未完了
+        const yesterdayStatus = await fetchRecordStatus(yesterdayKey);
+        if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
+          window.location.href = "evening.html?date=" + yesterdayKey;
+          return;
+        }
+        // 今日の朝が完了 → 夜へ
+        const todayStatus = await fetchRecordStatus(actualToday);
+        if (todayStatus.morningDone && !todayStatus.eveningDone) {
+          window.location.href = "evening.html";
+          return;
+        }
+      }
+    }
+
+    if (currentPage === "evening.html") {
+      // 夜の記録が完了していたら朝のページへ
+      const dateKey = isGracePeriod() ? logicalDate : actualToday;
+      const status = await fetchRecordStatus(dateKey);
+      if (status.eveningDone) {
+        window.location.href = "index.html";
+        return;
+      }
+    }
+  }, INTERVAL);
+})();

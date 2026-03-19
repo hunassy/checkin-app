@@ -1,10 +1,8 @@
 // ============================================
 // score-ui.js — スコアボタンの共通定義と描画
 // ============================================
-console.log("score-ui.js loaded");
 
-// SCORE_CONFIG をグローバルに安全に定義
-window.SCORE_CONFIG = window.SCORE_CONFIG || {
+const SCORE_CONFIG = {
   condition: {
     label: "体調",
     items: [
@@ -37,8 +35,7 @@ window.SCORE_CONFIG = window.SCORE_CONFIG || {
   }
 };
 
-// BATTERY_COLORS も安全に定義
-window.BATTERY_COLORS = window.BATTERY_COLORS || {
+const BATTERY_COLORS = {
   20:  "#e57373",
   40:  "#ffb74d",
   60:  "#ffd54f",
@@ -46,16 +43,9 @@ window.BATTERY_COLORS = window.BATTERY_COLORS || {
   100: "#4CAF50"
 };
 
-// グローバル関数として定義
-window.initScoreUI = function() {
-  console.log("initScoreUI called");
-  createScoreButtons();
-};
-
-// ボタン生成関数
 function createScoreButtons() {
-  Object.keys(window.SCORE_CONFIG).forEach(scoreId => {
-    const config = window.SCORE_CONFIG[scoreId];
+  Object.keys(SCORE_CONFIG).forEach(scoreId => {
+    const config = SCORE_CONFIG[scoreId];
     const container = document.getElementById(scoreId);
     if (!container) return;
     container.innerHTML = "";
@@ -90,7 +80,6 @@ function createScoreButtons() {
   });
 }
 
-// バッテリーアイコン生成
 function createBatteryIcon(percent) {
   const wrapper = document.createElement("div");
   wrapper.className = "battery-icon";
@@ -98,7 +87,7 @@ function createBatteryIcon(percent) {
   const fill = document.createElement("div");
   fill.className = "battery-fill";
   fill.style.width = `calc(${percent}% - 2px)`;
-  fill.style.background = window.BATTERY_COLORS[percent] || "#4CAF50";
+  fill.style.background = BATTERY_COLORS[percent] || "#4CAF50";
 
   const text = document.createElement("span");
   text.className = "battery-text";
@@ -108,11 +97,3 @@ function createBatteryIcon(percent) {
   wrapper.appendChild(text);
   return wrapper;
 }
-
-// window.onload で初期化
-window.addEventListener("load", function() {
-  console.log("onload fired");
-  setTimeout(() => {
-    window.initScoreUI();
-  }, 50);
-});

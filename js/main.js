@@ -16,19 +16,19 @@ let weatherCache = {
   pressureWarning: ""
 };
 
-// ============================================
-// ページ読み込み時の初期化
-// ============================================
-window.onload = function() {
-  displayCurrentDate();
-  loadSleepTypes();
-  loadGoodSigns();
-  loadBadSigns();
-  createScoreButtons();
-  initTimeSelects();
-  fetchWeather();
+window.addEventListener("load", function() {
+  console.log("ページ初期化");
 
-　// 昨日との比較ボタンのクリック処理
+  displayCurrentDate();
+
+  if (typeof loadSleepTypes === "function") loadSleepTypes();
+  if (typeof loadGoodSigns === "function") loadGoodSigns();
+  if (typeof loadBadSigns === "function") loadBadSigns();
+  if (typeof createScoreButtons === "function") createScoreButtons();
+  if (typeof initTimeSelects === "function") initTimeSelects();
+  if (typeof fetchWeather === "function") fetchWeather();
+
+  // 昨日との比較ボタン
   const compareBtns = document.querySelectorAll(".compare-btn");
   compareBtns.forEach(btn => {
     btn.addEventListener("click", function() {
@@ -36,7 +36,7 @@ window.onload = function() {
       this.classList.add("active");
     });
   });
-};
+});
 
 // ============================================
 // 日付表示
@@ -336,20 +336,3 @@ function sendData() {
   // 送信後にページをリロードして初期状態に戻す
   location.reload();
 }
-
-window.addEventListener("load", () => {
-    console.log("onload fired - initializing all UI");
-
-    // スコアボタン
-    setTimeout(() => {
-        window.initScoreUI();
-    }, 50);
-
-    // Good/Bad サイン
-    loadGoodSigns();
-    loadBadSigns();
-
-    // 日付・天気もあればここで呼ぶ
-    // initDate();
-    // initWeather();
-});

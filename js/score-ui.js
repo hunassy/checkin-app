@@ -2,16 +2,17 @@
 // score-ui.js — スコアボタンの共通定義と描画
 // ============================================
 
-function initScoreUI() {
+// グローバルに出す方法
+window.initScoreUI = function() {
     console.log("initScoreUI called");
     createScoreButtons();
-}
+};
 
-// そのあとで
+// その後で load に登録
 window.addEventListener("load", function() {
     console.log("onload fired");
     setTimeout(() => {
-        initScoreUI();
+        window.initScoreUI(); // グローバル経由で呼ぶ
     }, 50);
 });
 

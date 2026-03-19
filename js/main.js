@@ -17,48 +17,26 @@ let weatherCache = {
 };
 
 // ============================================
-// main.js — ページ読み込み時の初期化（安全版）
+// ページ読み込み時の初期化
 // ============================================
-window.addEventListener("load", function() {
-    console.log("ページ初期化");
+window.onload = function() {
+  displayCurrentDate();
+  loadSleepTypes();
+  loadGoodSigns();
+  loadBadSigns();
+  createScoreButtons();
+  initTimeSelects();
+  fetchWeather();
 
-    // 日付表示
-    if (typeof displayCurrentDate === "function") displayCurrentDate();
-
-    // 睡眠タイプ読み込み
-    if (typeof loadSleepTypes === "function") loadSleepTypes();
-
-    // Good / Bad サイン読み込み
-    if (!localStorage.getItem("goodSigns")) {
-        localStorage.setItem("goodSigns", JSON.stringify(["勉強", "運動"]));
-    }
-    if (!localStorage.getItem("badSigns")) {
-        localStorage.setItem("badSigns", JSON.stringify(["寝坊", "暴飲"]));
-    }
-    if (typeof loadGoodSigns === "function") loadGoodSigns();
-    if (typeof loadBadSigns === "function") loadBadSigns();
-
-    // スコアボタン描画
-    if (typeof createScoreButtons === "function") {
-        // 少し遅らせると安全（DOM 準備完了後）
-        setTimeout(() => createScoreButtons(), 50);
-    }
-
-    // 時間選択関連の初期化
-    if (typeof initTimeSelects === "function") initTimeSelects();
-
-    // 天気取得・描画
-    if (typeof fetchWeather === "function") fetchWeather();
-
-    // 昨日との比較ボタンのクリック処理
-    const compareBtns = document.querySelectorAll(".compare-btn");
-    compareBtns.forEach(btn => {
-        btn.addEventListener("click", function() {
-            compareBtns.forEach(b => b.classList.remove("active"));
-            this.classList.add("active");
-        });
+  // 昨日との比較ボタンのクリック処理
+  const compareBtns = document.querySelectorAll(".compare-btn");
+  compareBtns.forEach(btn => {
+    btn.addEventListener("click", function() {
+      compareBtns.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
     });
-});
+  });
+};
 
 // ============================================
 // 日付表示

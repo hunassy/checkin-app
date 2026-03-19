@@ -3,7 +3,11 @@
 // ============================================
 
 window.addEventListener("load", function() {
-    console.log("onload fired (test)");
+    console.log("onload fired");
+    setTimeout(() => {
+        console.log("initScoreUI called");
+        initScoreUI(); // ボタン生成
+    }, 50); // 50ms 遅延させて DOM 確実に準備
 });
 
 const SCORE_CONFIG = {

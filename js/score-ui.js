@@ -2,17 +2,18 @@
 // score-ui.js — スコアボタンの共通定義と描画
 // ============================================
 
+function initScoreUI() {
+    console.log("initScoreUI called");
+    createScoreButtons();
+}
+
+// そのあとで
 window.addEventListener("load", function() {
     console.log("onload fired");
     setTimeout(() => {
-        initScoreUI(); // 少し遅延させて DOM が準備できている状態で呼ぶ
-    }, 50); 
+        initScoreUI();
+    }, 50);
 });
-
-function initScoreUI() {
-    console.log("initScoreUI called");
-    createScoreButtons(); // ここでボタン生成
-}
 
 const SCORE_CONFIG = {
   condition: {

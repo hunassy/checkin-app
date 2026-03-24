@@ -177,7 +177,6 @@
 <script src="js/defaults.js"></script>
 
 <script type="module">
-console.log("ここ通ってる？");
 import { messages } from "./js/messages.js";
 // ============================================
 // 分析ページ メインスクリプト
@@ -388,8 +387,6 @@ function renderTrendChart(records) {
   });
 }
 
-console.log("alerts直前");
-
 // ---- アラート ----
 function renderAlerts(records) {
   const sec = document.getElementById("sec-alert");
@@ -417,17 +414,18 @@ function renderAlerts(records) {
   if (badSleep.length >= 2) {
     const avg = badSleep.reduce((s,r) => s + Number(r.mental), 0) / badSleep.length;
     if (avg < 3) {alerts.push({type: "warn",text: messages.sleepMental(avg)});
+    }
   }
- console.log("alertsの中身", alerts);
+ //console.log("alertsの中身", alerts);
   if (alerts.length === 0) {
     alerts.push({ type: "ok", text: messages.noIssues() });
   }
- console.log("描画直前", alerts);
+ //console.log("描画直前", alerts);
   alerts.forEach(a => {
     sec.innerHTML += `<div class="alert-item alert-${a.type}">${a.text}</div>`;
   });
- }
 }
+
 // ---- 気圧×体調 ----
 function renderPressureCorrelation(records) {
   const sec = document.getElementById("sec-pressure");

@@ -407,7 +407,7 @@ function renderAlerts(records) {
   const lowPDays = records.filter(r => r.pressure && Number(r.pressure) < 1000 && r.condition);
   if (lowPDays.length >= 3) {
     const avg = lowPDays.reduce((s,r) => s + Number(r.condition), 0) / lowPDays.length;
-    if (avg < 2.5) alerts.push({ type: "warn", text: `🌧️ 低気圧の日(${lowPDays.length}件)の体調平均が${avg.toFixed(1)}と低めです` });
+    if (avg < 2.5) alerts.push({ type: "warn", text: messages.lowPressure(lowPDays.length, avg) });
   }
   // 眠れなかった日のメンタル
   const badSleep = records.filter(r => r.sleepType && r.sleepType.includes("眠れなかった") && r.mental);

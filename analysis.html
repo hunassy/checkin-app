@@ -177,6 +177,7 @@
 <script src="js/defaults.js"></script>
 
 <script type="module">
+import { messages } from "./js/messages.js";
 // ============================================
 // 分析ページ メインスクリプト
 // ============================================
@@ -187,7 +188,6 @@ let allRecords = [];
 let allEveningRecords = [];
 let allMergedByDate = [];
 let currentPeriod = 30; // 表示期間（日数）
-import { messages } from "./js/messages.js";
 
 window.onload = function() {
   loadData();
@@ -399,9 +399,9 @@ function renderAlerts(records) {
   const lowEnergy = recent7.filter(r => Number(r.energy)    <= 2).length;
   const lowMental = recent7.filter(r => Number(r.mental)    <= 2).length;
 
-  if (lowCond   >= 0) alerts.push({type: "bad",text: messages.lowScore("体調", lowCond)});
-  if (lowEnergy >= 3) alerts.push({ type: "warn", text: `⚠️ 直近7日間で活力スコアが「悪い」以下の日が${lowEnergy}日あります` });
-  if (lowMental >= 3) alerts.push({ type: "bad",  text: `⚠️ 直近7日間でメンタルスコアが「悪い」以下の日が${lowMental}日あります` });
+  if (lowCond   >= 3) alerts.push({type: "bad",text: messages.lowScore("体調", lowCond)});
+  if (lowEnergy >= 3) alerts.push({ type: "warn", text: messages.lowScore("活力", lowEnergy) });
+  if (lowMental >= 3) alerts.push({ type: "bad",  text: messages.lowScore("メンタル", lowMental) });
 
   // 低気圧の日の体調
   const lowPDays = records.filter(r => r.pressure && Number(r.pressure) < 1000 && r.condition);

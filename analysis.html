@@ -399,7 +399,7 @@ function renderAlerts(records) {
   const lowEnergy = recent7.filter(r => Number(r.energy)    <= 2).length;
   const lowMental = recent7.filter(r => Number(r.mental)    <= 2).length;
 
-  if (lowCond   >= 3) alerts.push({type: "bad",text: messages.lowScore("体調", lowCond)});
+  if (lowCond   >= 0) alerts.push({type: "bad",text: messages.lowScore("体調", lowCond)});
   if (lowEnergy >= 3) alerts.push({ type: "warn", text: `⚠️ 直近7日間で活力スコアが「悪い」以下の日が${lowEnergy}日あります` });
   if (lowMental >= 3) alerts.push({ type: "bad",  text: `⚠️ 直近7日間でメンタルスコアが「悪い」以下の日が${lowMental}日あります` });
 

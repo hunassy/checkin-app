@@ -176,7 +176,7 @@
 <script src="js/config.js"></script>
 <script src="js/defaults.js"></script>
 
-<script>
+<script type="module">
 // ============================================
 // 分析ページ メインスクリプト
 // ============================================
@@ -187,6 +187,7 @@ let allRecords = [];
 let allEveningRecords = [];
 let allMergedByDate = [];
 let currentPeriod = 30; // 表示期間（日数）
+import { messages } from "./js/messages.js";
 
 window.onload = function() {
   loadData();
@@ -398,7 +399,7 @@ function renderAlerts(records) {
   const lowEnergy = recent7.filter(r => Number(r.energy)    <= 2).length;
   const lowMental = recent7.filter(r => Number(r.mental)    <= 2).length;
 
-  if (lowCond   >= 3) alerts.push({ type: "bad",  text: `⚠️ 直近7日間で体調スコアが「悪い」以下の日が${lowCond}日あります` });
+  if (lowCond   >= 3) alerts.push({type: "bad",text: messages.lowScore("体調", lowCond)});
   if (lowEnergy >= 3) alerts.push({ type: "warn", text: `⚠️ 直近7日間で活力スコアが「悪い」以下の日が${lowEnergy}日あります` });
   if (lowMental >= 3) alerts.push({ type: "bad",  text: `⚠️ 直近7日間でメンタルスコアが「悪い」以下の日が${lowMental}日あります` });
 

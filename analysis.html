@@ -229,8 +229,6 @@ async function loadData() {
   }
 }
 
-console.log("alerts直前");
-
 // ---- 全セクションを描画 ----
 function renderAll() {
   const records = filterByPeriod(allRecords, currentPeriod);
@@ -389,6 +387,8 @@ function renderTrendChart(records) {
     }
   });
 }
+
+console.log("alerts直前");
 
 // ---- アラート ----
 function renderAlerts(records) {

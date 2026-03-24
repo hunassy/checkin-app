@@ -464,18 +464,29 @@ function renderPressureCorrelation(records) {
   const xs = valid.map(r => Number(r.pressure));
   const ys = valid.map(r => Number(r.condition));
   const corr = pearson(xs, ys);
-  let corrText = `気圧と体調の相関係数：${corr.toFixed(3)}`;
-  if (corr > 0.3)       corrText += "（正の相関：気圧が高いほど体調が良い傾向）";
-  else if (corr < -0.3) corrText += "（負の相関：気圧が低いほど体調が悪い傾向）";
-  else                  corrText += "（相関は弱い）";
 
-  sec.innerHTML += `<p class="corr-value">${corrText}</p>`;
+  let level;
+  if (corr > 0.3) {level = "positive";} 
+  else if (corr < -0.3) {level = "negative";} 
+  else {level = "weak";}
+
+  //console.log("相関レベル:", level);
+
+  sec.innerHTML += `<p class="corr-value">
+  ${messages.correlation("気圧と体調", level)}
+  </p>`;
+  //let corrText = `気圧と体調の相関係数：${corr.toFixed(3)}`;
+  //if (corr > 0.3)       corrText += "（正の相関：気圧が高いほど体調が良い傾向）";
+  //else if (corr < -0.3) corrText += "（負の相関：気圧が低いほど体調が悪い傾向）";
+  //else                  corrText += "（相関は弱い）";
+
+  //sec.innerHTML += `<p class="corr-value">${corrText}</p>`;
 }
 
 // ---- 睡眠×スコア ----
 function renderSleepCorrelation(records) {
   const sec = document.getElementById("sec-sleep");
-  sec.innerHTML = '<h3>😴 睡眠タイプ × 当日スコアの相関</h3>';
+  sec.innerHTML = '<h3>😴 睡眠タイプ別のスコア傾向</h3>';
 
   const map = {};
   records.forEach(r => {
@@ -549,18 +560,45 @@ function renderDayOfWeekPattern(records) {
   `;
 }
 
-// ---- 通所/在宅×スコア ----
+function getEveningRecords() {
+  const result = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+
+    if (!key.startsWith("evening_")) continue;
+    if (key.endsWith("_done")) continue;
+
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      if (data) result.push(data);
+    } catch (e) {
+      console.warn("JSON変換失敗:", key);
+    }
+  }
+
+  return result;
+}
+
+// ---- 通所/在宅×スコア（ソート付き） ----
 function renderAttendanceCorrelation(records) {
   const sec = document.getElementById("sec-attend");
-  sec.innerHTML = '<h3>🏢 通所/在宅 × スコアの相関</h3>';
+
+  // 日付順にソートしてから使う
+  const nightRecords = getEveningRecords()
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  console.log("nightRecords", nightRecords);
+  sec.innerHTML = '<h3>🏢 通所/在宅別のスコア傾向</h3>';
 
   const map = {};
-  records.forEach(r => {
-    const type = r.attendance || "未記録";
+  nightRecords.forEach(r => {
+    if (!r.attendance) return;
+    const type = r.attendance;
     if (!map[type]) map[type] = { c:[], e:[], m:[] };
     if (r.condition) map[type].c.push(Number(r.condition));
     if (r.energy)    map[type].e.push(Number(r.energy));
-    if (r.mental)    map[type].m.push(Number(r.mental));
+    if (r.mental)   map[type].m.push(Number(r.mental));
   });
 
   const avg = arr => arr.length > 0 ? (arr.reduce((s,v)=>s+v,0)/arr.length).toFixed(2) : "-";

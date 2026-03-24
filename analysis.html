@@ -177,6 +177,7 @@
 <script src="js/defaults.js"></script>
 
 <script type="module">
+console.log("ここ通ってる？");
 import { messages } from "./js/messages.js";
 // ============================================
 // 分析ページ メインスクリプト
@@ -227,6 +228,8 @@ async function loadData() {
     showError("データの取得に失敗しました。<br>GAS URLが正しいか確認してください。<br><small>" + e.message + "</small>");
   }
 }
+
+console.log("alerts直前");
 
 // ---- 全セクションを描画 ----
 function renderAll() {

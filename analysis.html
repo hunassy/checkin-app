@@ -297,7 +297,7 @@ function renderAll() {
   renderWeatherDetail(records, eveningRecords);
 }
 
-function changePeriod(days) {
+window.changePeriod = function(days) {
   currentPeriod = days;
   renderAll();
 }

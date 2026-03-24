@@ -409,23 +409,22 @@ function renderAlerts(records) {
     const avg = lowPDays.reduce((s,r) => s + Number(r.condition), 0) / lowPDays.length;
     if (avg < 2.5) alerts.push({ type: "warn", text: `🌧️ 低気圧の日(${lowPDays.length}件)の体調平均が${avg.toFixed(1)}と低めです` });
   }
-
   // 眠れなかった日のメンタル
   const badSleep = records.filter(r => r.sleepType && r.sleepType.includes("眠れなかった") && r.mental);
   if (badSleep.length >= 2) {
     const avg = badSleep.reduce((s,r) => s + Number(r.mental), 0) / badSleep.length;
-    if (avg < 3) alerts.push({ type: "warn", text: `😴 「眠れなかった」日のメンタル平均が${avg.toFixed(1)}です。睡眠とメンタルの関連が見られます` });
+    if (avg < 3) {alerts.push({type: "warn",text: messages.sleepMental(avg)});
   }
 
   if (alerts.length === 0) {
-    alerts.push({ type: "ok", text: "✅ 現時点で特に注意が必要なパターンは検出されませんでした" });
+    alerts.push({ type: "ok", text: messages.noIssues() });
   }
 
   alerts.forEach(a => {
     sec.innerHTML += `<div class="alert-item alert-${a.type}">${a.text}</div>`;
   });
+ }
 }
-
 // ---- 気圧×体調 ----
 function renderPressureCorrelation(records) {
   const sec = document.getElementById("sec-pressure");

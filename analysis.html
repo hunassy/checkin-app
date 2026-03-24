@@ -418,12 +418,11 @@ function renderAlerts(records) {
     const avg = badSleep.reduce((s,r) => s + Number(r.mental), 0) / badSleep.length;
     if (avg < 3) {alerts.push({type: "warn",text: messages.sleepMental(avg)});
   }
-  console.log(alerts);
-
+console.log("alertsの中身", alerts);
   if (alerts.length === 0) {
     alerts.push({ type: "ok", text: messages.noIssues() });
   }
-
+console.log("描画直前", alerts);
   alerts.forEach(a => {
     sec.innerHTML += `<div class="alert-item alert-${a.type}">${a.text}</div>`;
   });

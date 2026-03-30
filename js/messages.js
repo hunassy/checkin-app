@@ -27,3 +27,13 @@ export const messages = {
     }
   }
 };
+
+export function getMindBodySummaryMessage(high, low, balanced) {
+  if (high > low && high > balanced) {
+    return "⚠️ 無理している日が多い傾向です";
+  }
+  if (low > high && low > balanced) {
+    return "💭 気分が落ちやすい傾向があります";
+  }
+  return "✅ 安定して過ごせています";
+}

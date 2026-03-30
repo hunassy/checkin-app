@@ -165,8 +165,6 @@
 
 <div class="container">
 
-
-
 <div id="mainContent">
   <div class="loading-msg">データを読み込んでいます...</div>
 </div>
@@ -177,7 +175,7 @@
 <script src="js/defaults.js"></script>
 
 <script type="module">
-import { messages } from "./js/messages.js";
+import { messages,getMindBodySummaryMessage } from "./js/messages.js";
 // ============================================
 // 分析ページ メインスクリプト
 // ============================================
@@ -224,6 +222,7 @@ async function loadData() {
 
       renderAll();
   } catch(e) {
+    console.error("エラー内容:", e);
     showError("データの取得に失敗しました。<br>GAS URLが正しいか確認してください。<br><small>" + e.message + "</small>");
   }
 }
@@ -291,10 +290,10 @@ function renderAll() {
   renderAttendanceCorrelation(records);
   renderSignPattern(records);
   renderLowFlightPeriod(records, eveningRecords, mergedData);
-  renderWeeklyEnergyChart(records, eveningRecords);
   renderBodyMindGap(records, eveningRecords, mergedData);
   renderGoodDayPattern(records, eveningRecords, mergedData);
   renderWeatherDetail(records, eveningRecords);
+  renderWeeklyEnergyChart(records, eveningRecords);
 }
 
 window.changePeriod = function(days) {
@@ -742,7 +741,7 @@ function renderLowFlightPeriod(records, eveningRecords, mergedData) {
 // ---- 週間エネルギーグラフ ----
 function renderWeeklyEnergyChart(records, eveningRecords) {
   const sec = document.getElementById("sec-weekly-energy");
-  sec.innerHTML = '<h3>🔋 エネルギー残量（週間パターン）</h3>';
+  sec.innerHTML = '<h3>🔋 日別の活力変化（朝と夜の比較）</h3>';
 
   const sorted = [...records].filter(r => r.date && r.energy).sort((a,b) => a.date.localeCompare(b.date)).slice(-28);
   if (sorted.length < 5) {
@@ -750,6 +749,8 @@ function renderWeeklyEnergyChart(records, eveningRecords) {
     return;
   }
 
+  sec.innerHTML += `<div class="chart-wrap"><canvas id="weeklyEnergyChart"></canvas></div>`;
+  
   // 曜日別の平均エネルギー
   const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
   const dayMap = {};
@@ -762,8 +763,6 @@ function renderWeeklyEnergyChart(records, eveningRecords) {
     const arr = dayMap[d];
     return arr.length > 0 ? arr.reduce((s,v)=>s+v,0)/arr.length : null;
   });
-
-  sec.innerHTML += `<div class="chart-wrap"><canvas id="weeklyEnergyChart"></canvas></div>`;
 
   const labels = sorted.map(r => r.date.slice(5));
   const morningEnergyData = sorted.map(r => Number(r.energy));
@@ -804,11 +803,25 @@ function renderWeeklyEnergyChart(records, eveningRecords) {
     });
   }
 
-  new Chart(document.getElementById("weeklyEnergyChart"), {
+  setTimeout(() => {
+  const canvas = document.getElementById("weeklyEnergyChart");
+  if (!canvas) {
+    console.error("canvas取得失敗");
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.error("context取得失敗");
+    return;
+  }
+
+  new Chart(ctx, {
     type: "bar",
     data: { labels, datasets },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: { min: 0, max: 5, ticks: { stepSize: 1 } },
         x: { ticks: { maxRotation: 45, font: { size: 9 } } }
@@ -816,6 +829,7 @@ function renderWeeklyEnergyChart(records, eveningRecords) {
       plugins: { legend: { display: hasEveningData } }
     }
   });
+ }, 100);
 
   // 曜日別平均コメント
   const weekLabels = ['月', '火', '水', '木', '金', '土', '日'];
@@ -833,7 +847,7 @@ function renderWeeklyEnergyChart(records, eveningRecords) {
 // ---- 体と心のズレ ----
 function renderBodyMindGap(records, eveningRecords, mergedData) {
   const sec = document.getElementById("sec-bodymind");
-  sec.innerHTML = '<h3>🔀 体と心のズレ分析</h3>';
+  sec.innerHTML = '<h3>🧠 最近のコンディション（体と心のバランス）</h3>';
 
   // 夜データがある日は「朝→夜の変化」で検出、ない日は朝の体調・メンタルの差で検出
   const hasMerged = mergedData.some(d => d.morning && d.evening);
@@ -883,10 +897,17 @@ function renderBodyMindGap(records, eveningRecords, mergedData) {
   const improved     = gapDays.filter(d => d.type === "improved"     || d.type === "mindHigh");
   const stable       = gapDays.filter(d => d.type === "stable");
 
-  const deterioratedLabel = hasMerged ? "午後に悪化した日" : "体は元気心がつらい";
-  const improvedLabel     = hasMerged ? "午後に改善した日" : "心は元気体がつらい";
+  const deterioratedLabel = hasMerged ? "😣 午後にしんどくなった日" : "😣 体は元気だけど気分がつらい日";
+  const improvedLabel     = hasMerged ? "🌿 午後に楽になった日" : "🌿 気分は良いけど体がしんどい日";
 
-  let html = `<p style="font-size:11px;color:#888;margin-bottom:10px">${analysisLabel}</p>`;
+  const summaryMessage = getMindBodySummaryMessage(
+  deteriorated.length,
+  improved.length,
+  stable.length
+  );
+  
+  let html = `<p style="font-size:11px;color:#888;margin-bottom:10px">${analysisLabel}</p>
+   <div class="alert-item" style="margin-bottom:10px;font-size:16px;font-weight:bold;">${summaryMessage}</div>`;
   html += `
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
       <div style="background:#fde8e8;border-radius:10px;padding:10px;text-align:center">
@@ -904,14 +925,14 @@ function renderBodyMindGap(records, eveningRecords, mergedData) {
     </div>
   `;
 
-  if (deteriorated.length > 0) {
+  /*if (deteriorated.length > 0) {
     const recent = deteriorated.slice(-3).map(d => d.date.slice(5)).join(', ');
-    html += `<div class="alert-item alert-warn">📍 ${deterioratedLabel}が${deteriorated.length}日あります。直近：${recent}</div>`;
+    html += `<div class="alert-item">📍 ${deterioratedLabel}が${deteriorated.length}日あります。直近：${recent}</div>`;
   }
   if (improved.length > 0) {
     const recent = improved.slice(-3).map(d => d.date.slice(5)).join(', ');
-    html += `<div class="alert-item alert-ok">📍 ${improvedLabel}が${improved.length}日あります。直近：${recent}</div>`;
-  }
+    html += `<div class="alert-item">📍 ${improvedLabel}が${improved.length}日あります。直近：${recent}</div>`;
+  }*/
 
   sec.innerHTML += html;
 }

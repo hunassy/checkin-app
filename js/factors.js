@@ -14,6 +14,13 @@ const FACTOR_STEPS = {
   outDetails: [
     { id: "shopping", label: "買い物", category: "event" },
     { id: "hospital", label: "通院", category: "event" }
+  ],
+  // ★追加：外出・在宅に関わらず表示したい項目
+  commonDetails: [
+    { id: "eat", label: "食事", category: "body" },
+    { id: "housework", label: "家事", category: "body" },
+    { id: "housecleaning", label: "掃除", category: "body" },
+    { id: "bath", label: "入浴", category: "activity" }
   ]
 };
 
@@ -21,6 +28,7 @@ const FACTOR_CATEGORY_COLOR = {
   social:   "#e3f2fd",
   activity: "#e8f5e9",
   event:    "#f3e5f5",
+  body:     "#fce4ec",
 };
 
 // 互換性のために空の関数を置いておきます（エラー防止）

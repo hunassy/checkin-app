@@ -54,38 +54,49 @@ function renderHierarchicalFactors() {
   if (!container) return;
 
   function updateView() {
-    // 現在の選択状態を保持
     const selectedIds = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
     const customText = document.getElementById("custom_out_text")?.value || "";
 
     container.innerHTML = ""; 
 
     // 1. 基本項目（誰と・場所）を表示
-    if (typeof FACTOR_STEPS !== "undefined") {
-        [...FACTOR_STEPS.social, ...FACTOR_STEPS.location].forEach(factor => {
-          createFactorTag(container, factor, selectedIds.includes(factor.id));
+    [...FACTOR_STEPS.social, ...FACTOR_STEPS.location].forEach(factor => {
+      createFactorTag(container, factor, selectedIds.includes(factor.id));
+    });
+
+    // 2. 「外出」または「在宅」どちらかがチェックされたら詳細エリアを表示
+    if (selectedIds.includes("out") || selectedIds.includes("home")) {
+      const detailSection = document.createElement("div");
+      detailSection.className = "detail-section"; // スタイル調整用にクラス付与
+      detailSection.style.width = "100%";
+      detailSection.style.marginTop = "10px";
+      detailSection.style.padding = "10px";
+      detailSection.style.background = "#f9f9f9";
+      detailSection.style.borderRadius = "8px";
+
+      // 外出時のみ：買い物・通院・自由記述を表示
+      if (selectedIds.includes("out")) {
+        FACTOR_STEPS.outDetails.forEach(factor => {
+          createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
         });
+        
+        const customInputDiv = document.createElement("div");
+        customInputDiv.style.marginTop = "10px";
+        customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：カフェで読書" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
+        detailSection.appendChild(customInputDiv);
+      }
 
-        // 2. 「外出した」にチェックがある場合のみ詳細を表示
-        if (selectedIds.includes("out")) {
-          const detailSection = document.createElement("div");
-          detailSection.style.width = "100%";
-          detailSection.style.marginTop = "10px";
-          detailSection.style.padding = "10px";
-          detailSection.style.background = "#f9f9f9";
-          detailSection.style.borderRadius = "8px";
+      // ★共通項目を表示（外出でも在宅でも出る）
+      const commonTitle = document.createElement("p");
+      commonTitle.style = "font-size:12px; color:#666; margin:10px 0 4px;";
+      commonTitle.textContent = "共通の項目";
+      detailSection.appendChild(commonTitle);
 
-          FACTOR_STEPS.outDetails.forEach(factor => {
-            createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
-          });
+      FACTOR_STEPS.commonDetails.forEach(factor => {
+        createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
+      });
 
-          // 自由記述用のテキストボックスを追加
-          const customInputDiv = document.createElement("div");
-          customInputDiv.style.marginTop = "10px";
-          customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：美容院、カフェなど" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
-          detailSection.appendChild(customInputDiv);
-          container.appendChild(detailSection);
-        }
+      container.appendChild(detailSection);
     }
   }
 

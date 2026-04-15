@@ -86,7 +86,8 @@ window.onload = function() {
       detailSection.appendChild(customInputDiv);
       container.appendChild(detailSection);
     }
-  }
+    renderHierarchicalFactors();
+  };
 
   function createFactorTag(parent, factor, isChecked) {
     const label = document.createElement("label");

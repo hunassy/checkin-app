@@ -77,12 +77,7 @@ window.onload = function() {
       // ★自由記述用のテキストボックスを追加
       const customInputDiv = document.createElement("div");
       customInputDiv.style.marginTop = "10px";
-      customInputDiv.innerHTML = `
-        <p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p>
-        <input type="text" id="custom_out_text" value="${customText}" 
-               placeholder="例：美容院、カフェなど" 
-               style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">
-      `;
+      customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：美容院、カフェなど" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
       detailSection.appendChild(customInputDiv);
       container.appendChild(detailSection);
     }

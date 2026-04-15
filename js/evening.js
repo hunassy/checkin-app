@@ -44,7 +44,12 @@ window.onload = function() {
   createScoreButtons();
   showMorningCompareBanner();
 
-  function renderHierarchicalFactors() {
+  // --- 影響要因の階層表示ロジック ---
+  renderHierarchicalFactors(); 
+};
+
+// 関数を window.onload の外に出しておくと、コードがスッキリして管理しやすくなります
+function renderHierarchicalFactors() {
   const container = document.getElementById("factorList");
   if (!container) return;
 
@@ -56,52 +61,54 @@ window.onload = function() {
     container.innerHTML = ""; 
 
     // 1. 基本項目（誰と・場所）を表示
-    [...FACTOR_STEPS.social, ...FACTOR_STEPS.location].forEach(factor => {
-      createFactorTag(container, factor, selectedIds.includes(factor.id));
-    });
+    if (typeof FACTOR_STEPS !== "undefined") {
+        [...FACTOR_STEPS.social, ...FACTOR_STEPS.location].forEach(factor => {
+          createFactorTag(container, factor, selectedIds.includes(factor.id));
+        });
 
-    // 2. 「外出した」にチェックがある場合のみ詳細を表示
-    if (selectedIds.includes("out")) {
-      const detailSection = document.createElement("div");
-      detailSection.style.width = "100%";
-      detailSection.style.marginTop = "10px";
-      detailSection.style.padding = "10px";
-      detailSection.style.background = "#f9f9f9";
-      detailSection.style.borderRadius = "8px";
+        // 2. 「外出した」にチェックがある場合のみ詳細を表示
+        if (selectedIds.includes("out")) {
+          const detailSection = document.createElement("div");
+          detailSection.style.width = "100%";
+          detailSection.style.marginTop = "10px";
+          detailSection.style.padding = "10px";
+          detailSection.style.background = "#f9f9f9";
+          detailSection.style.borderRadius = "8px";
 
-      // 買い物・通院などのボタン
-      FACTOR_STEPS.outDetails.forEach(factor => {
-        createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
-      });
+          FACTOR_STEPS.outDetails.forEach(factor => {
+            createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
+          });
 
-      // ★自由記述用のテキストボックスを追加
-      const customInputDiv = document.createElement("div");
-      customInputDiv.style.marginTop = "10px";
-      customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：美容院、カフェなど" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
-      detailSection.appendChild(customInputDiv);
-      container.appendChild(detailSection);
+          // 自由記述用のテキストボックスを追加
+          const customInputDiv = document.createElement("div");
+          customInputDiv.style.marginTop = "10px";
+          customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：美容院、カフェなど" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
+          detailSection.appendChild(customInputDiv);
+          container.appendChild(detailSection);
+        }
     }
-    renderHierarchicalFactors();
-  };
+  }
 
   function createFactorTag(parent, factor, isChecked) {
     const label = document.createElement("label");
     label.className = "factor-item";
-    label.style.background = FACTOR_CATEGORY_COLOR[factor.category] || "#eee";
+    if (typeof FACTOR_CATEGORY_COLOR !== "undefined") {
+        label.style.background = FACTOR_CATEGORY_COLOR[factor.category] || "#eee";
+    }
 
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.value = factor.id;
     cb.checked = isChecked;
-    cb.onchange = updateView; // 切り替え時に再描画
+    cb.onchange = updateView; // チェックを切り替えたら updateView だけを呼ぶ
 
     label.appendChild(cb);
     label.appendChild(document.createTextNode(" " + factor.label));
     parent.appendChild(label);
-    }
-   updateView();
   }
-};
+
+  updateView(); // 最初の表示
+}
 
 function showMorningCompareBanner() {
   const morningData = localStorage.getItem("morning_" + pageTargetDate);

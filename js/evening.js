@@ -130,8 +130,7 @@ function showMorningCompareBanner() {
 
 function sendEveningData() {
   // 1. チェックされている項目をすべて取得
-  const selectedFactors = Array.from(document.querySelectorAll('#factorList input[type="checkbox"]:checked'))
-                       .map(cb => cb.value);
+  const selectedFactors = Array.from(document.querySelectorAll('#factorList input[type="checkbox"]:checked')).map(cb => cb.value);
 
   // 2. 自由入力のテキストボックスがあれば、その中身も取得して追加
   const customText = document.getElementById("custom_out_text")?.value;

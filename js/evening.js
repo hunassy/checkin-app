@@ -133,29 +133,22 @@ function showMorningCompareBanner() {
 }
 
 function sendEveningData() {
-  if (!pageTargetDate) {
-    alert("エラー：記録対象の日付が不明です。ページを再読み込みしてください。");
-    return;
-  }
+  // 1. チェックされている項目をすべて取得
+  const selectedFactors = Array.from(document.querySelectorAll('#factorList input[type="checkbox"]:checked'))
+                       .map(cb => cb.value);
 
-  const getScore = id => {
-    const btn = document.querySelector(`#${id} .score-emoji-btn.active`);
-    return btn ? parseInt(btn.dataset.value) : null;
-  };
-
-  const factors = typeof getSelectedFactors === "function" ? getSelectedFactors() : [];
-  const wc = typeof weatherCache !== "undefined" ? weatherCache : {};
-
-  // 選択されたチェックボックスの値を集める
-  const factors = Array.from(document.querySelectorAll('#factorList input[type="checkbox"]:checked')).map(cb => cb.value);
+  // 2. 自由入力のテキストボックスがあれば、その中身も取得して追加
   const customText = document.getElementById("custom_out_text")?.value;
-   if (customText && customText.trim() !== "") {
-    factors.push("自由入力:" + customText); // 「自由入力:〇〇」という形で保存されます
+  if (customText && customText.trim() !== "") {
+    selectedFactors.push("自由入力:" + customText);
   }
 
+  // 3. 天気情報の取得（既存のロジック）
+  const wc = getFromStorage("weather_cache_" + pageTargetDate) || {};
+
+  // 4. 送信データの作成
   const data = {
     date:            pageTargetDate,
-    recordType:      "evening",
     attendance:      document.getElementById("attendance") ? document.getElementById("attendance").value : "",
     weather:         wc.weather || "",
     temp:            wc.temp || "",
@@ -164,15 +157,15 @@ function sendEveningData() {
     condition:       getScore("condition"),
     energy:          getScore("energy"),
     mental:          getScore("mental"),
-    factors:         factors,
+    factors:         selectedFactors, // ここにまとめたリストを渡す
     comment:         document.getElementById("comment").value
   };
 
+  // --- 以下、データの保存と送信処理（既存のまま） ---
   localStorage.setItem("evening_" + pageTargetDate, JSON.stringify(data));
   localStorage.setItem("evening_" + pageTargetDate + "_done", "1");
 
   const SEND_URL = APP_CONFIG.GAS_URL;
-
   if (SEND_URL) {
     const params = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
@@ -185,17 +178,10 @@ function sendEveningData() {
       body: params.toString()
     })
     .then(res => res.json())
-    .then(result => { console.log("GAS送信完了:", result); })
+    .then(result => {
+      alert("記録を保存しました！"); // 成功がわかるように追加
+      console.log("GAS送信完了:", result);
+    })
     .catch(e => console.warn("GAS送信エラー:", e));
   }
-
-  const now = new Date();
-  const actualToday = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-
-  if (pageTargetDate !== actualToday) {
-    alert("✅ " + pageTargetDate + " の夜の振り返りを保存しました！");
-  } else {
-    alert("✅ 夜の振り返りを保存しました！");
-  }
-  window.location.href = "index.html";
 }

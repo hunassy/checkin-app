@@ -235,9 +235,9 @@ function sendEveningData() {
   if (locationVal) selectedFactors.push(locationVal);
 
   // 2. 自由入力のテキストボックスがあれば、その中身も取得して追加
-  const customText = document.getElementById("custom_out_text")?.value;
-  if (customText && customText.trim() !== "") {
-    selectedFactors.push("自由入力:" + customText);
+  const customTextEl = document.getElementById("custom_out_text");
+  if (customTextEl && customTextEl.value.trim() !== "") {
+    selectedFactors.push("自由入力:" + customTextEl.value);
   }
 
   // 3. 天気情報の取得（既存のロジック）

@@ -275,47 +275,54 @@ function sendData() {
 
   // Good/Badサイン
   const getChecked = id => {
-    return [...document.querySelectorAll(`#${id} input:checked`)].map(cb => cb.value);
+    const listEl = document.getElementById(id);
+    if (!listEl) return []; // 要素がなければ空配列を返す（安全策）
+    return [...listEl.querySelectorAll(`input:checked`)].map(cb => cb.value);
   };
 
   // 昨日との比較
   const compareBtn = document.querySelector(".compare-btn.active");
   const compareYesterday = compareBtn ? compareBtn.dataset.value : "";
 
-  // 影響要因
+  // 影響要因（朝の画面に getSelectedFactors があれば実行）
   const factors = typeof getSelectedFactors === "function" ? getSelectedFactors() : [];
 
-  const data = {
-    date:            today,
-    recordType:      "morning",
-    sleepType:       sleepType,
-    weather:         weatherCache.weather,
-    temp:            weatherCache.temp,
-    pressure:        weatherCache.pressure,
-    pressureWarning: weatherCache.pressureWarning,
-    bedtimeHour:   document.getElementById("bedtimeHour").value,
-    bedtimeMinute: document.getElementById("bedtimeMinute").value,
-    wakeuptimeHour:   document.getElementById("wakeuptimeHour").value,
-    wakeuptimeMinute: document.getElementById("wakeuptimeMinute").value,
-    wakeupDuration:   document.getElementById("wakeupDuration").value,
-    condition:     getScore("condition"),
-    energy:        getScore("energy"),
-    mental:        getScore("mental"),
-    compareYesterday: compareYesterday,
-    factors:       factors,
-    goodSigns:     getChecked("goodList"),
-    badSigns:      getChecked("badList"),
-    comment:       document.getElementById("comment").value
+  // 各要素の値を安全に取得する補助関数
+  const getValue = id => {
+    const el = document.getElementById(id);
+    return el ? el.value : ""; // 要素がなければ空文字を返す
   };
 
-  // localStorageに保存（朝の記録用キー）
+  const data = {
+    date:             today,
+    recordType:       "morning",
+    sleepType:        sleepType,
+    weather:          weatherCache.weather,
+    temp:             weatherCache.temp,
+    pressure:         weatherCache.pressure,
+    pressureWarning:  weatherCache.pressureWarning,
+    // getValue を使って安全に取得
+    bedtimeHour:      getValue("bedtimeHour"),
+    bedtimeMinute:    getValue("bedtimeMinute"),
+    wakeuptimeHour:   getValue("wakeuptimeHour"),
+    wakeuptimeMinute: getValue("wakeuptimeMinute"),
+    wakeupDuration:   getValue("wakeupDuration"),
+    condition:        getScore("condition"),
+    energy:           getScore("energy"),
+    mental:           getScore("mental"),
+    compareYesterday: compareYesterday,
+    factors:          factors,
+    goodSigns:        getChecked("goodList"),
+    badSigns:         getChecked("badList"),
+    comment:          getValue("comment") // ここも安全に取得
+  };
+
+  // --- 以降の保存・送信処理は変更なし ---
   localStorage.setItem("morning_" + today, JSON.stringify(data));
   localStorage.setItem("morning_" + today + "_done", "1");
 
-  // Google Apps Script に送信
   const GAS_URL = APP_CONFIG.GAS_URL;
   if (GAS_URL) {
-    // GASはCORS対応のためfetch + URLSearchParamsで送信
     const params = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
       params.append(key, Array.isArray(value) ? value.join(",") : (value ?? ""));
@@ -327,13 +334,10 @@ function sendData() {
       body: params.toString()
     })
     .then(res => res.json())
-    .then(result => {console.log("GAS送信完了:", result);})
+    .then(result => { console.log("GAS送信完了:", result); })
     .catch(e => console.warn("GAS送信エラー:", e));
   }
 
   alert("✅ 朝の記録を保存しました！\n続けて夜の振り返りを入力できます。");
-
-// 送信後に夜の振り返りページへ遷移
-window.location.href = "evening.html";
-
+  window.location.href = "evening.html";
 }

@@ -20,11 +20,11 @@ const FACTOR_STEPS = {
     { id: "eat", label: "食事", category: "body" },
     { id: "housework", label: "家事", category: "body" },
     { id: "housecleaning", label: "掃除", category: "body" },
-    { id: "bath", label: "入浴", category: "activity" }
+    { id: "bath", label: "入浴", category: "body" }
   ]
 };
 
-const FACTOR_CATEGORY_COLOR = {
+const FACTOR_CATEGORY_COLOR = {  
   social:   "#e3f2fd",
   activity: "#e8f5e9",
   event:    "#f3e5f5",

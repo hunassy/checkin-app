@@ -198,34 +198,6 @@
   align-items: center;
 }
 
-/* ---- 薬セクション ---- */
-.medicine-section {
-  background: #f3e5f5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-}
-
-.medicine-section h3 {
-  margin-top: 0;
-  color: #333;
-  border-bottom: 2px solid #9c27b0;
-  padding-bottom: 10px;
-}
-
-.medicine-list {
-  margin-top: 10px;
-}
-
-.medicine-item-label {
-  display: block;
-  margin: 8px 0;
-}
-
-.medicine-item-label input[type="checkbox"] {
-  margin-right: 8px;
-}
-
 /* ---- スコアセクション（新・絵文字デザイン） ---- */
 .score-section {
   margin-top: 15px;
@@ -391,6 +363,64 @@
   background: #e8f5e9;
   border-radius: 4px;
   padding: 10px;
+}
+
+/*---影響要因の表示設定---*/
+.vertical-selector {   /* ステップ1・2の選択肢（ボタン）を縦並びにするスタイル */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.vertical-selector .factor-item {
+  width: 100%; /* 横幅いっぱい */
+  display: block;
+  padding: 15px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #fff; /* デフォルトは白 */
+}
+
+/* チェックされた時の見た目（お好みで調整してください） */
+.vertical-selector input[type="checkbox"]:checked + span {
+  color: #000;
+}
+
+/* ラジオボタンのように見せるため、チェックボックス自体は隠す */
+.vertical-selector input[type="checkbox"] {
+  display: none;
+}
+
+/* 選択された時の強調 */
+.vertical-selector .factor-item:has(input:checked) {
+  border: 2px solid #4CAF50; /* 緑の枠線 */
+  background-color: #e8f5e9; /* 薄い緑 */
+}
+
+/* 詳細項目のチェックボックスを2列にする設定 */
+.detail-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px;
+  margin: 10px 0;
+  width: 100%; /* グリッド自体も幅いっぱいに */
+}
+
+/* 2列にした時にボタンがはみ出さないように調整 */
+.detail-grid .factor-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 25px; /* ボタンの高さを揃える */
+  margin: 0 !important;
+  padding: 5px 10px;
+  text-align: center;
+  font-size: 14px;
 }
 
 /* ---- 設定画面コンポーネント ---- */

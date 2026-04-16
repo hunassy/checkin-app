@@ -53,51 +53,129 @@ function renderHierarchicalFactors() {
   const container = document.getElementById("factorList");
   if (!container) return;
 
-  function updateView() {
+ function updateView() {
+    // 現在の選択状態（チェックボックス分）を取得
     const selectedIds = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+    
+    // 現在のプルダウンの選択値を取得（再描画時に値を保持するため）
+    const socialValue = document.getElementById("select_social")?.value || "";
+    const locationValue = document.getElementById("select_location")?.value || "";
     const customText = document.getElementById("custom_out_text")?.value || "";
 
     container.innerHTML = ""; 
 
-    // 1. 基本項目（誰と・場所）を表示
-    [...FACTOR_STEPS.social, ...FACTOR_STEPS.location].forEach(factor => {
-      createFactorTag(container, factor, selectedIds.includes(factor.id));
-    });
+    // --- 1. プルダウンの作成 ---
+    const createSelect = (id, label, options, currentValue) => {
+      const wrapper = document.createElement("div");
+      wrapper.style.marginBottom = "15px";
+      wrapper.style.width = "100%"; // 親の幅いっぱいに広げる
+      
+      const p = document.createElement("p");
+      p.style = "font-size:14px; font-weight:bold; color:#333; margin-bottom:8px;"; // ラベルを少し太く見やすく
+      p.textContent = label;
+      
+      const select = document.createElement("select");
+      select.id = id;
+      // スタイルを強化：幅100%、高さをしっかり確保、背景色など
+      select.style = `
+        width: 100%; 
+        padding: 12px; 
+        border: 1px solid #ccc; 
+        border-radius: 8px; 
+        background-color: #fff; 
+        font-size: 16px;
+        display: block;
+        appearance: none; /* ブラウザ標準の矢印をリセット（任意） */
+        -webkit-appearance: none;
+        background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+      `;
+      select.onchange = updateView;
 
-    // 2. 「外出」または「在宅」どちらかがチェックされたら詳細エリアを表示
-    if (selectedIds.includes("out") || selectedIds.includes("home")) {
-      const detailSection = document.createElement("div");
-      detailSection.className = "detail-section"; // スタイル調整用にクラス付与
-      detailSection.style.width = "100%";
-      detailSection.style.marginTop = "10px";
-      detailSection.style.padding = "10px";
-      detailSection.style.background = "#f9f9f9";
-      detailSection.style.borderRadius = "8px";
+      const defOpt = document.createElement("option");
+      defOpt.value = "";
+      defOpt.textContent = "選択してください";
+      select.appendChild(defOpt);
 
-      // 外出時のみ：買い物・通院・自由記述を表示
-      if (selectedIds.includes("out")) {
-        FACTOR_STEPS.outDetails.forEach(factor => {
-          createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
-        });
-        
-        const customInputDiv = document.createElement("div");
-        customInputDiv.style.marginTop = "10px";
-        customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容（自由入力）</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：カフェで読書" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
-        detailSection.appendChild(customInputDiv);
-      }
-
-      // ★共通項目を表示（外出でも在宅でも出る）
-      const commonTitle = document.createElement("p");
-      commonTitle.style = "font-size:12px; color:#666; margin:10px 0 4px;";
-      commonTitle.textContent = "共通の項目";
-      detailSection.appendChild(commonTitle);
-
-      FACTOR_STEPS.commonDetails.forEach(factor => {
-        createFactorTag(detailSection, factor, selectedIds.includes(factor.id));
+      options.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt.id;
+        o.textContent = opt.label;
+        if (opt.id === currentValue) o.selected = true;
+        select.appendChild(o);
       });
 
-      container.appendChild(detailSection);
-    }
+      wrapper.appendChild(p);
+      wrapper.appendChild(select);
+      container.appendChild(wrapper);
+    };
+
+    // 「誰と」プルダウン
+    createSelect("select_social", "どのように過ごしましたか？", FACTOR_STEPS.social, socialValue);
+    
+    // 「場所」プルダウン
+    createSelect("select_location", "外出しましたか？", FACTOR_STEPS.location, locationValue);
+
+    // --- 2. 詳細エリア（場所が選ばれたら表示） ---
+// ... (場所が選ばれた後の詳細表示エリア)
+  if (locationValue === "out" || locationValue === "home") {
+    const detailSection = document.createElement("div");
+    detailSection.style = "margin-top:10px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #eee;";
+
+    // --- 外出時詳細（買い物・通院など）を2列にする ---
+   if (locationValue === "out") {
+     const outGrid = document.createElement("div");
+     outGrid.className = "detail-grid"; // CSSで定義した2列設定を適用
+    
+     FACTOR_STEPS.outDetails.forEach(factor => {
+       createFactorTag(outGrid, factor, selectedIds.includes(factor.id));
+     });
+     detailSection.appendChild(outGrid);
+    
+     // 自由記述（これは1列でOK）
+     const customInputDiv = document.createElement("div");
+     customInputDiv.style.marginTop = "10px";
+     customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：カフェ" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
+     detailSection.appendChild(customInputDiv);
+   }
+
+  // --- 共通項目（よく食べられた等）を2列にする ---
+  const commonTitle = document.createElement("p");
+  commonTitle.style = "font-size:12px; color:#666; margin:15px 0 8px;";
+  commonTitle.textContent = "共通の項目";
+  detailSection.appendChild(commonTitle);
+
+  const commonGrid = document.createElement("div");
+  commonGrid.className = "detail-grid"; // ここも2列設定を適用
+  
+  FACTOR_STEPS.commonDetails.forEach(factor => {
+    createFactorTag(commonGrid, factor, selectedIds.includes(factor.id));
+  });
+  detailSection.appendChild(commonGrid);
+
+  container.appendChild(detailSection);
+  }
+}
+
+  // 縦並び専用のタグ作成関数
+  function createVerticalTag(parent, factor, isChecked) {
+    const label = document.createElement("label");
+    label.className = "factor-item";
+    
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = factor.id;
+    cb.checked = isChecked;
+    cb.onchange = updateView;
+
+    const span = document.createElement("span");
+    span.textContent = factor.label;
+
+    label.appendChild(cb);
+    label.appendChild(span);
+    parent.appendChild(label);
   }
 
   function createFactorTag(parent, factor, isChecked) {
@@ -149,6 +227,12 @@ function showMorningCompareBanner() {
 function sendEveningData() {
   // 1. チェックされている項目をすべて取得
   const selectedFactors = Array.from(document.querySelectorAll('#factorList input[type="checkbox"]:checked')).map(cb => cb.value);
+
+  // プルダウンの選択値を取得
+  const socialVal = document.getElementById("select_social")?.value;
+  const locationVal = document.getElementById("select_location")?.value;
+  if (socialVal) selectedFactors.push(socialVal);
+  if (locationVal) selectedFactors.push(locationVal);
 
   // 2. 自由入力のテキストボックスがあれば、その中身も取得して追加
   const customText = document.getElementById("custom_out_text")?.value;

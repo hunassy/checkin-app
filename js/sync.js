@@ -6,31 +6,29 @@
   const gasUrl = APP_CONFIG.GAS_URL;
 
   // 設定をGASから取得してlocalStorageに反映
-  fetch(gasUrl + "?action=getSettings" )
-    .then(res => res.json())
-    .then(data => {
+  fetch(gasUrl + "?action=getSettings&t=" + Date.now(), {
+  cache: "no-store"
+})
+  .then(res => res.text())
+  .then(text => {
+    try {
+      const data = JSON.parse(text);
+
       if (data.status !== "ok" || !data.settings) return;
       const s = data.settings;
 
-      // zipcode
       if (s.zipcode) localStorage.setItem("zipcode", s.zipcode);
-
-      // goodSigns（JSON文字列として保存されている）
       if (s.goodSigns) localStorage.setItem("goodSigns", s.goodSigns);
-
-      // badSigns
       if (s.badSigns) localStorage.setItem("badSigns", s.badSigns);
-
-      // sleepTypes
       if (s.sleepTypes) localStorage.setItem("sleepTypes", s.sleepTypes);
-
-      // sleepSymbols
       if (s.sleepSymbols) localStorage.setItem("sleepSymbols", s.sleepSymbols);
 
       console.log("設定をサーバーから同期しました。");
-    })
-    .catch(err => {
-      // 同期失敗はサイレントに無視（localStorageの値をそのまま使う）
-      console.warn("設定の同期に失敗しました:", err);
-    });
+    } catch (e) {
+      console.warn("JSONじゃないレスポンス:", text);
+    }
+  })
+  .catch(err => {
+    console.warn("設定の同期に失敗しました:", err);
+  });
 })();

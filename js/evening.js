@@ -313,6 +313,7 @@ function sendEveningData() {
     .then(res => res.json())
     .then(result => {
       alert("記録を保存しました！"); // 成功がわかるように追加
+      console.log("送信データ:", data);
       console.log("GAS送信完了:", result);
 
       // 朝ページへ移動

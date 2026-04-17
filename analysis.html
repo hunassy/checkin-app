@@ -1,41 +1,37 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>体調分析 - コンディションノート</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="analysis.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>体調分析 - コンディションノート</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/analysis.css">
 </head>
 <body>
+  <header class="header"><h1>体調分析</h1></header>
+  <main id="mainContent">
+    <div class="loading-msg">データを読み込んでいます...</div>
+  </main>
 
-    <header class="header">
-        <h1>体調分析</h1>
-    </header>
+<!-- ボトムナビゲーション -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item">
+    <span class="nav-icon">📝</span>
+    <span class="nav-label">記録</span>
+  </a>
+  <a href="analysis.html" class="nav-item">
+    <span class="nav-icon">📈</span>
+    <span class="nav-label">分析</span>
+    <span class="nav-dot"></span>
+  </a>
+  <a href="settings.html" class="nav-item active">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">設定</span>
+  </a>
+</nav>
 
-    <main id="mainContent">
-        <div class="loading-msg">データを読み込んでいます...</div>
-    </main>
-
-    <nav class="bottom-nav">
-        <a href="index.html" class="nav-item">
-            <span class="nav-icon">☀️</span>
-            <span class="nav-text">朝の記録</span>
-        </a>
-        <a href="evening.html" class="nav-item">
-            <span class="nav-icon">🌙</span>
-            <span class="nav-text">夜の記録</span>
-        </a>
-        <a href="analysis.html" class="nav-item active">
-            <span class="nav-icon">📊</span>
-            <span class="nav-text">分析</span>
-        </a>
-        <a href="settings.html" class="nav-item">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-text">設定</span>
-        </a>
-    </nav>
-
-    <script src="analysis.js"></script>
+<script src="js/config.js"></script>
+<script type="module" src="js/analysis.js"></script>
 </body>
 </html>

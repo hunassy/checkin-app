@@ -2,7 +2,7 @@
 // analysis.js 分析画面(analysis.html)のロジック
 // ============================================
 
-import { messages,getMindBodySummaryMessage } from "./js/messages.js";
+import { messages,getMindBodySummaryMessage } from "./messages.js";
 
 const GAS_URL_KEY = "gasUrl";
 const FIXED_GAS_URL = APP_CONFIG.GAS_URL;

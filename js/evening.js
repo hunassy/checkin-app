@@ -279,6 +279,8 @@ function sendEveningData() {
 
   // 4. 送信データの作成
   const data = {
+    recordType: "evening",
+
     date:            pageTargetDate,
     attendance:      document.getElementById("attendance") ? document.getElementById("attendance").value : "",
     weather:         wc.weather || "",
@@ -312,6 +314,9 @@ function sendEveningData() {
     .then(result => {
       alert("記録を保存しました！"); // 成功がわかるように追加
       console.log("GAS送信完了:", result);
+
+      // 朝ページへ移動
+      window.location.href = "index.html";
     })
     .catch(e => console.warn("GAS送信エラー:", e));
   }

@@ -28,7 +28,7 @@ window.onload = function() {
   initTimeSelects();
   fetchWeather();
 
-　// 昨日との比較ボタンのクリック処理
+  // 昨日との比較ボタンのクリック処理
   const compareBtns = document.querySelectorAll(".compare-btn");
   compareBtns.forEach(btn => {
     btn.addEventListener("click", function() {

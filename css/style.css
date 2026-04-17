@@ -17,11 +17,12 @@ html, body {
 .container {
   background: white;
   padding: 20px;
-  padding-bottom: 84px;
+  padding-bottom: 60px;
   border-radius: 10px;
   width: 95%;
-  max-width: 800px;
+  max-width: 500px;
   margin: 20px auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .section {

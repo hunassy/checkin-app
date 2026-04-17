@@ -285,9 +285,9 @@ function sendEveningData() {
     temp:            wc.temp || "",
     pressure:        wc.pressure || "",
     pressureWarning: wc.pressureWarning || "",
-    condition:       getScore("condition"),
-    energy:          getScore("energy"),
-    mental:          getScore("mental"),
+    condition:       getScore("condition")??"",
+    energy:          getScore("energy")??"",
+    mental:          getScore("mental")??"",
     factors:         selectedFactors, // ここにまとめたリストを渡す
     comment:         document.getElementById("comment").value
   };

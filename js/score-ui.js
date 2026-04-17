@@ -97,3 +97,16 @@ function createBatteryIcon(percent) {
   wrapper.appendChild(text);
   return wrapper;
 }
+
+function getScore(type) {
+  const container = document.getElementById(type);
+  if (!container) return null;
+
+  const active = container.querySelector(".score-emoji-btn.active");
+  if (!active) return null;
+
+  return Number(active.dataset.value);
+}
+
+// 他ファイルから使えるようにする
+window.getScore = getScore;

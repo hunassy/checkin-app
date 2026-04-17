@@ -123,6 +123,12 @@ function renderAll() {
   renderWeatherDetail(records, eveningRecords);
   renderWeeklyEnergyChart(records, eveningRecords);
   renderMealEnergyAnalysis(eveningRecords)
+
+
+  const contentArea = document.querySelector('.content-container'); // 実際のクラス名に合わせてください
+   if (contentArea) {
+      contentArea.style.paddingBottom = '100px'; 
+    }
 }
 
 window.changePeriod = function(days) {

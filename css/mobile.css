@@ -200,4 +200,94 @@
   .battery-text {
     font-size: 7px;
   }
+
+  /* 食事回数セクションのレイアウト */
+  .meal-group {
+    margin-top: 14px;
+    padding: 10px 0;
+  }
+
+  .meal-label {
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px; /* ラベルを上に配置して隙間を作る */
+  }
+
+  .meal-options {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .meal-item {
+    flex: 1; /* 4つのボタンを均等幅にする */
+  }
+
+  .meal-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 0; /* 少し高さを出して押しやすく */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    background: white;
+    box-sizing: border-box;
+  }
+
+  /* 選択時の色は以前のものを流用、またはここに追加 */
+  input[name="meal_count"]:checked + .meal-btn {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+    font-weight: bold;
+  }
+
+  /* 食事回数セクションの最終調整 */
+  .meal-group {
+    margin-top: 10px;
+    clear: both;
+  }
+
+  .meal-label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .meal-options {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .meal-item {
+    flex: 1; /* これで4つのボタンが同じ幅になります */
+  }
+
+  .meal-btn {
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    box-sizing: border-box;
+    line-height: 1 !important; /* 抜きが2行にならないように */
+ }
+
+  /* 選択時の色 */
+  input[name="meal_count"]:checked + .meal-btn {
+    background: #e3f2fd !important;
+    border-color: #2196f3 !important;
+    color: #1976d2 !important;
+    font-weight: bold;
+  }
 }

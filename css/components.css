@@ -48,7 +48,7 @@
 .weather.error   { color: #d32f2f; }
 .weather.success { color: #388e3c; }
 
-/* ---- 通所/在宅・朝食 ---- */
+/* ---- 通所/在宅---- */
 .attendance-breakfast {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -365,7 +365,6 @@
   padding: 10px;
 }
 
-/*---影響要因の表示設定---*/
 .vertical-selector {   /* ステップ1・2の選択肢（ボタン）を縦並びにするスタイル */
   display: flex;
   flex-direction: column;
@@ -423,7 +422,9 @@
   font-size: 14px;
 }
 
-/* ---- 設定画面コンポーネント ---- */
+/* ============================================
+   設定画面コンポーネント
+   ============================================ */
 .zipcode-section {
   margin-bottom: 20px;
 }

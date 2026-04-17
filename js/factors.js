@@ -1,4 +1,7 @@
-// factors.js — 階層化された影響要因
+//  ============================================
+// ctors.js — 階層化された影響要因
+// ============================================
+
 const FACTOR_STEPS = {
   // ステップ1: 誰と過ごしたか（常に表示）
   social: [
@@ -13,14 +16,17 @@ const FACTOR_STEPS = {
   // ステップ3: 外出時のみ表示する詳細項目
   outDetails: [
     { id: "shopping", label: "買い物", category: "event" },
-    { id: "hospital", label: "通院", category: "event" }
+    { id: "hospital", label: "通院", category: "event" },
+    { id: "outdoor", label: "外食", category: "event" }
   ],
   // ★追加：外出・在宅に関わらず表示したい項目
   commonDetails: [
     { id: "eat", label: "食事", category: "body" },
-    { id: "housework", label: "家事", category: "body" },
+    { id: "dishes", label: "食器洗い", category: "body" },
+    { id: "laundry", label: "洗濯", category: "body" },
     { id: "housecleaning", label: "掃除", category: "body" },
-    { id: "bath", label: "入浴", category: "body" }
+    { id: "bath", label: "入浴", category: "body" },
+    { id: "nothing", label: "何もできなかった", category: "body" }
   ]
 };
 

@@ -53,150 +53,178 @@ function renderHierarchicalFactors() {
   const container = document.getElementById("factorList");
   if (!container) return;
 
- function updateView() {
-    // 現在の選択状態（チェックボックス分）を取得
+  function updateView() {
     const selectedIds = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-    
-    // 現在のプルダウンの選択値を取得（再描画時に値を保持するため）
     const socialValue = document.getElementById("select_social")?.value || "";
     const locationValue = document.getElementById("select_location")?.value || "";
     const customText = document.getElementById("custom_out_text")?.value || "";
 
     container.innerHTML = ""; 
 
-    // --- 1. プルダウンの作成 ---
+    // 1. プルダウン作成
     const createSelect = (id, label, options, currentValue) => {
       const wrapper = document.createElement("div");
       wrapper.style.marginBottom = "15px";
-      wrapper.style.width = "100%"; // 親の幅いっぱいに広げる
-      
       const p = document.createElement("p");
-      p.style = "font-size:14px; font-weight:bold; color:#333; margin-bottom:8px;"; // ラベルを少し太く見やすく
+      p.style = "font-size:14px; font-weight:bold; margin-bottom:8px;";
       p.textContent = label;
-      
       const select = document.createElement("select");
       select.id = id;
-      // スタイルを強化：幅100%、高さをしっかり確保、背景色など
-      select.style = `
-        width: 100%; 
-        padding: 12px; 
-        border: 1px solid #ccc; 
-        border-radius: 8px; 
-        background-color: #fff; 
-        font-size: 16px;
-        display: block;
-        appearance: none; /* ブラウザ標準の矢印をリセット（任意） */
-        -webkit-appearance: none;
-        background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 16px;
-      `;
+      select.style = "width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; font-size:16px;";
       select.onchange = updateView;
 
       const defOpt = document.createElement("option");
-      defOpt.value = "";
-      defOpt.textContent = "選択してください";
+      defOpt.value = ""; defOpt.textContent = "選択してください";
       select.appendChild(defOpt);
 
       options.forEach(opt => {
         const o = document.createElement("option");
-        o.value = opt.id;
-        o.textContent = opt.label;
+        o.value = opt.id; o.textContent = opt.label;
         if (opt.id === currentValue) o.selected = true;
         select.appendChild(o);
       });
-
-      wrapper.appendChild(p);
-      wrapper.appendChild(select);
+      wrapper.appendChild(p); wrapper.appendChild(select);
       container.appendChild(wrapper);
     };
 
-    // 「誰と」プルダウン
     createSelect("select_social", "どのように過ごしましたか？", FACTOR_STEPS.social, socialValue);
-    
-    // 「場所」プルダウン
     createSelect("select_location", "外出しましたか？", FACTOR_STEPS.location, locationValue);
 
-    // --- 2. 詳細エリア（場所が選ばれたら表示） ---
-// ... (場所が選ばれた後の詳細表示エリア)
-  if (locationValue === "out" || locationValue === "home") {
-    const detailSection = document.createElement("div");
-    detailSection.style = "margin-top:10px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #eee;";
+    // 2. 詳細エリア
+    if (locationValue === "out" || locationValue === "home") {
+      const detailSection = document.createElement("div");
+      detailSection.id = "factorsSection";
+      detailSection.style = "margin-top:10px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #eee;";
 
-    // --- 外出時詳細（買い物・通院など）を2列にする ---
-   if (locationValue === "out") {
-     const outGrid = document.createElement("div");
-     outGrid.className = "detail-grid"; // CSSで定義した2列設定を適用
+      if (locationValue === "out") {
+        const outGrid = document.createElement("div");
+        outGrid.className = "detail-grid";
+        FACTOR_STEPS.outDetails.forEach(f => createFactorTag(outGrid, f, selectedIds.includes(f.id)));
+        detailSection.appendChild(outGrid);
+
+        // --- ここで自由記述ボックスを復活 ---
+        const customInputDiv = document.createElement("div");
+        customInputDiv.style.marginTop = "15px";
+        customInputDiv.innerHTML = `
+          <p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容</p>
+          <input type="text" id="custom_out_text" value="${customText}" placeholder="例：カフェ" 
+                 style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">
+        `;
+        detailSection.appendChild(customInputDiv);
+      }
+
+      // 共通項目
+      const commonTitle = document.createElement("p");
+      commonTitle.style = "font-size:12px; color:#666; margin:15px 0 8px;";
+      commonTitle.textContent = "共通の項目";
+      detailSection.appendChild(commonTitle);
+
+      const commonGrid = document.createElement("div");
+      commonGrid.className = "detail-grid";
+      FACTOR_STEPS.commonDetails.forEach(f => createFactorTag(commonGrid, f, selectedIds.includes(f.id)));
+      detailSection.appendChild(commonGrid);
+
+      container.appendChild(detailSection);
     
-     FACTOR_STEPS.outDetails.forEach(factor => {
-       createFactorTag(outGrid, factor, selectedIds.includes(factor.id));
-     });
-     detailSection.appendChild(outGrid);
-    
-     // 自由記述（これは1列でOK）
-     const customInputDiv = document.createElement("div");
-     customInputDiv.style.marginTop = "10px";
-     customInputDiv.innerHTML = `<p style="font-size:12px; color:#666; margin-bottom:4px;">その他の外出内容</p><input type="text" id="custom_out_text" value="${customText}" placeholder="例：カフェ" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">`;
-     detailSection.appendChild(customInputDiv);
-   }
-
-  // --- 共通項目（よく食べられた等）を2列にする ---
-  const commonTitle = document.createElement("p");
-  commonTitle.style = "font-size:12px; color:#666; margin:15px 0 8px;";
-  commonTitle.textContent = "共通の項目";
-  detailSection.appendChild(commonTitle);
-
-  const commonGrid = document.createElement("div");
-  commonGrid.className = "detail-grid"; // ここも2列設定を適用
-  
-  FACTOR_STEPS.commonDetails.forEach(factor => {
-    createFactorTag(commonGrid, factor, selectedIds.includes(factor.id));
-  });
-  detailSection.appendChild(commonGrid);
-
-  container.appendChild(detailSection);
-  }
-}
-
-  // 縦並び専用のタグ作成関数
-  function createVerticalTag(parent, factor, isChecked) {
-    const label = document.createElement("label");
-    label.className = "factor-item";
-    
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = factor.id;
-    cb.checked = isChecked;
-    cb.onchange = updateView;
-
-    const span = document.createElement("span");
-    span.textContent = factor.label;
-
-    label.appendChild(cb);
-    label.appendChild(span);
-    parent.appendChild(label);
+      renderMealSelector();
+    }else {
+      // 場所が選ばれていない時は、食事ボタンがあれば消す
+      const old = document.getElementById("mealContainerBox");
+      if (old) old.remove();
+    }
   }
 
-  function createFactorTag(parent, factor, isChecked) {
+  function createFactorTag(parent, f, isChecked) {
     const label = document.createElement("label");
     label.className = "factor-item";
     if (typeof FACTOR_CATEGORY_COLOR !== "undefined") {
-        label.style.background = FACTOR_CATEGORY_COLOR[factor.category] || "#eee";
+      label.style.background = FACTOR_CATEGORY_COLOR[f.category] || "#eee";
     }
-
     const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = factor.id;
-    cb.checked = isChecked;
-    cb.onchange = updateView; // チェックを切り替えたら updateView だけを呼ぶ
-
+    cb.type = "checkbox"; cb.value = f.id; cb.checked = isChecked;
+    cb.onchange = updateView;
     label.appendChild(cb);
-    label.appendChild(document.createTextNode(" " + factor.label));
+    label.appendChild(document.createTextNode(" " + f.label));
     parent.appendChild(label);
   }
 
-  updateView(); // 最初の表示
+ // --- 食事セレクター（クリック判定を強化した修正版） ---
+  function renderMealSelector() {
+    const old = document.getElementById("mealContainerBox");
+    if (old) old.remove();
+
+    const mealContainer = document.createElement("div");
+    mealContainer.id = "mealContainerBox";
+    
+    // スタイル：干渉を防ぐ設定
+    mealContainer.style.clear = "both"; 
+    mealContainer.style.display = "block";
+    mealContainer.style.width = "100%";
+    mealContainer.style.marginTop = "20px";
+    mealContainer.style.position = "relative";
+    mealContainer.style.zIndex = "1000"; 
+    
+    mealContainer.innerHTML = `
+      <label style="display:block; font-size:14px; font-weight:bold; margin-bottom:12px; color:#333;">🍴 食事回数</label>
+      <div id="mealBtnGroup" style="display: flex; gap: 8px; width: 100%; max-width: 400px; box-sizing: border-box;">
+        ${[0, 1, 2, 3].map(n => `
+          <div style="flex: 1;">
+            <input type="radio" name="meal_count" id="meal_radio_${n}" value="meal_${n}" ${n === 3 ? "checked" : ""} style="display:none;">
+            <label for="meal_radio_${n}" class="meal-btn" data-val="${n}" style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              height: 45px;
+              border: 1px solid #ddd;
+              border-radius: 8px;
+              text-align: center;
+              font-size: 14px;
+              background: white;
+              cursor: pointer;
+              box-sizing: border-box;
+              white-space: nowrap;
+              transition: all 0.2s;
+            ">${n === 0 ? "抜き" : n + "食"}</label>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    // 白いボックス（factorsSection）の末尾に追加
+    const factorsSection = document.getElementById("factorsSection");
+    if (factorsSection) {
+      factorsSection.appendChild(mealContainer);
+
+      // --- 重要：クリックイベントをJavaScriptで直接制御する ---
+      const buttons = mealContainer.querySelectorAll('.meal-btn');
+      buttons.forEach(btn => {
+        // PC版のクリック判定漏れを防ぐために明示的にイベントを追加
+        btn.onclick = function(e) {
+           // すべてのボタンの色をリセット
+           buttons.forEach(b => {
+              b.style.background = "white";
+              b.style.borderColor = "#ddd";
+              b.style.color = "#333";
+            });
+            // クリックされたボタンを青くする
+            this.style.background = "#e3f2fd";
+            this.style.borderColor = "#2196f3";
+            this.style.color = "#1976d2";
+                
+            // 対応する隠しラジオボタンをチェック状態にする
+            const radioId = this.getAttribute('for');
+            const radio = document.getElementById(radioId);
+            if (radio) radio.checked = true;
+          };
+      });
+
+      // 初期状態で「3食」を青くしておく
+      const defaultBtn = mealContainer.querySelector('[for="meal_radio_3"]');
+      if (defaultBtn) defaultBtn.click();
+    }
+  }
+  updateView();
 }
 
 function showMorningCompareBanner() {
@@ -238,6 +266,12 @@ function sendEveningData() {
   const customTextEl = document.getElementById("custom_out_text");
   if (customTextEl && customTextEl.value.trim() !== "") {
     selectedFactors.push("自由入力:" + customTextEl.value);
+  }
+
+  // ★食事回数のラジオボタンの値も取得して追加
+  const selectedMeal = document.querySelector('input[name="meal_count"]:checked');
+   if (selectedMeal) {
+    selectedFactors.push(selectedMeal.value); // "meal_3" などが配列に入る
   }
 
   // 3. 天気情報の取得（既存のロジック）

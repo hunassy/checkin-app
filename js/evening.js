@@ -40,7 +40,10 @@ window.onload = function() {
     el.textContent = "本日の日付：" + targetDateObj.toLocaleDateString('ja-JP', options);
   }
 
-  if (typeof fetchWeather === "function") fetchWeather();
+  if (typeof fetchWeather === "function"){
+    console.log("夜：天気取得開始");
+    fetchWeather();
+  } 
   createScoreButtons();
   showMorningCompareBanner();
 
@@ -283,10 +286,10 @@ function sendEveningData() {
 
     date:            pageTargetDate,
     attendance:      document.getElementById("attendance") ? document.getElementById("attendance").value : "",
-    weather:         wc.weather || "",
-    temp:            wc.temp || "",
-    pressure:        wc.pressure || "",
-    pressureWarning: wc.pressureWarning || "",
+    weather:         weatherCache.weather || wc.weather || "",
+    temp:            weatherCache.temp || wc.temp || "",
+    pressure:        weatherCache.pressure || wc.pressure || "",
+    pressureWarning: weatherCache.pressureWarning || wc.pressureWarning || "",
     condition:       getScore("condition")??"",
     energy:          getScore("energy")??"",
     mental:          getScore("mental")??"",

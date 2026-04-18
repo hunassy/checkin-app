@@ -52,11 +52,11 @@ async function fetchWeather() {
     weatherCache.pressure        = weatherData.pressure;
     weatherCache.pressureWarning = pressureWarningText;
 
-    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-    
+
     localStorage.setItem(
-      "weather_" + today, JSON.stringify(weatherCache)
+      "weather_cache_" + today, JSON.stringify(weatherCache)
     );
   } catch (e) {
     console.warn("天気取得失敗:", e);

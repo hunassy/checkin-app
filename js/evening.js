@@ -4,52 +4,6 @@
 
 let pageTargetDate = "";
 
-async function getTargetDateFromServer() {
-  try {
-    const res = await fetch(APP_CONFIG.GAS_URL + "?action=getLastMorningDate");
-    const json = await res.json();
-
-    const lastDate = json.lastDate;
-
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    if (!lastDate) {
-      return formatDate(today);
-    }
-
-    const last = new Date(lastDate);
-    last.setHours(0,0,0,0);
-
-    const next = new Date(last);
-    next.setDate(last.getDate() + 1);
-    next.setHours(0,0,0,0);
-
-    console.log("lastDate:", lastDate);
-    console.log("next:", next);
-    console.log("today:", today);
-
-    if (next > today) {
-      return formatDate(today);
-    }
-
-    return formatDate(next);
-
-  } catch (e) {
-    console.warn("日付取得失敗:", e);
-    return getTodayKey();
-  }
-}
-
-function formatDate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-
-function getTodayKey() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-}
-
 function getTargetDateFromURL() {
   const params = new URLSearchParams(window.location.search);
   const dateParam = params.get("date");
@@ -59,22 +13,25 @@ function getTargetDateFromURL() {
   return null;
 }
 
-window.onload = async function() {
+window.onload = function() {
 
-  // ② URL優先
+  // ① URL優先
   pageTargetDate = getTargetDateFromURL();
 
-  // ② なければ論理日付（record-routerと統一）
+  // ② URLがなければ論理日付を使う
   if (!pageTargetDate) {
     pageTargetDate = getLogicalDate();
   }
 
   window.targetDate = pageTargetDate;
 
-  // ③ ここで必ずチェック（外に出す）
-  console.log("pageTargetDate:", pageTargetDate);
+  //console.log("pageTargetDate:", pageTargetDate);
 
-  // 日付チェック
+  if (!pageTargetDate) {
+    alert("日付取得に失敗してます");
+    return;
+  }
+
   const dateParts = pageTargetDate.split("-");
 
   if (dateParts.length !== 3) {
@@ -82,7 +39,6 @@ window.onload = async function() {
     return;
   }
 
-  // 表示用のDateオブジェクトを作成
   const targetDateObj = new Date(
     parseInt(dateParts[0]),
     parseInt(dateParts[1]) - 1,
@@ -108,16 +64,14 @@ window.onload = async function() {
     el.textContent = "本日の日付：" + targetDateObj.toLocaleDateString('ja-JP', options);
   }
 
-  if (typeof fetchWeather === "function"){
-    console.log("夜：天気取得開始");
-    // 天気
+  if (typeof fetchWeather === "function") {
+    //console.log("夜：天気取得開始");
     fetchWeather();
-  } 
+  }
 
-  // UIの初期化は関数にまとめてスッキリさせる
   createScoreButtons();
   showMorningCompareBanner();
-  renderHierarchicalFactors(); 
+  renderHierarchicalFactors();
 };
 
 // 関数を window.onload の外に出しておくと、コードがスッキリして管理しやすくなります
@@ -384,13 +338,13 @@ function sendEveningData() {
     })
     .then(res => res.json())
     .then(result => {
-      alert("記録を保存しました！"); // 成功がわかるように追加
       console.log("送信データ:", data);
       console.log("GAS送信完了:", result);
-
-      // 朝ページへ移動
-      window.location.href = "index.html";
     })
     .catch(e => console.warn("GAS送信エラー:", e));
   }
+
+  alert("夜の記録を保存しました！"); // 成功がわかるように追加
+  // 朝ページへ移動
+  window.location.href = "index.html";
 }

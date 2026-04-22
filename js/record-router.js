@@ -50,20 +50,20 @@ function decideNavigation(currentPage, statusSet) {
   if (currentPage === "index.html") {
 
     if (isGrace) {
-      // 🌙 深夜帯は論理日付の夜を優先
-      if (!logicalStatus.eveningDone) {
+      // 深夜帯は論理日付の朝が済んでいて、夜が未完なら夜へ
+      if (logicalStatus.morningDone && !logicalStatus.eveningDone) {
         return { page: "evening.html", date: "logical" };
       }
       return null;
     }
 
-    // 🌙 昨日の夜が未完なら優先
-    if (!yesterdayStatus.eveningDone) {
+    // 昨日の夜が未完なら優先
+    if (yesterdayStatus.morningDone && !yesterdayStatus.eveningDone) {
       return { page: "evening.html", date: "yesterday" };
     }
 
-    // 🌙 今日の夜が未完なら
-    if (!todayStatus.eveningDone) {
+    // 今日の朝が済んでいて、夜が未完なら夜へ
+    if (todayStatus.morningDone && !todayStatus.eveningDone) {
       return { page: "evening.html", date: "today" };
     }
 
@@ -72,13 +72,11 @@ function decideNavigation(currentPage, statusSet) {
 
   // ===== evening.html =====
   if (currentPage === "evening.html") {
-
     const urlParams = new URLSearchParams(window.location.search);
     const urlDate = urlParams.get("date");
 
     let status;
 
-    // 🔴 URLに日付がある場合 → その日付を優先
     if (urlDate) {
       if (urlDate === yesterdayStatus.dateKey) {
         status = yesterdayStatus;
@@ -88,13 +86,11 @@ function decideNavigation(currentPage, statusSet) {
         status = todayStatus;
       }
     } else {
-      // 🔴 URLなし → 時間帯で判断
       status = isGrace ? logicalStatus : todayStatus;
     }
 
-    console.log("evening判定:", status);
+    //console.log("evening判定:", status);
 
-    // 🔴 夜完了 → 朝へ戻す
     if (status.eveningDone) {
       return { page: "index.html" };
     }
@@ -102,7 +98,7 @@ function decideNavigation(currentPage, statusSet) {
     return null;
   }
 
- return null;
+  return null;
 }
 
 // 遷移実行
@@ -121,7 +117,7 @@ function executeNavigation(decision, dates) {
 
   if (current === decision.page) return;
 
-  console.log("遷移:", target);
+  //console.log("遷移:", target);
   window.location.href = target;
 }
 
@@ -194,6 +190,7 @@ async function fetchRecordStatus(dateKey) {
 // ボトムナビの「記録」タブをタップしたときの処理
 // ============================================
 async function navigateToRecord() {
+  const logicalDate = getLogicalDate();
   const status = await fetchRecordStatus(logicalDate);
   const { morningDone, eveningDone } = status;
 
@@ -234,6 +231,33 @@ document.addEventListener("DOMContentLoaded", async function() {
     fetchRecordStatus(yesterdayKey)
   ]);
 
+  // evening.html を直接開いた場合のガード
+  if (currentPage === "evening.html") {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlDate = urlParams.get("date");
+
+    let status;
+
+    if (urlDate) {
+      if (urlDate === yesterdayStatus.dateKey) {
+        status = yesterdayStatus;
+      } else if (urlDate === logicalStatus.dateKey) {
+        status = logicalStatus;
+      } else {
+        status = todayStatus;
+      }
+    } else {
+      status = isGracePeriod() ? logicalStatus : todayStatus;
+    }
+
+    // 朝未入力ならアラートを出して朝へ戻す
+    if (!status.morningDone) {
+      alert("朝の記録がまだです。先に朝の記録を入力してください。");
+      window.location.href = "index.html" + (urlDate ? "?date=" + urlDate : "");
+      return;
+    }
+  }
+
   const decision = decideNavigation(currentPage, {
     isGrace: isGracePeriod(),
     todayStatus,
@@ -247,89 +271,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     yesterday: yesterdayKey
   });
 });
-
-// ============================================
-// バナー表示関数
-// ============================================
-
-function showYesterdayEveningBanner(dateKey) {
-  const banner = createBanner(
-    "🌙 " + dateKey + " の夜の振り返りが未完了です",
-    "タップして振り返りを記録しましょう。",
-    "#fff8e1",
-    "#f57f17"
-  );
-  banner.style.cursor = "pointer";
-  banner.onclick = () => {
-    window.location.href = "evening.html?date=" + dateKey;
-  };
-
-  const container = document.querySelector(".container");
-  if (container) {
-    const dateSection = document.getElementById("dateSection");
-    if (dateSection && dateSection.nextSibling) {
-      container.insertBefore(banner, dateSection.nextSibling);
-    } else {
-      container.insertBefore(banner, container.firstChild);
-    }
-  }
-}
-
-function showEveningPromptBanner() {
-  const banner = createBanner(
-    "🌙 夜の振り返りへ",
-    "朝の記録は完了しています。夜の振り返りを入力しましょう。",
-    "#e8f5e9",
-    "#2e7d32"
-  );
-  banner.style.cursor = "pointer";
-  banner.onclick = () => { window.location.href = "evening.html"; };
-
-  const container = document.querySelector(".container");
-  if (container) {
-    const dateSection = document.getElementById("dateSection");
-    if (dateSection && dateSection.nextSibling) {
-      container.insertBefore(banner, dateSection.nextSibling);
-    } else {
-      container.insertBefore(banner, container.firstChild);
-    }
-  }
-}
-
-function showAllDoneBanner() {
-  const banner = createBanner(
-    "✅ 今日の記録は完了しています",
-    "朝・夜ともに記録済みです。お疲れさまでした！",
-    "#e3f2fd",
-    "#1565c0"
-  );
-
-  const container = document.querySelector(".container");
-  if (container) {
-    const dateSection = document.getElementById("dateSection");
-    if (dateSection && dateSection.nextSibling) {
-      container.insertBefore(banner, dateSection.nextSibling);
-    } else {
-      container.insertBefore(banner, container.firstChild);
-    }
-  }
-}
-
-function createBanner(title, message, bgColor, textColor) {
-  const banner = document.createElement("div");
-  banner.style.cssText = `
-    background: ${bgColor};
-    border: 1px solid ${textColor}44;
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin: 12px 0;
-    font-size: 14px;
-    color: ${textColor};
-  `;
-  banner.innerHTML = `<strong>${title}</strong>  
-${message}`;
-  return banner;
-}
 
 // ============================================
 // 定期的に記録状態をチェックし、自動遷移する（30秒ごと）

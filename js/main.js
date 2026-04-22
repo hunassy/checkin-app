@@ -19,17 +19,17 @@ let weatherCache = {
 // ============================================
 // ページ読み込み時の初期化
 // ============================================
-window.onload = async function() {
+window.onload = function() {
   const urlDate = new URLSearchParams(window.location.search).get("date");
 
   let targetDate;
 
   if (urlDate) {
     targetDate = urlDate;
-    console.log("URL日付を使用:", targetDate);
+    //console.log("URL日付を使用:", targetDate);
   } else {
     targetDate = getLogicalDate();
-    console.log("サーバー日付を使用:", targetDate);
+    //console.log("論理日付を使用:", targetDate);
   }
 
   window.targetDate = targetDate;
@@ -58,7 +58,7 @@ window.onload = async function() {
 // 日付表示
 // ============================================
 function displayCurrentDate(targetDate) {
-  console.log("displayCurrentDate受け取り:", targetDate);
+  //console.log("displayCurrentDate受け取り:", targetDate);
   if (!targetDate) {
     console.warn("targetDateが不正:", targetDate);
     return;
@@ -299,51 +299,6 @@ async function fetchWeather() {
   } catch (e) {
     console.warn("天気取得失敗:", e);
   }
-}
-
-// ============================================
-// 今日の日付キーを取得
-// ============================================
-function getTodayKey() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-}
-
-async function getTargetDateFromServer() {
-  try {
-    const res = await fetch(APP_CONFIG.GAS_URL + "?action=getLastMorningDate");
-    const json = await res.json();
-
-    const lastDate = json.lastDate;
-
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    if (!lastDate) {
-      return formatDate(today);
-    }
-
-    const last = new Date(lastDate);
-    last.setHours(0,0,0,0);
-
-    const next = new Date(last);
-    next.setDate(last.getDate() + 1);
-    next.setHours(0,0,0,0);
-
-    if (next > today) {
-      return formatDate(today);
-    }
-
-    return formatDate(next);
-
-  } catch (e) {
-    console.warn("日付取得失敗:", e);
-    return formatDate(new Date()); // ←これ重要
-  }
-}
-
-function formatDate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
 // ============================================

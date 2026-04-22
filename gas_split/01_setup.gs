@@ -83,7 +83,6 @@ function setupMorningHeaders() {
     "睡眠タイプ",
     "就寝時刻", "起床時刻", "途中起床(分)", "総睡眠時間",
     "Goodサイン", "Badサイン",
-    "コメント"
   ];
 
   var headerRange = sheet.getRange(1, 1, 1, headers.length);

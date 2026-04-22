@@ -4,6 +4,52 @@
 
 let pageTargetDate = "";
 
+async function getTargetDateFromServer() {
+  try {
+    const res = await fetch(APP_CONFIG.GAS_URL + "?action=getLastMorningDate");
+    const json = await res.json();
+
+    const lastDate = json.lastDate;
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    if (!lastDate) {
+      return formatDate(today);
+    }
+
+    const last = new Date(lastDate);
+    last.setHours(0,0,0,0);
+
+    const next = new Date(last);
+    next.setDate(last.getDate() + 1);
+    next.setHours(0,0,0,0);
+
+    console.log("lastDate:", lastDate);
+    console.log("next:", next);
+    console.log("today:", today);
+
+    if (next > today) {
+      return formatDate(today);
+    }
+
+    return formatDate(next);
+
+  } catch (e) {
+    console.warn("日付取得失敗:", e);
+    return getTodayKey();
+  }
+}
+
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function getTodayKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+}
+
 function getTargetDateFromURL() {
   const params = new URLSearchParams(window.location.search);
   const dateParam = params.get("date");
@@ -13,19 +59,41 @@ function getTargetDateFromURL() {
   return null;
 }
 
-window.onload = function() {
+window.onload = async function() {
+
+  // ② URL優先
   pageTargetDate = getTargetDateFromURL();
+
+  // ② なければ論理日付（record-routerと統一）
   if (!pageTargetDate) {
-    if (typeof getLogicalDate === "function") {
-      pageTargetDate = getLogicalDate();
-    } else {
-      const now = new Date();
-      pageTargetDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-    }
+    pageTargetDate = getLogicalDate();
   }
 
+  window.targetDate = pageTargetDate;
+
+  // ③ ここで必ずチェック（外に出す）
+  console.log("pageTargetDate:", pageTargetDate);
+
+  // 日付チェック
   const dateParts = pageTargetDate.split("-");
-  const targetDateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+
+  if (dateParts.length !== 3) {
+    console.error("日付形式がおかしい:", pageTargetDate);
+    return;
+  }
+
+  // 表示用のDateオブジェクトを作成
+  const targetDateObj = new Date(
+    parseInt(dateParts[0]),
+    parseInt(dateParts[1]) - 1,
+    parseInt(dateParts[2])
+  );
+
+  if (isNaN(targetDateObj)) {
+    console.error("Invalid Date:", pageTargetDate);
+    return;
+  }
+
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
   const el = document.getElementById("dateSection");
 
@@ -42,12 +110,13 @@ window.onload = function() {
 
   if (typeof fetchWeather === "function"){
     console.log("夜：天気取得開始");
+    // 天気
     fetchWeather();
   } 
+
+  // UIの初期化は関数にまとめてスッキリさせる
   createScoreButtons();
   showMorningCompareBanner();
-
-  // --- 影響要因の階層表示ロジック ---
   renderHierarchicalFactors(); 
 };
 

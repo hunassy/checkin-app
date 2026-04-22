@@ -7,7 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <title>体調分析 - コンディションノート</title>
-<script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773887777401&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2Fusers%2F310519663424801523%2Fuploads%2FVdDyxDvfPTeLnhndwaClXZ_na1fn_YW5hbHlzaXM.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vdXNlcnMvMzEwNTE5NjYzNDI0ODAxNTIzL3VwbG9hZHMvVmREeXhEdmZQVGVMbmhuZHdhQ2xYWl9uYTFmbl9ZVzVoYkhsemFYTS5odG1sIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DdqAX6R4IWLhQR3jpim~3eH4qHwjTHtAaPmjOsBC5s5Y3hHHn2KoYkZfA~Zez8YO~Z5bRSURIjzNGj3e02XymEta3K3m~AEWO5dDzmhCMgkwzDBkqkIdEGViiOZqt8plp~js~MPIq2zG0GJOz7V1yN3Kd1~5fPP1LK3gwHWkmyezDOyApUe~Pehj~CR-Pd64PmGo5nvGP5RSEb9OOzocm6K~gCTYVELnqxMNOsFfEIKO95hP6An1Z2iqtcDwK~lin2CrJ9sCb1cPh3zjgy9RVpadeoae32-T~XivDR2uZRxqPr2lBE8YR-xIxo2D0r5MMG0TANCT6ti0M7YBg3qX6cQ__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773887777401&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="stylesheet" href="css/style.css">
+<script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773887777401&amp;type=content-script&amp;dmn=private-us-east-1.manuscdn.com&amp;url=https%3A%2F%2Fprivate-us-east-1.manuscdn.com%2Fusers%2F310519663424801523%2Fuploads%2FVdDyxDvfPTeLnhndwaClXZ_na1fn_YW5hbHlzaXM.html%3FPolicy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vdXNlcnMvMzEwNTE5NjYzNDI0ODAxNTIzL3VwbG9hZHMvVmREeXhEdmZQVGVMbmhuZHdhQ2xYWl9uYTFmbl9ZVzVoYkhsemFYTS5odG1sIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_%26Key-Pair-Id%3DK2HSFNDJXOU9YS%26Signature%3DdqAX6R4IWLhQR3jpim~3eH4qHwjTHtAaPmjOsBC5s5Y3hHHn2KoYkZfA~Zez8YO~Z5bRSURIjzNGj3e02XymEta3K3m~AEWO5dDzmhCMgkwzDBkqkIdEGViiOZqt8plp~js~MPIq2zG0GJOz7V1yN3Kd1~5fPP1LK3gwHWkmyezDOyApUe~Pehj~CR-Pd64PmGo5nvGP5RSEb9OOzocm6K~gCTYVELnqxMNOsFfEIKO95hP6An1Z2iqtcDwK~lin2CrJ9sCb1cPh3zjgy9RVpadeoae32-T~XivDR2uZRxqPr2lBE8YR-xIxo2D0r5MMG0TANCT6ti0M7YBg3qX6cQ__&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script>
+<script type="text/javascript" nonce="706f48a703ec4b2696d7b1f2348" src="//local.adguard.org?ts=1773887777401&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script>
+<link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/mobile.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -193,17 +195,26 @@ window.onload = function() {
 
 // ---- データ取得 ----
 async function loadData() {
+  // console.log("🟡 loadData START");
+
   const gasUrl = FIXED_GAS_URL || localStorage.getItem(GAS_URL_KEY);
+  
+  // console.log("🟡 gasUrl:", gasUrl);
 
   if (!gasUrl) {
+    // console.log("🔴 GAS URLなし → フォーム表示");
     showUrlForm();
     return;
   }
 
   try {
     const url = gasUrl + "?action=getData";
+    // console.log("🟡 fetch URL:", url);
+    // console.log("🟡 fetch開始");
     const res = await fetch(url);
+    // console.log("🟢 fetch成功 status:", res.status);
     const json = await res.json();
+    // console.log("🟢 json取得:", json);
 
     if (json.error) {
       showError(json.error);
@@ -222,82 +233,93 @@ async function loadData() {
 
       renderAll();
   } catch(e) {
-    console.error("エラー内容:", e);
+    // console.error("🔴 loadDataエラー:", e);
+    // console.error("エラー内容:", e);
     showError("データの取得に失敗しました。<br>GAS URLが正しいか確認してください。<br><small>" + e.message + "</small>");
+  } finally {
+    // console.log("🟡 loadData END");
   }
 }
 
 // ---- 全セクションを描画 ----
 function renderAll() {
-  const records = filterByPeriod(allRecords, currentPeriod);
-  const eveningRecords = filterByPeriod(allEveningRecords, currentPeriod);
-  const mergedData = filterMergedByPeriod(allMergedByDate, currentPeriod);
+  //try {
+   //console.log("🟡 renderAll START");
+   const records = filterByPeriod(allRecords, currentPeriod);
+   const eveningRecords = filterByPeriod(allEveningRecords, currentPeriod);
+   const mergedData = filterMergedByPeriod(allMergedByDate, currentPeriod);
 
-  document.getElementById("mainContent").innerHTML = `
-    <!-- 期間タブ -->
-    <div class="period-tabs">
-      <div class="period-tab ${currentPeriod===7?'active':''}"  onclick="changePeriod(7)">7日間</div>
-      <div class="period-tab ${currentPeriod===30?'active':''}" onclick="changePeriod(30)">30日間</div>
-      <div class="period-tab ${currentPeriod===90?'active':''}" onclick="changePeriod(90)">90日間</div>
-    </div>
+   document.getElementById("mainContent").innerHTML = `
+     <!-- 期間タブ -->
+     <div class="period-tabs">
+       <div class="period-tab ${currentPeriod===7?'active':''}"  onclick="changePeriod(7)">7日間</div>
+       <div class="period-tab ${currentPeriod===30?'active':''}" onclick="changePeriod(30)">30日間</div>
+       <div class="period-tab ${currentPeriod===90?'active':''}" onclick="changePeriod(90)">90日間</div>
+     </div>
 
-    <!-- 平均スコア -->
-    <div class="analysis-section" id="sec-avg"></div>
+     <!-- 平均スコア -->
+     <div class="analysis-section" id="sec-avg"></div>
 
-    <!-- 推移グラフ -->
-    <div class="analysis-section" id="sec-chart"></div>
+     <!-- 推移グラフ -->
+     <div class="analysis-section" id="sec-chart"></div>
 
-    <!-- アラート -->
-    <div class="analysis-section" id="sec-alert"></div>
+     <!-- アラート -->
+     <div class="analysis-section" id="sec-alert"></div>
 
-    <!-- 気圧×体調 -->
-    <div class="analysis-section" id="sec-pressure"></div>
+     <!-- 気圧×体調 -->
+     <div class="analysis-section" id="sec-pressure"></div>
 
-    <!-- 睡眠×スコア -->
-    <div class="analysis-section" id="sec-sleep"></div>
+     <!-- 睡眠×スコア -->
+     <div class="analysis-section" id="sec-sleep"></div>
 
-    <!-- 曜日パターン -->
-    <div class="analysis-section" id="sec-dow"></div>
+     <!-- 曜日パターン -->
+     <div class="analysis-section" id="sec-dow"></div>
 
-    <!-- 環境×対人のマトリックス分析 -->
-    <div class="analysis-section" id="sec-attend"></div>
+     <!-- 環境×対人のマトリックス分析 -->
+     <div class="analysis-section" id="sec-attend"></div>
 
-    <!-- 食事回数 × 活力の相関 -->
-    <div class="analysis-section" id="sec-meal"></div>
+     <!-- 食事回数 × 活力の相関 -->
+     <div class="analysis-section" id="sec-meal"></div>
 
-    <!-- Good/Badサイン -->
-    <div class="analysis-section" id="sec-signs"></div>
+     <!-- Good/Badサイン -->
+     <div class="analysis-section" id="sec-signs"></div>
 
-    <!-- 低空飛行期間 -->
-    <div class="analysis-section" id="sec-lowflight"></div>
+     <!-- 低空飛行期間 -->
+     <div class="analysis-section" id="sec-lowflight"></div>
 
-    <!-- 週間エネルギーグラフ -->
-    <div class="analysis-section" id="sec-weekly-energy"></div>
+     <!-- 週間エネルギーグラフ -->
+     <div class="analysis-section" id="sec-weekly-energy"></div>
 
-    <!-- 体と心のズレ -->
-    <div class="analysis-section" id="sec-bodymind"></div>
+     <!-- 体と心のズレ -->
+     <div class="analysis-section" id="sec-bodymind"></div>
 
-    <!-- 良い日のパターン -->
-    <div class="analysis-section" id="sec-goodday"></div>
+     <!-- 良い日のパターン -->
+     <div class="analysis-section" id="sec-goodday"></div>
 
-    <!-- 気温・気圧分析 -->
-    <div class="analysis-section" id="sec-weather-detail"></div>
-  `;
+     <!-- 気温・気圧分析 -->
+     <div class="analysis-section" id="sec-weather-detail"></div>
+   `;
 
-  renderAvgScores(records);
-  renderTrendChart(records);
-  renderAlerts(records);
-  renderPressureCorrelation(records);
-  renderSleepCorrelation(records);
-  renderDayOfWeekPattern(records);
-  renderEnvironmentSocialAnalysis(eveningRecords);
-  renderMealEnergyAnalysis(eveningRecords);
-  renderSignPattern(records);
-  renderLowFlightPeriod(records, eveningRecords, mergedData);
-  renderBodyMindGap(records, eveningRecords, mergedData);
-  renderGoodDayPattern(records, eveningRecords, mergedData);
-  renderWeatherDetail(records, eveningRecords);
-  renderWeeklyEnergyChart(records, eveningRecords);
+   renderAvgScores(records);
+   renderTrendChart(records);
+   renderAlerts(records);
+   renderPressureCorrelation(records);
+   renderSleepCorrelation(records);
+   renderDayOfWeekPattern(records);
+   renderEnvironmentSocialAnalysis(eveningRecords);
+   renderMealEnergyAnalysis(eveningRecords);
+   renderSignPattern(records);
+   renderLowFlightPeriod(records, eveningRecords, mergedData);
+   renderBodyMindGap(records, eveningRecords, mergedData);
+   renderGoodDayPattern(records, eveningRecords, mergedData);
+   renderWeatherDetail(records, eveningRecords);
+   renderWeeklyEnergyChart(records, eveningRecords);
+
+   // console.log("🟢 renderAll END");
+
+  //} catch (e) {
+    //console.error("🔥 renderAll CRASH:", e);
+  //}
 }
 
 window.changePeriod = function(days) {

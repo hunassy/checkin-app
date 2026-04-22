@@ -19,14 +19,30 @@ let weatherCache = {
 // ============================================
 // ページ読み込み時の初期化
 // ============================================
-window.onload = function() {
-  displayCurrentDate();
+window.onload = async function() {
+  const urlDate = new URLSearchParams(window.location.search).get("date");
+
+  let targetDate;
+
+  if (urlDate) {
+    targetDate = urlDate;
+    console.log("URL日付を使用:", targetDate);
+  } else {
+    targetDate = getLogicalDate();
+    console.log("サーバー日付を使用:", targetDate);
+  }
+
+  window.targetDate = targetDate;
+   
+  displayCurrentDate(targetDate);
+
   loadSleepTypes();
   loadGoodSigns();
   loadBadSigns();
   createScoreButtons();
   initTimeSelects();
   fetchWeather();
+  loadMorningData(targetDate);
 
   // 昨日との比較ボタンのクリック処理
   const compareBtns = document.querySelectorAll(".compare-btn");
@@ -41,13 +57,49 @@ window.onload = function() {
 // ============================================
 // 日付表示
 // ============================================
-function displayCurrentDate() {
-  const now = new Date();
+function displayCurrentDate(targetDate) {
+  console.log("displayCurrentDate受け取り:", targetDate);
+  if (!targetDate) {
+    console.warn("targetDateが不正:", targetDate);
+    return;
+  }
+
+  const d = new Date(targetDate);
+
+  if (isNaN(d)) {
+    console.warn("Invalid Date:", targetDate);
+    return;
+  }
+
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+
   const el = document.getElementById("dateSection");
   if (el) {
-    el.textContent = "本日の日付：" + now.toLocaleDateString('ja-JP', options);
+    el.textContent = "記録対象日：" + d.toLocaleDateString('ja-JP', options);
   }
+}
+
+function loadMorningData(date) {
+  const saved = localStorage.getItem("morning_" + date);
+
+  if (!saved) return;
+
+  const data = JSON.parse(saved);
+
+  // 例：睡眠タイプ復元
+  if (data.sleepType) {
+    const btn = [...document.querySelectorAll(".sleep-type-btn")]
+      .find(b => b.dataset.value === data.sleepType);
+    if (btn) btn.classList.add("active");
+  }
+
+  // 例：コメント
+  const commentEl = document.getElementById("comment");
+  if (commentEl && data.comment) {
+    commentEl.value = data.comment;
+  }
+
+  // 必要に応じて他も復元できる
 }
 
 // ============================================
@@ -257,11 +309,48 @@ function getTodayKey() {
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
 }
 
+async function getTargetDateFromServer() {
+  try {
+    const res = await fetch(APP_CONFIG.GAS_URL + "?action=getLastMorningDate");
+    const json = await res.json();
+
+    const lastDate = json.lastDate;
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    if (!lastDate) {
+      return formatDate(today);
+    }
+
+    const last = new Date(lastDate);
+    last.setHours(0,0,0,0);
+
+    const next = new Date(last);
+    next.setDate(last.getDate() + 1);
+    next.setHours(0,0,0,0);
+
+    if (next > today) {
+      return formatDate(today);
+    }
+
+    return formatDate(next);
+
+  } catch (e) {
+    console.warn("日付取得失敗:", e);
+    return formatDate(new Date()); // ←これ重要
+  }
+}
+
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
 // ============================================
 // データ送信
 // ============================================
 function sendData() {
-  const today = getTodayKey();
+  const today = window.targetDate;
 
   // 睡眠タイプ
   const sleepTypeBtn = document.querySelector(".sleep-type-btn.active");
@@ -338,6 +427,5 @@ function sendData() {
     .catch(e => console.warn("GAS送信エラー:", e));
   }
 
-  alert("✅ 朝の記録を保存しました！\n続けて夜の振り返りを入力できます。");
-  window.location.href = "evening.html";
+  alert("✅ 朝の記録を保存しました！");
 }

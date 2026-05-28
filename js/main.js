@@ -128,6 +128,8 @@ function fillHourSelect(id, hours) {
 // ============================================
 // 睡眠時間の計算
 // ============================================
+
+// LOGIC: 計算だけ行い結果を返す
 function calcSleepTime() {
   const bh = parseInt(document.getElementById("bedtimeHour").value);
   const bm = parseInt(document.getElementById("bedtimeMinute").value) || 0;
@@ -136,14 +138,13 @@ function calcSleepTime() {
   const wakeupDur = parseInt(document.getElementById("wakeupDuration").value) || 0;
 
   if (isNaN(bh) || isNaN(wh)) {
-    document.getElementById("sleepResult").textContent = "総睡眠時間：（時刻を選択してください）";
+    updateSleepResultUI(null, null);
     return;
   }
 
   let bedMin  = bh * 60 + bm;
   let wakeMin = wh * 60 + wm;
 
-  // 就寝が深夜0時をまたぐ場合
   if (wakeMin <= bedMin) wakeMin += 24 * 60;
 
   let totalMin = wakeMin - bedMin - wakeupDur;
@@ -151,9 +152,23 @@ function calcSleepTime() {
 
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  document.getElementById("sleepResult").textContent =
-    `総睡眠時間：${h}時間${m}分`;
+
+  updateSleepResultUI(h, m);
 }
+
+// UI: DOM更新だけ担当
+function updateSleepResultUI(h, m) {
+  const el = document.getElementById("sleepResult");
+  if (!el) return;
+
+  if (h === null) {
+    el.textContent = "総睡眠時間：（時刻を選択してください）";
+    return;
+  }
+
+  el.textContent = `総睡眠時間：${h}時間${m}分`;
+}
+
 
 // ============================================
 // 睡眠タイプ

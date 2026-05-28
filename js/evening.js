@@ -74,6 +74,20 @@ window.onload = function() {
 // ② 各種関数（window.onload の外に出す）
 // --------------------------------------------
 
+function getFactorState() {
+  const dynamicArea = document.getElementById("dynamicArea");
+
+  const selectedIds = dynamicArea
+    ? Array.from(dynamicArea.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value)
+    : [];
+
+  return {
+    selectedIds,
+    socialValue:   document.getElementById("select_social")?.value   || "",
+    locationValue: document.getElementById("select_location")?.value || "",
+  };
+}
+
 // 関数を window.onload の外に出しておくと、コードがスッキリして管理しやすくなります
 function renderHierarchicalFactors() {
   const selectArea = document.getElementById("selectArea");

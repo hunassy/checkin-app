@@ -101,9 +101,9 @@ function decideNavigation(currentPage, statusSet) {
   return null;
 }
 
-// 遷移実行
-function executeNavigation(decision, dates) {
-  if (!decision) return;
+// LOGIC: 遷移先URLを解決して返すだけ
+function resolveNavigationTarget(decision, dates) {
+  if (!decision) return null;
 
   let target = decision.page;
 
@@ -114,10 +114,17 @@ function executeNavigation(decision, dates) {
   }
 
   const current = window.location.pathname.split("/").pop();
+  if (current === decision.page) return null;
 
-  if (current === decision.page) return;
+  return target;
+}
 
-  //console.log("遷移:", target);
+// UI: 実際に遷移する
+function executeNavigation(decision, dates) {
+  const target = resolveNavigationTarget(decision, dates);
+  if (!target) return;
+
+  console.log("navigation blocked:", target);
   window.location.href = target;
 }
 
@@ -205,13 +212,11 @@ async function navigateToRecord() {
   }
 }
 
+// UI: 完了メッセージを表示して遷移
 function showRecordCompleteMessage() {
   const msg = "✅ 今日の記録はすべて完了しています！\n\n朝の記録を修正する場合は「朝の記録」、\n夜の振り返りを修正する場合は「夜の振り返り」を選んでください。";
-  if (confirm(msg + "\n\n朝の記録を開きますか？（キャンセルで夜の振り返りを開きます）")) {
-    window.location.href = "index.html";
-  } else {
-    window.location.href = "evening.html";
-  }
+  const goMorning = confirm(msg + "\n\n朝の記録を開きますか？（キャンセルで夜の振り返りを開きます）");
+  window.location.href = goMorning ? "index.html" : "evening.html";
 }
 
 // ============================================

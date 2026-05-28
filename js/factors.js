@@ -30,12 +30,6 @@ const FACTOR_STEPS = {
   ]
 };
 
-const FACTOR_CATEGORY_COLOR = {  
-  social:   "#e3f2fd",
-  activity: "#e8f5e9",
-  event:    "#f3e5f5",
-  body:     "#fce4ec",
-};
 
 // 互換性のために空の関数を置いておきます（エラー防止）
 function renderFactorList(containerId) {

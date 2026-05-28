@@ -665,6 +665,19 @@
   user-select: none;
 }
 
+.factor-item.social   { 
+  background: #e3f2fd; 
+}
+.factor-item.activity { 
+  background: #e8f5e9; 
+}
+.factor-item.event    { 
+  background: #f3e5f5; 
+}
+.factor-item.body     { 
+  background: #fce4ec; 
+}
+
 .factor-item:hover {
   filter: brightness(0.95);
 }

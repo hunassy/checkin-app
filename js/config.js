@@ -3,6 +3,6 @@
 // ============================================
 
 const APP_CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbxGIYLe3G7Z74wWUVnzb1GGPOT-eVgaCJuIlbnoxbSyTtPI4cr_5z5RSH56XGpfXlzmIA/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbxM5COu7M6yy9__Y6UQzlCbX8tv4LAX0HHMBHYNbAM4X0wML581ywlkVNM-O1OsM9s/exec",
   WEATHER_API_KEY: "deddd1941a75455fe3e9c7206db41b10"
 };

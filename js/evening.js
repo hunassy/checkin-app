@@ -85,6 +85,7 @@ function getFactorState() {
     selectedIds,
     socialValue:   document.getElementById("select_social")?.value   || "",
     locationValue: document.getElementById("select_location")?.value || "",
+    customText:    document.getElementById("custom_out_text")?.value || "",
   };
 }
 
@@ -144,7 +145,6 @@ function renderSelectArea(selectArea) {
 }
 
 function renderFactorArea(dynamicArea, state) {
-  // 既存のfactorSectionだけ入れ替える
   const existing = document.getElementById("factorSection");
   if (existing) existing.remove();
 
@@ -155,27 +155,53 @@ function renderFactorArea(dynamicArea, state) {
   section.style.cssText =
     "margin-top:10px;padding:15px;background:#f9f9f9;border-radius:10px;border:1px solid #eee;";
 
-  const grid = document.createElement("div");
-  grid.className = "factor-list";
+  // 外出時のみ追加項目を表示
+  if (state.locationValue === "out") {
+    const outGrid = document.createElement("div");
+    outGrid.className = "factor-list";
+    FACTOR_STEPS.outDetails.forEach(f => {
+      outGrid.appendChild(createFactorLabel(f, state.selectedIds.includes(f.id)));
+    });
+    section.appendChild(outGrid);
 
+    // 自由記述
+    const customDiv = document.createElement("div");
+    customDiv.style.cssText = "margin-top:8px; width:100%;";
+    customDiv.innerHTML = `
+      <p style="font-size:12px;color:#666;margin-bottom:4px;">その他の外出内容</p>
+      <input type="text" id="custom_out_text" value="${state.customText || ""}"
+             placeholder="例：カフェ"
+             style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+    `;
+    section.appendChild(customDiv);
+  }
+
+  // 共通項目
+  const commonGrid = document.createElement("div");
+  commonGrid.className = "factor-list";
+  commonGrid.style.marginTop = "16px";
   FACTOR_STEPS.commonDetails.forEach(f => {
-    const label = document.createElement("label");
-    label.className = `factor-item ${f.category}`;
-    label.style.width = "calc(50% - 4px)";
-    label.style.boxSizing = "border-box";
-
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = f.id;
-    cb.checked = state.selectedIds.includes(f.id);
-
-    label.appendChild(cb);
-    label.appendChild(document.createTextNode(" " + f.label));
-    grid.appendChild(label);
+    commonGrid.appendChild(createFactorLabel(f, state.selectedIds.includes(f.id)));
   });
+  section.appendChild(commonGrid);
 
-  section.appendChild(grid);
   dynamicArea.insertBefore(section, dynamicArea.firstChild);
+}
+
+function createFactorLabel(f, isChecked) {
+  const label = document.createElement("label");
+  label.className = `factor-item ${f.category}`;
+  label.style.width = "calc(50% - 4px)";
+  label.style.boxSizing = "border-box";
+
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.value = f.id;
+  cb.checked = isChecked;
+
+  label.appendChild(cb);
+  label.appendChild(document.createTextNode(" " + f.label));
+  return label;
 }
 
 function renderMealSelector(dynamicArea) {

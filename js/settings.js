@@ -34,18 +34,24 @@ function displayCity( ) {
 /**
  * Goodサインを追加
  */
-function addGood() {
-  const text = document.getElementById("goodInput").value;
-  
-  if (!text) return;
+// LOGIC: stateだけ変更
+function addGoodSign(text) {
+  if (!text) return false;
   if (goodSigns.length >= 10) {
     alert("Goodサインは10個までしか登録できません");
-    return;
+    return false;
   }
-  
   goodSigns.push(text);
-  renderGood();
-  document.getElementById("goodInput").value = "";
+  return true;
+}
+
+// UI: イベントハンドラ
+function addGood() {
+  const text = document.getElementById("goodInput").value;
+  if (addGoodSign(text)) {
+    renderGood();
+    document.getElementById("goodInput").value = "";
+  }
 }
 
 /**
@@ -83,18 +89,24 @@ function renderGood() {
 /**
  * Badサインを追加
  */
-function addBad() {
-  const text = document.getElementById("badInput").value;
-  
-  if (!text) return;
+// LOGIC: stateだけ変更
+function addBadSign(text) {
+  if (!text) return false;
   if (badSigns.length >= 10) {
     alert("Badサインは10個までしか登録できません");
-    return;
+    return false;
   }
-  
   badSigns.push(text);
-  renderBad();
-  document.getElementById("badInput").value = "";
+  return true;
+}
+
+// UI: イベントハンドラ
+function addBad() {
+  const text = document.getElementById("badInput").value;
+  if (addBadSign(text)) {
+    renderBad();
+    document.getElementById("badInput").value = "";
+  }
 }
 
 /**

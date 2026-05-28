@@ -701,3 +701,25 @@
   color: #2e7d32;
 }
 
+/* ============================================
+   食事回数ボタン
+   ============================================ */
+.meal-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.meal-btn.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
+  font-weight: bold;
+}

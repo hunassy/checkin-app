@@ -13,19 +13,17 @@ function getTargetDateFromURL() {
   return null;
 }
 
+// --------------------------------------------
+// ① オンロード時の処理（画面の初期化のみ）
+// --------------------------------------------
 window.onload = function() {
-
-  // ① URL優先
   pageTargetDate = getTargetDateFromURL();
 
-  // ② URLがなければ論理日付を使う
   if (!pageTargetDate) {
-    pageTargetDate = getLogicalDate();
+    pageTargetDate = getLogicalDate(); // ※getLogicalDateが他で定義されている前提
   }
 
   window.targetDate = pageTargetDate;
-
-  //console.log("pageTargetDate:", pageTargetDate);
 
   if (!pageTargetDate) {
     alert("日付取得に失敗してます");
@@ -33,7 +31,6 @@ window.onload = function() {
   }
 
   const dateParts = pageTargetDate.split("-");
-
   if (dateParts.length !== 3) {
     console.error("日付形式がおかしい:", pageTargetDate);
     return;
@@ -65,14 +62,17 @@ window.onload = function() {
   }
 
   if (typeof fetchWeather === "function") {
-    //console.log("夜：天気取得開始");
     fetchWeather();
   }
 
-  createScoreButtons();
+  createScoreButtons(); // ※他で定義されている前提
   showMorningCompareBanner();
   renderHierarchicalFactors();
-};
+}; // ← 【重要】window.onload はここで確実に閉じます
+
+// --------------------------------------------
+// ② 各種関数（window.onload の外に出す）
+// --------------------------------------------
 
 // 関数を window.onload の外に出しておくと、コードがスッキリして管理しやすくなります
 function renderHierarchicalFactors() {
@@ -288,43 +288,43 @@ function sendEveningData() {
   if (socialVal) selectedFactors.push(socialVal);
   if (locationVal) selectedFactors.push(locationVal);
 
-  // 2. 自由入力のテキストボックスがあれば、その中身も取得して追加
+  // 2. 自由入力のテキストボックスがあれば取得
   const customTextEl = document.getElementById("custom_out_text");
   if (customTextEl && customTextEl.value.trim() !== "") {
     selectedFactors.push("自由入力:" + customTextEl.value);
   }
 
-  // ★食事回数のラジオボタンの値も取得して追加
+  // 食事回数のラジオボタンの値を取得
   const selectedMeal = document.querySelector('input[name="meal_count"]:checked');
-   if (selectedMeal) {
-    selectedFactors.push(selectedMeal.value); // "meal_3" などが配列に入る
+  if (selectedMeal) {
+    selectedFactors.push(selectedMeal.value);
   }
 
-  // 3. 天気情報の取得（既存のロジック）
-  const wc = getFromStorage("weather_cache_" + pageTargetDate) || {};
+  // 3. 天気情報の取得
+  const wc = getFromStorage("weather_cache_" + pageTargetDate) || {}; // ※getFromStorageが定義されている前提
 
   // 4. 送信データの作成
   const data = {
     recordType: "evening",
-
     date:            pageTargetDate,
     attendance:      document.getElementById("attendance") ? document.getElementById("attendance").value : "",
-    weather:         weatherCache.weather || wc.weather || "",
-    temp:            weatherCache.temp || wc.temp || "",
-    pressure:        weatherCache.pressure || wc.pressure || "",
-    pressureWarning: weatherCache.pressureWarning || wc.pressureWarning || "",
-    condition:       getScore("condition")??"",
-    energy:          getScore("energy")??"",
-    mental:          getScore("mental")??"",
-    factors:         selectedFactors, // ここにまとめたリストを渡す
-    comment:         document.getElementById("comment").value
+    weather:         (typeof weatherCache !== "undefined" ? weatherCache.weather : "") || wc.weather || "",
+    temp:            (typeof weatherCache !== "undefined" ? weatherCache.temp : "") || wc.temp || "",
+    pressure:        (typeof weatherCache !== "undefined" ? weatherCache.pressure : "") || wc.pressure || "",
+    pressureWarning: (typeof weatherCache !== "undefined" ? weatherCache.pressureWarning : "") || wc.pressureWarning || "",
+    condition:       (typeof getScore === "function" ? getScore("condition") : "") ?? "",
+    energy:          (typeof getScore === "function" ? getScore("energy") : "") ?? "",
+    mental:          (typeof getScore === "function" ? getScore("mental") : "") ?? "",
+    factors:         selectedFactors,
+    comment:         document.getElementById("comment") ? document.getElementById("comment").value : ""
   };
 
-  // --- 以下、データの保存と送信処理（既存のまま） ---
+  // データの保存
   localStorage.setItem("evening_" + pageTargetDate, JSON.stringify(data));
   localStorage.setItem("evening_" + pageTargetDate + "_done", "1");
 
-  const SEND_URL = APP_CONFIG.GAS_URL;
+  // GASへの送信処理
+  const SEND_URL = (typeof APP_CONFIG !== "undefined" ? APP_CONFIG.GAS_URL : null);
   if (SEND_URL) {
     const params = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
@@ -344,7 +344,6 @@ function sendEveningData() {
     .catch(e => console.warn("GAS送信エラー:", e));
   }
 
-  alert("夜の記録を保存しました！"); // 成功がわかるように追加
-  // 朝ページへ移動
+  alert("夜の記録を保存しました！");
   window.location.href = "index.html";
 }
